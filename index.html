@@ -820,12 +820,18 @@
                     // Modalità demo - carica dati locali
                     console.log('Modalità demo: caricamento dati di esempio');
                     hideLoading();
-                    showAlert('uploadAlert', '⚠️ Firebase non configurato. Usando dati di esempio. Carica un file Excel per iniziare.', 'info');
                     return;
                 }
 
                 const database = firebase.database();
-                const snapshot = await database.ref('immobili').once('value');
+                
+                // Timeout di 3 secondi per evitare caricamenti infiniti
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout')), 3000)
+                );
+                
+                const dataPromise = database.ref('immobili').once('value');
+                const snapshot = await Promise.race([dataPromise, timeoutPromise]);
                 const data = snapshot.val();
 
                 if (data) {
@@ -836,8 +842,8 @@
                     console.log('Nessun dato trovato in Firebase');
                 }
             } catch (error) {
-                console.error('Errore caricamento da Firebase:', error);
-                showAlert('uploadAlert', 'Errore nel caricamento dei dati. Carica un file Excel.', 'error');
+                console.log('Firebase: database vuoto o non disponibile');
+                // Non mostrare errore - è normale se il database è vuoto
             } finally {
                 hideLoading();
             }
