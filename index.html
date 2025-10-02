@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Dinamica - Universal</title>
+    <title>Dashboard NPL & Aste Italia</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * {
@@ -13,18 +13,18 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 10px;
+            padding: 20px;
         }
 
+        /* LOGIN */
         .login-container {
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
         }
 
         .login-box {
@@ -32,8 +32,8 @@
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            width: 100%;
             max-width: 400px;
+            width: 100%;
         }
 
         .login-box h1 {
@@ -64,9 +64,10 @@
         .input-group input:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .btn {
+        .btn-login {
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -78,16 +79,7 @@
             cursor: pointer;
         }
 
-        .user-info {
-            background: rgba(102, 126, 234, 0.1);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            text-align: center;
-            color: #667eea;
-            font-size: 13px;
-        }
-
+        /* DASHBOARD */
         .dashboard {
             display: none;
             max-width: 1600px;
@@ -98,12 +90,17 @@
             display: block;
         }
 
-        .header {
+        .container {
             background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -112,45 +109,57 @@
         }
 
         .header h1 {
-            color: #667eea;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
 
         .header-right {
             display: flex;
             gap: 15px;
-            flex-wrap: wrap;
+            align-items: center;
         }
 
         .user-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: rgba(255,255,255,0.2);
             padding: 8px 16px;
             border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .btn-logout, .btn-upload, .btn-danger, .btn-info {
-            padding: 10px 20px;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
             font-weight: 600;
         }
 
-        .btn-logout { background: #f44336; }
-        .btn-upload { background: #4CAF50; }
-        .btn-danger { background: #f44336; }
-        .btn-info { background: #2196F3; }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
+        .btn-logout {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-upload {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* ADMIN PANEL */
         .admin-panel {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 25px;
+            background: #f8f9fa;
+            border-bottom: 3px solid #667eea;
         }
 
         .admin-panel h2 {
@@ -167,54 +176,213 @@
 
         .upload-area {
             border: 3px dashed #667eea;
-            border-radius: 10px;
-            padding: 30px;
+            border-radius: 15px;
+            padding: 40px;
             text-align: center;
             cursor: pointer;
+            background: white;
             transition: all 0.3s;
         }
 
         .upload-area:hover {
             background: #f5f5ff;
+            transform: translateY(-2px);
         }
 
         #fileInput {
             display: none;
         }
 
-        .stats-grid {
+        /* STATISTICHE */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* FILTRI AVANZATI */
+        .filters-section {
+            padding: 25px;
+            background: #f8f9fa;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .filters-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .filters-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
 
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        .filter-item {
+            display: flex;
+            flex-direction: column;
         }
 
-        .stat-card h3 {
-            color: #666;
+        .filter-item label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .filter-item select,
+        .filter-item input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
             font-size: 14px;
+        }
+
+        .filter-item select:focus,
+        .filter-item input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* MAPPA E LISTA */
+        .content {
+            display: flex;
+            height: 500px;
+            position: relative;
+        }
+
+        #map {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        /* LEGENDA MAPPA */
+        .map-legend {
+            position: absolute;
+            top: 20px;
+            right: 420px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .map-legend h4 {
             margin-bottom: 10px;
-            text-transform: uppercase;
+            color: #333;
         }
 
-        .stat-card .value {
-            color: #667eea;
-            font-size: 28px;
-            font-weight: bold;
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
         }
 
-        .table-container {
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+        }
+
+        .sidebar {
+            width: 400px;
+            overflow-y: auto;
+            border-left: 1px solid #ddd;
+            background: #fafafa;
+        }
+
+        .property-card {
             background: white;
             padding: 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .property-card:hover {
+            background: #f0f4ff;
+            transform: translateX(-5px);
+        }
+
+        .property-card.selected {
+            background: #e6ecff;
+            border-left: 4px solid #667eea;
+        }
+
+        .property-type {
+            display: inline-block;
+            padding: 5px 12px;
             border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            overflow-x: auto;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .type-asta {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .type-npl {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .property-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .property-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .property-details {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* TABLE */
+        .table-container {
+            padding: 25px;
         }
 
         .table-header {
@@ -222,17 +390,13 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
         }
 
-        .search-box {
+        .table-search {
             padding: 10px 15px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 14px;
-            width: 100%;
-            max-width: 300px;
+            width: 300px;
         }
 
         table {
@@ -243,21 +407,17 @@
 
         thead {
             background: #f5f5f5;
-            position: sticky;
-            top: 0;
         }
 
         th {
-            padding: 12px 8px;
+            padding: 12px;
             text-align: left;
-            color: #333;
             font-weight: 600;
             border-bottom: 2px solid #667eea;
-            white-space: nowrap;
         }
 
         td {
-            padding: 10px 8px;
+            padding: 10px 12px;
             border-bottom: 1px solid #e0e0e0;
         }
 
@@ -265,6 +425,7 @@
             background: #f9f9f9;
         }
 
+        /* MODAL */
         .modal {
             display: none;
             position: fixed;
@@ -272,7 +433,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             z-index: 1000;
             padding: 20px;
             overflow-y: auto;
@@ -338,9 +499,9 @@
             font-size: 14px;
             color: #333;
             font-weight: 500;
-            word-break: break-word;
         }
 
+        /* LOADING */
         .loading-overlay {
             display: none;
             position: fixed;
@@ -348,7 +509,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -397,29 +558,30 @@
             color: #721c24;
         }
 
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
         .hidden {
-            display: none;
+            display: none !important;
         }
 
-        .columns-info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 13px;
-        }
-
-        .columns-info strong {
-            color: #1976d2;
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+                height: auto;
+            }
+            .sidebar {
+                width: 100%;
+                max-height: 400px;
+            }
+            #map {
+                height: 400px;
+            }
+            .map-legend {
+                right: 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- LOADING -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-content">
             <div class="spinner"></div>
@@ -427,9 +589,10 @@
         </div>
     </div>
 
+    <!-- LOGIN -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
-            <h1>Dashboard Dinamica</h1>
+            <h1>Dashboard NPL & Aste</h1>
             <div id="loginAlert"></div>
             <div class="input-group">
                 <label>Username</label>
@@ -439,97 +602,138 @@
                 <label>Password</label>
                 <input type="password" id="password" placeholder="Inserisci password">
             </div>
-            <button class="btn" onclick="login()">Accedi</button>
+            <button class="btn-login" onclick="login()">Accedi</button>
+            <div style="margin-top:20px; text-align:center; font-size:12px; color:#999;">
+                <p>Admin: admin / admin123 | Viewer: viewer / view2025</p>
+            </div>
         </div>
     </div>
 
+    <!-- DASHBOARD -->
     <div id="dashboard" class="dashboard">
-        <div class="header">
-            <h1>Dashboard Dinamica</h1>
-            <div class="header-right">
-                <span class="user-badge" id="userBadge"></span>
-                <button class="btn-upload hidden" id="uploadBtn" onclick="showUploadPanel()">Carica Excel</button>
-                <button class="btn-logout" onclick="logout()">Esci</button>
+        <div class="container">
+            <!-- HEADER -->
+            <div class="header">
+                <h1>Dashboard Immobili</h1>
+                <div class="header-right">
+                    <span class="user-badge" id="userBadge"></span>
+                    <button class="btn btn-danger hidden" id="deleteBtn" onclick="resetDatabase()">🗑️ Svuota Dati</button>
+                    <button class="btn btn-upload hidden" id="uploadBtn" onclick="showUploadPanel()">Carica Excel</button>
+                    <button class="btn btn-logout" onclick="logout()">Esci</button>
+                </div>
             </div>
-        </div>
 
-        <div id="adminPanel" class="admin-panel hidden">
-            <h2>Pannello Admin</h2>
-            <div id="uploadAlert"></div>
-            <div class="admin-buttons">
-                <button class="btn-danger" onclick="resetDatabase()">Cancella Database</button>
-                <button class="btn-info" onclick="showColumnsInfo()">Mostra Colonne</button>
+            <!-- ADMIN PANEL -->
+            <div id="adminPanel" class="admin-panel hidden">
+                <h2>Pannello Admin</h2>
+                <div id="uploadAlert"></div>
+                <div class="admin-buttons">
+                    <button class="btn btn-danger" onclick="resetDatabase()" style="font-size: 16px;">🗑️ CANCELLA TUTTI I DATI</button>
+                </div>
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 48px; margin-bottom: 10px;">📊</div>
+                    <h3>Carica file Excel</h3>
+                    <p>Formati supportati: .xlsx, .xls</p>
+                </div>
+                <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
             </div>
-            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                <div style="font-size: 48px; margin-bottom: 10px;">📁</div>
-                <h3>Carica file Excel</h3>
-                <p>La dashboard si adatterà automaticamente alle colonne del file</p>
-            </div>
-            <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
-        </div>
 
-        <div class="stats-grid">
-            <div class="stat-card" style="border-left: 4px solid #667eea;">
-                <h3>Totale Progetti</h3>
-                <div class="value" id="statTotal">0</div>
+            <!-- STATISTICHE -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="statTotal">0</div>
+                    <div class="stat-label">Immobili Totali</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="statAste">0</div>
+                    <div class="stat-label">Aste</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="statNpl">0</div>
+                    <div class="stat-label">NPL</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="statValutazione">€0</div>
+                    <div class="stat-label">Valutazione Totale</div>
+                </div>
             </div>
-            <div class="stat-card" style="border-left: 4px solid #f44336;">
-                <h3>Debitoria Totale</h3>
-                <div class="value" id="statDebitoria">€0</div>
-                <div style="font-size: 12px; color: #999; margin-top: 5px;">Media: <span id="statDebitMedia">€0</span></div>
-            </div>
-            <div class="stat-card" style="border-left: 4px solid #4CAF50;">
-                <h3>Valutazione Totale</h3>
-                <div class="value" id="statValutazione">€0</div>
-            </div>
-            <div class="stat-card" style="border-left: 4px solid #9c27b0;">
-                <h3>Area Totale</h3>
-                <div class="value" id="statArea">0</div>
-                <div style="font-size: 12px; color: #999; margin-top: 5px;">mq</div>
-            </div>
-        </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 20px;">
-            <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-                <h3 style="color: #333; margin-bottom: 15px;">Distribuzione per Fascia di Debito</h3>
-                <canvas id="chartDebito"></canvas>
+            <!-- FILTRI AVANZATI -->
+            <div class="filters-section">
+                <h3>Filtri di Ricerca</h3>
+                <div class="filters-grid">
+                    <div class="filter-item">
+                        <label>Tipo</label>
+                        <select id="filterTipo">
+                            <option value="">Tutti</option>
+                            <option value="asta">Aste</option>
+                            <option value="npl">NPL</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>Regione</label>
+                        <select id="filterRegione">
+                            <option value="">Tutte le regioni</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>Città</label>
+                        <select id="filterCitta">
+                            <option value="">Tutte le città</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>Ricerca libera</label>
+                        <input type="text" id="filterSearch" placeholder="Cerca...">
+                    </div>
+                </div>
+                <div class="filter-buttons">
+                    <button class="btn btn-upload" onclick="applyFilters()">Applica Filtri</button>
+                    <button class="btn btn-danger" onclick="clearFilters()">Azzera Filtri</button>
+                </div>
             </div>
-            <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-                <h3 style="color: #333; margin-bottom: 15px;">Mappa Immobili per CAP</h3>
-                <div id="map" style="height: 400px; border-radius: 8px;"></div>
-            </div>
-        </div>
 
-        <div id="filtersContainer" class="hidden" style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-            <h3 style="color: #667eea; margin-bottom: 15px;">Filtri</h3>
-            <div id="dynamicFilters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;"></div>
-            <button class="btn-info" onclick="applyFilters()">Applica Filtri</button>
-            <button class="btn-danger" style="margin-left: 10px;" onclick="clearFilters()">Azzera Filtri</button>
-        </div>
-
-        <div class="table-container">
-            <div class="table-header">
-                <h2>Elenco Dati (<span id="recordCount">0</span>)</h2>
-                <input type="text" id="searchBox" class="search-box" placeholder="Cerca..." onkeyup="searchTable()">
+            <!-- MAPPA E LISTA -->
+            <div class="content">
+                <div id="map"></div>
+                
+                <!-- LEGENDA MAPPA -->
+                <div class="map-legend">
+                    <h4>Legenda</h4>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffc107;"></div>
+                        <span>Aste</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e74c3c;"></div>
+                        <span>NPL</span>
+                    </div>
+                </div>
+                
+                <div class="sidebar" id="propertyList"></div>
             </div>
-            <div id="columnsInfo" class="columns-info hidden"></div>
-            <div style="overflow-x: auto;">
-                <table id="dataTable">
-                    <thead id="tableHead">
-                        <tr><th>Nessuna colonna</th></tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td style="text-align: center; padding: 40px; color: #999;">
-                                Nessun dato. Carica un file Excel.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <!-- TABELLA DATI -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>Elenco Dati (<span id="recordCount">0</span>)</h2>
+                    <input type="text" id="tableSearch" class="table-search" placeholder="Cerca..." onkeyup="searchTable()">
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="dataTable">
+                        <thead id="tableHead">
+                            <tr><th>Nessun dato</th></tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td style="text-align: center; padding: 40px;">Carica un file Excel</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- MODAL DETTAGLI -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -540,16 +744,14 @@
         </div>
     </div>
 
+    <!-- SCRIPTS -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
     <script>
+        // FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",
             authDomain: "app-npl-italia.firebaseapp.com",
@@ -564,18 +766,26 @@
         const db = firebase.database();
 
         let allData = [];
-        let filteredData = [];
-        let allColumns = new Set();
         let currentUser = null;
-        let activeFilters = {};
-        let chartDebito = null;
-        let chartRegioni = null;
         let map = null;
-        let markersLayer = null;
+        let markers = [];
 
         const users = {
             'admin': { password: 'admin123', role: 'Admin', level: 3 },
             'viewer': { password: 'view2025', role: 'Viewer', level: 2 }
+        };
+
+        const regioniCoords = {
+            'Abruzzo': [42.3511, 13.3995], 'Basilicata': [40.6389, 15.8056],
+            'Calabria': [38.9100, 16.5987], 'Campania': [40.8333, 14.2500],
+            'Emilia-Romagna': [44.4949, 11.3426], 'Friuli-Venezia Giulia': [45.6361, 13.8042],
+            'Lazio': [41.9028, 12.4964], 'Liguria': [44.4056, 8.9463],
+            'Lombardia': [45.4642, 9.1900], 'Marche': [43.6167, 13.5167],
+            'Molise': [41.5611, 14.6681], 'Piemonte': [45.0703, 7.6869],
+            'Puglia': [41.1171, 16.8719], 'Sardegna': [40.1209, 9.0129],
+            'Sicilia': [38.1157, 13.3615], 'Toscana': [43.7711, 11.2486],
+            'Trentino-Alto Adige': [46.0664, 11.1257], 'Umbria': [42.9388, 12.6137],
+            'Valle d\'Aosta': [45.7372, 7.3206], 'Veneto': [45.4408, 12.3155]
         };
 
         function showLoading(text = 'Caricamento...') {
@@ -608,9 +818,9 @@
                 document.getElementById('dashboard').classList.add('active');
                 document.getElementById('userBadge').textContent = `${currentUser.role}: ${username}`;
                 
-                // Mostra pulsante upload solo se admin (level 3)
                 if (currentUser.level === 3) {
                     document.getElementById('uploadBtn').classList.remove('hidden');
+                    document.getElementById('deleteBtn').classList.remove('hidden');
                 }
                 
                 loadData();
@@ -622,7 +832,6 @@
         function logout() {
             currentUser = null;
             allData = [];
-            allColumns.clear();
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('dashboard').classList.remove('active');
             document.getElementById('username').value = '';
@@ -637,11 +846,29 @@
 
                 if (data) {
                     allData = Array.isArray(data) ? data : Object.values(data);
-                    extractAllColumns();
-                    renderTable();
-                    updateStats();
-                } else {
-                    console.log('Database vuoto');
+                    
+                    // Determina tipo dalla colonna "Tipo" se esiste, altrimenti da "Destinazione d'uso"
+                    allData = allData.map(item => {
+                        // Prima cerca la colonna "Tipo"
+                        const tipoCol = Object.keys(item).find(k => /^tipo$/i.test(k));
+                        if (tipoCol && item[tipoCol]) {
+                            const tipoValue = String(item[tipoCol]).toLowerCase();
+                            item.tipo = tipoValue.includes('asta') ? 'asta' : 'npl';
+                        } else {
+                            // Se non c'è "Tipo", cerca in "Destinazione d'uso"
+                            const destCol = Object.keys(item).find(k => /destinazione.*uso|tipologia/i.test(k));
+                            if (destCol) {
+                                const dest = String(item[destCol]).toLowerCase();
+                                item.tipo = (dest.includes('asta') || dest.includes('aste')) ? 'asta' : 'npl';
+                            } else {
+                                item.tipo = 'npl';
+                            }
+                        }
+                        return item;
+                    });
+                    
+                    populateFilters();
+                    renderAll();
                 }
             } catch (error) {
                 console.error('Errore:', error);
@@ -650,129 +877,327 @@
             }
         }
 
-        function extractAllColumns() {
-            allColumns.clear();
-            allData.forEach(record => {
-                Object.keys(record).forEach(key => allColumns.add(key));
-            });
+        function populateFilters() {
+            // Regioni
+            const regioneCol = Object.keys(allData[0] || {}).find(k => /regione/i.test(k));
+            if (regioneCol) {
+                const regioni = [...new Set(allData.map(d => d[regioneCol]).filter(Boolean))].sort();
+                const select = document.getElementById('filterRegione');
+                select.innerHTML = '<option value="">Tutte le regioni</option>' +
+                    regioni.map(r => `<option value="${r}">${r}</option>`).join('');
+            }
             
-            // Genera filtri dinamici dopo aver estratto le colonne
-            generateDynamicFilters();
+            // Città (estratte dall'indirizzo)
+            const indirizzoCol = Object.keys(allData[0] || {}).find(k => /indirizzo/i.test(k));
+            if (indirizzoCol) {
+                const citta = new Set();
+                allData.forEach(d => {
+                    const comune = extractComuneFromAddress(d[indirizzoCol]);
+                    if (comune) citta.add(comune);
+                });
+                const cittaArr = [...citta].sort();
+                const select = document.getElementById('filterCitta');
+                select.innerHTML = '<option value="">Tutte le città</option>' +
+                    cittaArr.map(c => `<option value="${c}">${c}</option>`).join('');
+            }
         }
 
-        function generateDynamicFilters() {
-            const filterContainer = document.getElementById('dynamicFilters');
-            const filtersSection = document.getElementById('filtersContainer');
+        function extractComuneFromAddress(address) {
+            if (!address) return null;
             
-            filterContainer.innerHTML = '';
-            filtersSection.classList.remove('hidden');
+            let match = address.match(/\d{5}\s+([A-Za-z\s]+)\s*\(/);
+            if (match) return match[1].trim();
             
-            // FILTRO REGIONE
-            const regioneColumn = Array.from(allColumns).find(c => /regione/i.test(c));
-            if (regioneColumn) {
-                const uniqueRegioni = [...new Set(
-                    allData.map(record => record[regioneColumn]).filter(Boolean)
-                )].sort();
-                
-                const regioneDiv = document.createElement('div');
-                regioneDiv.innerHTML = `
-                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #666;">Regione</label>
-                    <select id="filter_regione" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
-                        <option value="">Tutte le regioni</option>
-                        ${uniqueRegioni.map(val => `<option value="${val}">${val}</option>`).join('')}
-                    </select>
-                `;
-                filterContainer.appendChild(regioneDiv);
+            match = address.match(/([A-Za-z\s]+)\s*\([A-Z]{2}\)/);
+            if (match) return match[1].trim();
+            
+            const words = address.split(/[,\s]+/);
+            for (let i = words.length - 1; i >= 0; i--) {
+                if (words[i].match(/^[A-Z][a-z]+$/)) {
+                    return words[i];
+                }
             }
             
-            // FILTRO COMUNE (estratto dall'indirizzo)
-            const indirizzoColumn = Array.from(allColumns).find(c => /indirizzo/i.test(c));
-            if (indirizzoColumn) {
-                // Estrai tutti i comuni dagli indirizzi
-                const comuni = new Set();
-                allData.forEach(record => {
-                    const comune = extractComuneFromAddress(record[indirizzoColumn]);
-                    if (comune) comuni.add(comune);
-                });
-                
-                const comuniArray = Array.from(comuni).sort();
-                
-                const comuneDiv = document.createElement('div');
-                comuneDiv.innerHTML = `
-                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #666;">Indirizzo, Comune</label>
-                    <select id="filter_comune" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
-                        <option value="">Tutti i comuni</option>
-                        ${comuniArray.map(val => `<option value="${val}">${val}</option>`).join('')}
-                    </select>
-                `;
-                filterContainer.appendChild(comuneDiv);
-            }
-            
-            // RICERCA LIBERA
-            const searchDiv = document.createElement('div');
-            searchDiv.innerHTML = `
-                <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #666;">Ricerca libera</label>
-                <input type="text" id="freeSearchFilter" placeholder="Cerca in tutti i campi..." style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
-            `;
-            filterContainer.appendChild(searchDiv);
+            return null;
         }
 
         function applyFilters() {
-            filteredData = [...allData];
-            
-            // FILTRO REGIONE
-            const regioneSelect = document.getElementById('filter_regione');
-            if (regioneSelect && regioneSelect.value) {
-                const regioneColumn = Array.from(allColumns).find(c => /regione/i.test(c));
-                if (regioneColumn) {
-                    filteredData = filteredData.filter(record => 
-                        record[regioneColumn] === regioneSelect.value
-                    );
-                }
-            }
-            
-            // FILTRO COMUNE (dall'indirizzo)
-            const comuneSelect = document.getElementById('filter_comune');
-            if (comuneSelect && comuneSelect.value) {
-                const indirizzoColumn = Array.from(allColumns).find(c => /indirizzo/i.test(c));
-                if (indirizzoColumn) {
-                    filteredData = filteredData.filter(record => {
-                        const comune = extractComuneFromAddress(record[indirizzoColumn]);
-                        return comune === comuneSelect.value;
-                    });
-                }
-            }
-            
-            // RICERCA LIBERA
-            const freeSearch = document.getElementById('freeSearchFilter');
-            if (freeSearch && freeSearch.value) {
-                const searchTerm = freeSearch.value.toLowerCase();
-                filteredData = filteredData.filter(record =>
-                    Object.values(record).some(val => 
-                        String(val).toLowerCase().includes(searchTerm)
-                    )
-                );
-            }
-            
-            renderTable();
+            renderAll();
         }
 
         function clearFilters() {
-            // Reset regione
-            const regioneSelect = document.getElementById('filter_regione');
-            if (regioneSelect) regioneSelect.value = '';
+            document.getElementById('filterTipo').value = '';
+            document.getElementById('filterRegione').value = '';
+            document.getElementById('filterCitta').value = '';
+            document.getElementById('filterSearch').value = '';
+            renderAll();
+        }
+
+        function getFilteredData() {
+            let filtered = [...allData];
             
-            // Reset comune
-            const comuneSelect = document.getElementById('filter_comune');
-            if (comuneSelect) comuneSelect.value = '';
+            const tipo = document.getElementById('filterTipo').value;
+            if (tipo) {
+                filtered = filtered.filter(d => d.tipo === tipo);
+            }
             
-            // Reset ricerca libera
-            const freeSearch = document.getElementById('freeSearchFilter');
-            if (freeSearch) freeSearch.value = '';
+            const regione = document.getElementById('filterRegione').value;
+            if (regione) {
+                const regioneCol = Object.keys(allData[0] || {}).find(k => /regione/i.test(k));
+                if (regioneCol) {
+                    filtered = filtered.filter(d => d[regioneCol] === regione);
+                }
+            }
             
-            // Reset dati
-            filteredData = [];
-            renderTable();
+            const citta = document.getElementById('filterCitta').value;
+            if (citta) {
+                const indirizzoCol = Object.keys(allData[0] || {}).find(k => /indirizzo/i.test(k));
+                if (indirizzoCol) {
+                    filtered = filtered.filter(d => extractComuneFromAddress(d[indirizzoCol]) === citta);
+                }
+            }
+            
+            const search = document.getElementById('filterSearch').value.toLowerCase();
+            if (search) {
+                filtered = filtered.filter(d =>
+                    Object.values(d).some(v => String(v).toLowerCase().includes(search))
+                );
+            }
+            
+            return filtered;
+        }
+
+        function renderAll() {
+            const filtered = getFilteredData();
+            updateStats();
+            renderMap(filtered);
+            renderList(filtered);
+            renderTable(filtered);
+        }
+
+        function updateStats() {
+            const asteCount = allData.filter(d => d.tipo === 'asta').length;
+            const nplCount = allData.filter(d => d.tipo === 'npl').length;
+            
+            document.getElementById('statTotal').textContent = allData.length;
+            document.getElementById('statAste').textContent = asteCount;
+            document.getElementById('statNpl').textContent = nplCount;
+            
+            const valCol = Object.keys(allData[0] || {}).find(k => /valutazione|debitoria/i.test(k));
+            let valTotal = 0;
+            if (valCol) {
+                valTotal = allData.reduce((sum, item) => sum + (parseFloat(item[valCol]) || 0), 0);
+            }
+            document.getElementById('statValutazione').textContent = '€' + Math.round(valTotal).toLocaleString('it-IT');
+        }
+
+        // Cache coordinate comuni già cercati
+        const comuniCache = {};
+
+        async function geocodeComune(comune) {
+            if (comuniCache[comune]) {
+                return comuniCache[comune];
+            }
+            
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(comune)}&country=Italy&format=json&limit=1`);
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    const coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+                    comuniCache[comune] = coords;
+                    return coords;
+                }
+            } catch (error) {
+                console.error('Errore geocoding per', comune, error);
+            }
+            return null;
+        }
+
+        async function renderMap(data) {
+            if (!map) {
+                map = L.map('map').setView([42.5, 12.5], 6);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+            }
+            
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+            
+            // Raggruppa per comune (estratto dall'indirizzo o da altra colonna)
+            const groups = {};
+            
+            for (let i = 0; i < data.length; i++) {
+                const item = data[i];
+                
+                // Cerca colonna città/comune
+                let comune = null;
+                const cittaCol = Object.keys(item).find(k => /città|comune|city/i.test(k));
+                if (cittaCol && item[cittaCol]) {
+                    comune = String(item[cittaCol]).trim();
+                } else {
+                    // Estrai dall'indirizzo
+                    const indirizzoCol = Object.keys(item).find(k => /indirizzo/i.test(k));
+                    if (indirizzoCol && item[indirizzoCol]) {
+                        comune = extractComuneFromAddress(item[indirizzoCol]);
+                    }
+                }
+                
+                // Se non trova comune, usa la regione
+                if (!comune) {
+                    const regioneCol = Object.keys(item).find(k => /regione/i.test(k));
+                    if (regioneCol && item[regioneCol]) {
+                        comune = item[regioneCol];
+                    } else {
+                        comune = 'Sconosciuto';
+                    }
+                }
+                
+                if (!groups[comune]) groups[comune] = [];
+                groups[comune].push({...item, idx: i});
+            }
+            
+            // Geocodifica ogni comune e crea marker
+            for (const [comune, items] of Object.entries(groups)) {
+                if (comune === 'Sconosciuto') continue;
+                
+                // Ottieni coordinate (con piccolo delay per rispettare rate limit)
+                await new Promise(resolve => setTimeout(resolve, 100));
+                const coords = await geocodeComune(comune);
+                
+                if (!coords) continue;
+                
+                const aste = items.filter(i => i.tipo === 'asta').length;
+                const npl = items.filter(i => i.tipo === 'npl').length;
+                const color = aste > npl ? '#ffc107' : '#e74c3c';
+                
+                const icon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="
+                        background: ${color};
+                        color: white;
+                        border-radius: 50%;
+                        width: ${Math.min(50, 25 + items.length * 3)}px;
+                        height: ${Math.min(50, 25 + items.length * 3)}px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: bold;
+                        border: 3px solid white;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                        font-size: 12px;
+                    ">${items.length}</div>`
+                });
+                
+                const marker = L.marker(coords, {icon}).addTo(map);
+                
+                let popup = `<div style="max-width: 300px; max-height: 400px; overflow-y: auto;">`;
+                popup += `<h3 style="color: #667eea;">${comune}</h3>`;
+                popup += `<p><strong>Aste:</strong> ${aste} | <strong>NPL:</strong> ${npl}</p><hr>`;
+                
+                items.slice(0, 10).forEach(item => {
+                    const idCol = Object.keys(item).find(c => /numero.*pratica|ndg|id/i.test(c));
+                    const indirizzoCol = Object.keys(item).find(c => /indirizzo/i.test(c));
+                    const id = idCol ? item[idCol] : '-';
+                    const indirizzo = indirizzoCol ? String(item[indirizzoCol]).substring(0, 30) : '-';
+                    const icona = item.tipo === 'asta' ? '🔨' : '📋';
+                    popup += `<div style="cursor:pointer; padding:8px; background:#f5f5f5; margin:5px 0; border-radius:5px; border-left: 3px solid ${item.tipo === 'asta' ? '#ffc107' : '#e74c3c'};" onclick="showDetail(${item.idx})">${icona} ${id}<br><small>${indirizzo}...</small></div>`;
+                });
+                
+                if (items.length > 10) {
+                    popup += `<div style="text-align:center; color:#999; margin-top:10px;">...e altri ${items.length - 10} immobili</div>`;
+                }
+                
+                popup += `</div>`;
+                marker.bindPopup(popup);
+                markers.push(marker);
+            }
+            
+            // Auto-zoom sui marker
+            if (markers.length > 0) {
+                const group = L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        function renderList(data) {
+            const list = document.getElementById('propertyList');
+            if (data.length === 0) {
+                list.innerHTML = '<div style="padding:20px; text-align:center; color:#999;">Nessun risultato</div>';
+                return;
+            }
+            
+            list.innerHTML = data.map((item, idx) => {
+                const idCol = Object.keys(item).find(c => /project.*id|id/i.test(c));
+                const indirizzoCol = Object.keys(item).find(c => /indirizzo/i.test(c));
+                const valCol = Object.keys(item).find(c => /valutazione|debitoria/i.test(c));
+                
+                const id = idCol ? item[idCol] : '-';
+                const indirizzo = indirizzoCol ? item[indirizzoCol] : '-';
+                const val = valCol ? item[valCol] : 0;
+                const icona = item.tipo === 'asta' ? '🔨' : '📋';
+                
+                return `
+                    <div class="property-card" onclick="showDetail(${idx})">
+                        <div class="property-type type-${item.tipo}">
+                            ${icona} ${item.tipo === 'asta' ? 'ASTA' : 'NPL'}
+                        </div>
+                        <div class="property-title">ID: ${id}</div>
+                        <div class="property-price">€${parseFloat(val).toLocaleString('it-IT')}</div>
+                        <div class="property-details">${indirizzo}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTable(data) {
+            const thead = document.getElementById('tableHead');
+            const tbody = document.getElementById('tableBody');
+            
+            if (data.length === 0) {
+                thead.innerHTML = '<tr><th>Nessun dato</th></tr>';
+                tbody.innerHTML = '<tr><td style="text-align:center; padding:40px;">Nessun risultato</td></tr>';
+                document.getElementById('recordCount').textContent = '0';
+                return;
+            }
+            
+            const cols = Object.keys(data[0]).filter(k => k !== 'idx').slice(0, 8);
+            thead.innerHTML = '<tr><th>Tipo</th>' + cols.map(c => `<th>${c}</th>`).join('') + '<th>Azioni</th></tr>';
+            
+            tbody.innerHTML = data.map((item, idx) => {
+                const icona = item.tipo === 'asta' ? '🔨' : '📋';
+                const row = cols.map(col => `<td>${item[col] || '-'}</td>`).join('');
+                return `<tr><td><span class="property-type type-${item.tipo}">${icona} ${item.tipo.toUpperCase()}</span></td>${row}<td><button class="btn btn-upload" style="padding:6px 12px; font-size:12px;" onclick="showDetail(${idx})">Dettagli</button></td></tr>`;
+            }).join('');
+            
+            document.getElementById('recordCount').textContent = data.length;
+        }
+
+        function searchTable() {
+            const term = document.getElementById('tableSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+            });
+        }
+
+        function showDetail(idx) {
+            const filtered = getFilteredData();
+            const item = filtered[idx];
+            const content = document.getElementById('detailContent');
+            
+            content.innerHTML = Object.keys(item).filter(k => k !== 'idx').map(key => `
+                <div class="detail-item">
+                    <label>${key}</label>
+                    <div class="value">${item[key] || '-'}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('active');
         }
 
         function showUploadPanel() {
@@ -783,30 +1208,13 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            showLoading('Lettura file Excel...');
-
+            showLoading('Lettura Excel...');
             try {
                 const data = await readExcel(file);
-                
                 if (data && data.length > 0) {
                     showLoading('Salvataggio...');
-                    
-                    const initialCount = allData.length;
                     await saveToFirebase(data);
-                    const finalCount = allData.length;
-                    const added = finalCount - initialCount;
-                    const duplicates = data.length - added;
-                    
-                    let message = `File caricato: ${data.length} record nel file<br>`;
-                    message += `✅ Nuovi aggiunti: ${added}<br>`;
-                    if (duplicates > 0) {
-                        message += `⚠️ Duplicati ignorati: ${duplicates}<br>`;
-                    }
-                    message += `📊 Totale nel database: ${finalCount}`;
-                    
-                    showAlert('uploadAlert', message, 'success');
-                } else {
-                    showAlert('uploadAlert', 'File vuoto', 'error');
+                    showAlert('uploadAlert', `Caricati ${data.length} record`, 'success');
                 }
             } catch (error) {
                 showAlert('uploadAlert', 'Errore: ' + error.message, 'error');
@@ -826,15 +1234,29 @@
                         const sheet = workbook.Sheets[workbook.SheetNames[0]];
                         const jsonData = XLSX.utils.sheet_to_json(sheet);
                         
-                        // Pulisci caratteri non validi per Firebase
                         const cleaned = jsonData.map(row => {
                             const newRow = {};
                             for (let key in row) {
                                 const cleanKey = String(key).replace(/[.#$\/\[\]]/g, '_');
-                                newRow[cleanKey] = row[key] instanceof Date 
-                                    ? row[key].toISOString().split('T')[0] 
-                                    : row[key];
+                                newRow[cleanKey] = row[key];
                             }
+                            
+                            // Determina tipo dalla colonna "Tipo" se esiste
+                            const tipoCol = Object.keys(newRow).find(k => /^tipo$/i.test(k));
+                            if (tipoCol && newRow[tipoCol]) {
+                                const tipoValue = String(newRow[tipoCol]).toLowerCase();
+                                newRow.tipo = tipoValue.includes('asta') ? 'asta' : 'npl';
+                            } else {
+                                // Fallback su Destinazione d'uso
+                                const destCol = Object.keys(newRow).find(k => /destinazione.*uso|tipologia/i.test(k));
+                                if (destCol) {
+                                    const dest = String(newRow[destCol]).toLowerCase();
+                                    newRow.tipo = (dest.includes('asta') || dest.includes('aste')) ? 'asta' : 'npl';
+                                } else {
+                                    newRow.tipo = 'npl';
+                                }
+                            }
+                            
                             return newRow;
                         });
                         
@@ -849,499 +1271,23 @@
         }
 
         async function saveToFirebase(newData) {
-            try {
-                const snapshot = await db.ref('data').once('value');
-                const existing = snapshot.val();
-                
-                let merged = [];
-                
-                if (existing) {
-                    const existingArray = Array.isArray(existing) ? existing : Object.values(existing);
-                    
-                    // Trova le colonne ID nel database
-                    const projectIdCol = Array.from(allColumns).find(c => /project.*id/i.test(c));
-                    const praticaCol = Array.from(allColumns).find(c => /(pratica|ndg)/i.test(c));
-                    
-                    // Crea un Set di chiavi uniche esistenti
-                    const existingKeys = new Set();
-                    existingArray.forEach(record => {
-                        const projectId = projectIdCol ? record[projectIdCol] : null;
-                        const praticaId = praticaCol ? record[praticaCol] : null;
-                        if (projectId || praticaId) {
-                            existingKeys.add(`${projectId}|${praticaId}`);
-                        }
-                    });
-                    
-                    // Filtra i nuovi dati per rimuovere duplicati
-                    const newUniqueData = newData.filter(record => {
-                        const projectId = projectIdCol ? record[projectIdCol] : null;
-                        const praticaId = praticaCol ? record[praticaCol] : null;
-                        const key = `${projectId}|${praticaId}`;
-                        return !existingKeys.has(key);
-                    });
-                    
-                    // Geocodifica solo i nuovi record senza coordinate
-                    await geocodeRecords(newUniqueData);
-                    
-                    merged = [...existingArray, ...newUniqueData];
-                    
-                    console.log(`Dati esistenti: ${existingArray.length}`);
-                    console.log(`Nuovi dati caricati: ${newData.length}`);
-                    console.log(`Duplicati trovati: ${newData.length - newUniqueData.length}`);
-                    console.log(`Nuovi dati aggiunti: ${newUniqueData.length}`);
-                    console.log(`Totale finale: ${merged.length}`);
-                } else {
-                    // Primo caricamento - geocodifica tutto
-                    await geocodeRecords(newData);
-                    merged = newData;
-                    console.log(`Primo caricamento: ${newData.length} record`);
-                }
-                
-                await db.ref('data').set(merged);
-                allData = merged;
-                extractAllColumns();
-                renderTable();
-                updateStats();
-            } catch (error) {
-                throw new Error('Errore salvataggio: ' + error.message);
-            }
-        }
-
-        async function geocodeRecords(records) {
-            const capCol = Array.from(allColumns).find(c => /cap/i.test(c));
-            if (!capCol) return;
-            
-            // Raccogli tutti i CAP unici che non hanno già coordinate
-            const capsToGeocode = new Set();
-            records.forEach(record => {
-                const cap = record[capCol];
-                if (cap && !record._lat && !record._lng) {
-                    capsToGeocode.add(cap);
-                }
-            });
-            
-            if (capsToGeocode.size === 0) return;
-            
-            console.log(`Geocoding di ${capsToGeocode.size} CAP...`);
-            showLoading(`Geocoding ${capsToGeocode.size} CAP... può richiedere 1-2 minuti`);
-            
-            // Crea una mappa CAP -> coordinate
-            const capCoordinates = {};
-            
-            let count = 0;
-            for (const cap of capsToGeocode) {
-                count++;
-                if (count % 10 === 0) {
-                    showLoading(`Geocoding CAP: ${count}/${capsToGeocode.size}`);
-                }
-                
-                const coords = await getCoordinatesFromCAP(cap);
-                if (coords) {
-                    capCoordinates[cap] = coords;
-                }
-                
-                // Pausa per rispettare il limite di Nominatim (1 req/sec)
-                await new Promise(resolve => setTimeout(resolve, 1100));
-            }
-            
-            // Applica le coordinate ai record
-            records.forEach(record => {
-                const cap = record[capCol];
-                if (cap && capCoordinates[cap]) {
-                    record._lat = capCoordinates[cap][0];
-                    record._lng = capCoordinates[cap][1];
-                }
-            });
-            
-            console.log(`Geocoding completato: ${Object.keys(capCoordinates).length} CAP geocodificati`);
+            const snapshot = await db.ref('data').once('value');
+            const existing = snapshot.val();
+            const merged = existing ? [...Object.values(existing), ...newData] : newData;
+            await db.ref('data').set(merged);
+            allData = merged;
+            populateFilters();
+            renderAll();
         }
 
         async function resetDatabase() {
-            if (currentUser.level !== 3) {
-                alert('Solo gli amministratori possono cancellare il database');
-                return;
-            }
-            
-            if (!confirm('Cancellare TUTTI i dati?')) return;
-
+            if (currentUser.level !== 3 || !confirm('Sei sicuro di voler cancellare TUTTI i dati?')) return;
             showLoading('Cancellazione...');
-            try {
-                await db.ref('data').remove();
-                allData = [];
-                allColumns.clear();
-                renderTable();
-                updateStats();
-                showAlert('uploadAlert', 'Database cancellato', 'success');
-            } catch (error) {
-                showAlert('uploadAlert', 'Errore: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function showColumnsInfo() {
-            const info = document.getElementById('columnsInfo');
-            if (allColumns.size === 0) {
-                alert('Nessuna colonna presente. Carica un file Excel.');
-                return;
-            }
-            
-            const columnsList = Array.from(allColumns).sort().join(', ');
-            info.innerHTML = `<strong>Colonne presenti (${allColumns.size}):</strong> ${columnsList}`;
-            info.classList.toggle('hidden');
-        }
-
-        function renderTable() {
-            const thead = document.getElementById('tableHead');
-            const tbody = document.getElementById('tableBody');
-            
-            if (allColumns.size === 0 || allData.length === 0) {
-                thead.innerHTML = '<tr><th>Nessuna colonna</th></tr>';
-                tbody.innerHTML = '<tr><td style="text-align: center; padding: 40px;">Nessun dato</td></tr>';
-                document.getElementById('recordCount').textContent = '0';
-                return;
-            }
-
-            // Identifica le colonne prioritarie da mostrare
-            const priorityColumns = identifyPriorityColumns();
-            
-            // Trova la colonna indirizzo
-            const indirizzoColumn = Array.from(allColumns).find(c => /indirizzo/i.test(c));
-            
-            // Crea header con colonne prioritarie + Azioni
-            thead.innerHTML = '<tr>' + 
-                priorityColumns.map(col => `<th>${col}</th>`).join('') + 
-                '<th>Azioni</th></tr>';
-
-            // Filtra i dati se ci sono filtri attivi
-            const dataToShow = filteredData.length > 0 ? filteredData : allData;
-
-            // Crea righe
-            tbody.innerHTML = '';
-            dataToShow.forEach((record, index) => {
-                const row = tbody.insertRow();
-                
-                // Mostra solo le colonne prioritarie
-                priorityColumns.forEach(col => {
-                    const cell = row.insertCell();
-                    let value = record[col];
-                    
-                    // Se è la colonna indirizzo, aggiungi anche il comune estratto
-                    if (col === indirizzoColumn) {
-                        const comune = extractComuneFromAddress(value);
-                        if (comune) {
-                            value = `${value || '-'} [${comune}]`;
-                        }
-                    }
-                    
-                    cell.textContent = value !== undefined && value !== null && value !== '' ? value : '-';
-                });
-                
-                const actionsCell = row.insertCell();
-                actionsCell.innerHTML = `<button class="btn-info" style="padding: 6px 12px; font-size: 12px;" onclick="showDetail(${index})">Dettagli</button>`;
-            });
-
-            document.getElementById('recordCount').textContent = dataToShow.length;
-        }
-
-        // Identifica le colonne più importanti da mostrare
-        function identifyPriorityColumns() {
-            const columnsArray = Array.from(allColumns);
-            const priority = [];
-            
-            // Cerca le colonne esatte richieste (in ordine)
-            const requiredPatterns = [
-                { pattern: /^id$/i, name: 'ID' },
-                { pattern: /(numero.*pratica|ndg|project.*id)/i, name: 'Numero Pratica / NDG' },
-                { pattern: /(tipologia|destinazione)/i, name: 'Tipologia' },
-                { pattern: /(indirizzo)/i, name: 'Indirizzo,Comune' },
-                { pattern: /regione/i, name: 'Regione' }
-            ];
-            
-            requiredPatterns.forEach(req => {
-                const match = columnsArray.find(col => req.pattern.test(col));
-                if (match) {
-                    priority.push(match);
-                }
-            });
-            
-            // Se non troviamo tutte le colonne richieste, aggiungi le prime disponibili
-            if (priority.length < 5) {
-                columnsArray.forEach(col => {
-                    if (priority.length < 8 && !priority.includes(col)) {
-                        priority.push(col);
-                    }
-                });
-            }
-            
-            return priority;
-        }
-
-        // Estrae il nome del comune dall'indirizzo
-        function extractComuneFromAddress(address) {
-            if (!address) return null;
-            
-            // Pattern per estrarre il comune: cerca "CAP Comune (PR)" o "Comune"
-            // Esempi: "48018 Faenza (RA)", "Canaro (RO)", "Via X, Comune"
-            
-            // Pattern 1: CAP + Comune (PR)
-            let match = address.match(/\d{5}\s+([A-Z][a-zA-Z\s]+)\s*\(/);
-            if (match) return match[1].trim();
-            
-            // Pattern 2: Comune (PR) senza CAP
-            match = address.match(/([A-Z][a-zA-Z\s]+)\s*\([A-Z]{2}\)/);
-            if (match) return match[1].trim();
-            
-            // Pattern 3: ultima parola in maiuscolo (fallback)
-            const words = address.split(/[,\s]+/);
-            for (let i = words.length - 1; i >= 0; i--) {
-                if (words[i].match(/^[A-Z][a-zA-Z]+$/)) {
-                    return words[i];
-                }
-            }
-            
-            return null;
-        }
-
-        function searchTable() {
-            const term = document.getElementById('searchBox').value.toLowerCase();
-            const tbody = document.getElementById('tableBody');
-            const rows = tbody.getElementsByTagName('tr');
-
-            for (let row of rows) {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(term) ? '' : 'none';
-            }
-        }
-
-        function showDetail(displayIndex) {
-            // Se ci sono filtri attivi, usa filteredData, altrimenti usa allData
-            const dataSource = filteredData.length > 0 ? filteredData : allData;
-            const record = dataSource[displayIndex];
-            
-            const content = document.getElementById('detailContent');
-            content.innerHTML = '';
-
-            Object.keys(record).sort().forEach(key => {
-                const value = record[key];
-                if (value !== undefined && value !== null && value !== '') {
-                    content.innerHTML += `
-                        <div class="detail-item">
-                            <label>${key}</label>
-                            <div class="value">${value}</div>
-                        </div>
-                    `;
-                }
-            });
-
-            document.getElementById('detailModal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('detailModal').classList.remove('active');
-        }
-
-        function updateStats() {
-            const dataToUse = filteredData.length > 0 ? filteredData : allData;
-            
-            // Totale progetti
-            document.getElementById('statTotal').textContent = dataToUse.length.toLocaleString('it-IT');
-            
-            // Trova le colonne
-            const debitoriaCol = Array.from(allColumns).find(c => /debitoria.*totale/i.test(c));
-            const valutazioneCol = Array.from(allColumns).find(c => /valutazione.*garanzie/i.test(c));
-            const areaCol = Array.from(allColumns).find(c => /area.*totale|superficie/i.test(c));
-            
-            // Calcola Debitoria Totale
-            let debitoriaTotal = 0;
-            if (debitoriaCol) {
-                debitoriaTotal = dataToUse.reduce((sum, item) => {
-                    const val = parseFloat(item[debitoriaCol]) || 0;
-                    return sum + val;
-                }, 0);
-            }
-            document.getElementById('statDebitoria').textContent = '€' + Math.round(debitoriaTotal).toLocaleString('it-IT');
-            const media = dataToUse.length > 0 ? debitoriaTotal / dataToUse.length : 0;
-            document.getElementById('statDebitMedia').textContent = '€' + Math.round(media).toLocaleString('it-IT');
-            
-            // Calcola Valutazione Totale
-            let valutazioneTotal = 0;
-            if (valutazioneCol) {
-                valutazioneTotal = dataToUse.reduce((sum, item) => {
-                    const val = parseFloat(item[valutazioneCol]) || 0;
-                    return sum + val;
-                }, 0);
-            }
-            document.getElementById('statValutazione').textContent = '€' + Math.round(valutazioneTotal).toLocaleString('it-IT');
-            
-            // Calcola Area Totale
-            let areaTotal = 0;
-            if (areaCol) {
-                areaTotal = dataToUse.reduce((sum, item) => {
-                    const val = parseFloat(item[areaCol]) || 0;
-                    return sum + val;
-                }, 0);
-            }
-            document.getElementById('statArea').textContent = Math.round(areaTotal).toLocaleString('it-IT');
-            
-            // Aggiorna grafici
-            updateCharts(dataToUse, debitoriaCol);
-        }
-
-        function updateCharts(data, debitoriaCol) {
-            // GRAFICO FASCE DI DEBITO
-            if (debitoriaCol) {
-                const fasce = {
-                    '0-50k': 0,
-                    '50k-100k': 0,
-                    '100k-250k': 0,
-                    '250k-500k': 0,
-                    '500k-1M': 0,
-                    '>1M': 0
-                };
-                
-                data.forEach(item => {
-                    const debito = parseFloat(item[debitoriaCol]) || 0;
-                    if (debito < 50000) fasce['0-50k']++;
-                    else if (debito < 100000) fasce['50k-100k']++;
-                    else if (debito < 250000) fasce['100k-250k']++;
-                    else if (debito < 500000) fasce['250k-500k']++;
-                    else if (debito < 1000000) fasce['500k-1M']++;
-                    else fasce['>1M']++;
-                });
-                
-                if (chartDebito) chartDebito.destroy();
-                const ctx1 = document.getElementById('chartDebito').getContext('2d');
-                chartDebito = new Chart(ctx1, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(fasce),
-                        datasets: [{
-                            label: 'Numero Progetti',
-                            data: Object.values(fasce),
-                            backgroundColor: '#667eea',
-                            borderRadius: 8
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            y: { beginAtZero: true }
-                        }
-                    }
-                });
-            }
-            
-            // MAPPA INTERATTIVA
-            updateMap(data);
-        }
-
-        function initMap() {
-            if (!map) {
-                map = L.map('map').setView([42.5, 12.5], 6); // Centro Italia
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
-                    maxZoom: 18
-                }).addTo(map);
-                markersLayer = L.markerClusterGroup({
-                    maxClusterRadius: 50,
-                    spiderfyOnMaxZoom: true,
-                    showCoverageOnHover: false
-                });
-                map.addLayer(markersLayer);
-            }
-        }
-
-        async function updateMap(data) {
-            initMap();
-            markersLayer.clearLayers();
-            
-            const capCol = Array.from(allColumns).find(c => /cap/i.test(c));
-            const indirizzoCol = Array.from(allColumns).find(c => /indirizzo/i.test(c));
-            
-            if (!capCol) return;
-            
-            // Raggruppa per coordinate (lat/lng) invece che per CAP
-            const coordGroups = {};
-            data.forEach((item, index) => {
-                const lat = item._lat;
-                const lng = item._lng;
-                
-                if (lat && lng) {
-                    const key = `${lat},${lng}`;
-                    if (!coordGroups[key]) {
-                        coordGroups[key] = {
-                            coords: [lat, lng],
-                            items: []
-                        };
-                    }
-                    coordGroups[key].items.push({...item, originalIndex: index});
-                }
-            });
-            
-            // Crea marker per ogni gruppo di coordinate
-            for (const [key, group] of Object.entries(coordGroups)) {
-                const marker = L.marker(group.coords);
-                
-                const cap = group.items[0][capCol] || '-';
-                
-                let popupContent = `<div style="max-width: 250px;">`;
-                popupContent += `<strong>CAP ${cap}</strong><br>`;
-                popupContent += `${group.items.length} immobili<hr style="margin: 5px 0;">`;
-                
-                group.items.slice(0, 5).forEach(item => {
-                    const id = item['Project ID'] || item['Project_ID'] || '-';
-                    const comune = extractComuneFromAddress(item[indirizzoCol]) || '-';
-                    popupContent += `<div class="map-item-link" data-index="${item.originalIndex}" style="display: block; margin: 5px 0; color: #667eea; cursor: pointer;">
-                        📍 ${id} - ${comune}
-                    </div>`;
-                });
-                
-                if (group.items.length > 5) {
-                    popupContent += `<div style="color: #999; font-size: 12px; margin-top: 5px;">... e altri ${group.items.length - 5}</div>`;
-                }
-                
-                popupContent += `</div>`;
-                
-                const popup = L.popup().setContent(popupContent);
-                marker.bindPopup(popup);
-                
-                // Aggiungi event listener quando il popup si apre
-                marker.on('popupopen', function() {
-                    document.querySelectorAll('.map-item-link').forEach(link => {
-                        link.addEventListener('click', function() {
-                            const index = parseInt(this.getAttribute('data-index'));
-                            showDetail(index);
-                        });
-                    });
-                });
-                
-                markersLayer.addLayer(marker);
-            }
-            
-            // Se ci sono marker, centra la mappa su di essi
-            if (markersLayer.getLayers().length > 0) {
-                map.fitBounds(markersLayer.getBounds(), {padding: [50, 50]});
-            }
-        }
-
-        // Funzione per ottenere coordinate da CAP (usando un servizio di geocoding)
-        async function getCoordinatesFromCAP(cap) {
-            try {
-                // Usa Nominatim (gratuito) per geocoding
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${cap}&country=Italy&format=json&limit=1`);
-                const data = await response.json();
-                if (data && data.length > 0) {
-                    return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-                }
-            } catch (error) {
-                console.error('Errore geocoding CAP', cap, error);
-            }
-            return null;
+            await db.ref('data').remove();
+            allData = [];
+            renderAll();
+            showAlert('uploadAlert', 'Database cancellato', 'success');
+            hideLoading();
         }
 
         document.getElementById('detailModal').addEventListener('click', function(e) {
@@ -1352,14 +1298,30 @@
             if (e.key === 'Enter') login();
         });
 
-        // Listener tempo reale
         db.ref('data').on('value', (snapshot) => {
             if (currentUser && snapshot.exists()) {
                 const data = snapshot.val();
                 allData = Array.isArray(data) ? data : Object.values(data);
-                extractAllColumns();
-                renderTable();
-                updateStats();
+                allData = allData.map(item => {
+                    // Prima cerca la colonna "Tipo"
+                    const tipoCol = Object.keys(item).find(k => /^tipo$/i.test(k));
+                    if (tipoCol && item[tipoCol]) {
+                        const tipoValue = String(item[tipoCol]).toLowerCase();
+                        item.tipo = tipoValue.includes('asta') ? 'asta' : 'npl';
+                    } else {
+                        // Fallback su Destinazione d'uso
+                        const destCol = Object.keys(item).find(k => /destinazione.*uso|tipologia/i.test(k));
+                        if (destCol) {
+                            const dest = String(item[destCol]).toLowerCase();
+                            item.tipo = (dest.includes('asta') || dest.includes('aste')) ? 'asta' : 'npl';
+                        } else {
+                            item.tipo = 'npl';
+                        }
+                    }
+                    return item;
+                });
+                populateFilters();
+                renderAll();
             }
         });
     </script>
