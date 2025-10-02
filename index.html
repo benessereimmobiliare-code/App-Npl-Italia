@@ -439,9 +439,6 @@
                 <input type="password" id="password" placeholder="admin123">
             </div>
             <button class="btn" onclick="login()">Accedi</button>
-            <div class="user-info">
-                <strong>Admin:</strong> admin / admin123
-            </div>
         </div>
     </div>
 
@@ -550,7 +547,8 @@
         let activeFilters = {};
 
         const users = {
-            'admin': { password: 'admin123', role: 'Admin', level: 3 }
+            'admin': { password: 'admin123', role: 'Admin', level: 3 },
+            'viewer': { password: 'view2025', role: 'Viewer', level: 2 }
         };
 
         function showLoading(text = 'Caricamento...') {
@@ -582,7 +580,11 @@
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').classList.add('active');
                 document.getElementById('userBadge').textContent = `${currentUser.role}: ${username}`;
-                document.getElementById('uploadBtn').classList.remove('hidden');
+                
+                // Mostra pulsante upload solo se admin (level 3)
+                if (currentUser.level === 3) {
+                    document.getElementById('uploadBtn').classList.remove('hidden');
+                }
                 
                 loadData();
             } else {
@@ -761,8 +763,21 @@
                 
                 if (data && data.length > 0) {
                     showLoading('Salvataggio...');
+                    
+                    const initialCount = allData.length;
                     await saveToFirebase(data);
-                    showAlert('uploadAlert', `File caricato: ${data.length} record, ${Object.keys(data[0]).length} colonne`, 'success');
+                    const finalCount = allData.length;
+                    const added = finalCount - initialCount;
+                    const duplicates = data.length - added;
+                    
+                    let message = `File caricato: ${data.length} record nel file<br>`;
+                    message += `✅ Nuovi aggiunti: ${added}<br>`;
+                    if (duplicates > 0) {
+                        message += `⚠️ Duplicati ignorati: ${duplicates}<br>`;
+                    }
+                    message += `📊 Totale nel database: ${finalCount}`;
+                    
+                    showAlert('uploadAlert', message, 'success');
                 } else {
                     showAlert('uploadAlert', 'File vuoto', 'error');
                 }
@@ -815,10 +830,39 @@
                 
                 if (existing) {
                     const existingArray = Array.isArray(existing) ? existing : Object.values(existing);
-                    // Unisci tutti i dati senza verificare duplicati
-                    merged = [...existingArray, ...newData];
+                    
+                    // Trova le colonne ID nel database
+                    const projectIdCol = Array.from(allColumns).find(c => /project.*id/i.test(c));
+                    const praticaCol = Array.from(allColumns).find(c => /(pratica|ndg)/i.test(c));
+                    
+                    // Crea un Set di chiavi uniche esistenti (combinazione di entrambi gli ID)
+                    const existingKeys = new Set();
+                    existingArray.forEach(record => {
+                        const projectId = projectIdCol ? record[projectIdCol] : null;
+                        const praticaId = praticaCol ? record[praticaCol] : null;
+                        if (projectId || praticaId) {
+                            existingKeys.add(`${projectId}|${praticaId}`);
+                        }
+                    });
+                    
+                    // Filtra i nuovi dati per rimuovere duplicati
+                    const newUniqueData = newData.filter(record => {
+                        const projectId = projectIdCol ? record[projectIdCol] : null;
+                        const praticaId = praticaCol ? record[praticaCol] : null;
+                        const key = `${projectId}|${praticaId}`;
+                        return !existingKeys.has(key);
+                    });
+                    
+                    merged = [...existingArray, ...newUniqueData];
+                    
+                    console.log(`Dati esistenti: ${existingArray.length}`);
+                    console.log(`Nuovi dati caricati: ${newData.length}`);
+                    console.log(`Duplicati trovati: ${newData.length - newUniqueData.length}`);
+                    console.log(`Nuovi dati aggiunti: ${newUniqueData.length}`);
+                    console.log(`Totale finale: ${merged.length}`);
                 } else {
                     merged = newData;
+                    console.log(`Primo caricamento: ${newData.length} record`);
                 }
                 
                 await db.ref('data').set(merged);
@@ -832,6 +876,11 @@
         }
 
         async function resetDatabase() {
+            if (currentUser.level !== 3) {
+                alert('Solo gli amministratori possono cancellare il database');
+                return;
+            }
+            
             if (!confirm('Cancellare TUTTI i dati?')) return;
 
             showLoading('Cancellazione...');
