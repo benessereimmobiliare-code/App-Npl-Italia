@@ -983,37 +983,35 @@
             document.getElementById('statAste').textContent = asteCount;
             document.getElementById('statNpl').textContent = nplCount;
             
-            const valCol = Object.keys(allData[0] || {}).find(k => /valutazione|debitoria/i.test(k));
+            // Calcola valore totale
             let valTotal = 0;
-            if (valCol) {
-                valTotal = allData.reduce((sum, item) => sum + (parseFloat(item[valCol]) || 0), 0);
-            }
+            allData.forEach(item => {
+                let prezzo = null;
+                
+                if (item.tipo === 'asta') {
+                    // ASTE: Prezzo base d'asta
+                    const col = Object.keys(item).find(k => /prezzo.*base.*asta/i.test(k));
+                    if (col) prezzo = item[col];
+                } else {
+                    // NPL: Situazione debitoria
+                    const col = Object.keys(item).find(k => /situazione.*debitoria/i.test(k));
+                    if (col) prezzo = item[col];
+                }
+                
+                if (prezzo) {
+                    // Estrai numero da "€ 80.000,00"
+                    let val = String(prezzo).replace(/[€.\s]/g, '').replace(',', '.');
+                    const numVal = parseFloat(val);
+                    if (!isNaN(numVal)) {
+                        valTotal += numVal;
+                    }
+                }
+            });
+            
             document.getElementById('statValutazione').textContent = '€' + Math.round(valTotal).toLocaleString('it-IT');
         }
 
-        // Cache coordinate comuni già cercati
-        const comuniCache = {};
-
-        async function geocodeComune(comune) {
-            if (comuniCache[comune]) {
-                return comuniCache[comune];
-            }
-            
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(comune)}&country=Italy&format=json&limit=1`);
-                const data = await response.json();
-                if (data && data.length > 0) {
-                    const coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-                    comuniCache[comune] = coords;
-                    return coords;
-                }
-            } catch (error) {
-                console.error('Errore geocoding per', comune, error);
-            }
-            return null;
-        }
-
-        async function renderMap(data) {
+        function renderMap(data) {
             if (!map) {
                 map = L.map('map').setView([42.5, 12.5], 6);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1024,48 +1022,50 @@
             markers.forEach(m => map.removeLayer(m));
             markers = [];
             
-            // Raggruppa per comune (estratto dall'indirizzo o da altra colonna)
+            // Raggruppa per coordinate già salvate
             const groups = {};
             
-            for (let i = 0; i < data.length; i++) {
-                const item = data[i];
-                
-                // Cerca colonna città/comune
-                let comune = null;
-                const cittaCol = Object.keys(item).find(k => /città|comune|city/i.test(k));
-                if (cittaCol && item[cittaCol]) {
-                    comune = String(item[cittaCol]).trim();
+            data.forEach((item, idx) => {
+                if (item.lat && item.lng) {
+                    // Usa coordinate salvate
+                    const key = `${item.lat.toFixed(3)}_${item.lng.toFixed(3)}`;
+                    if (!groups[key]) {
+                        groups[key] = {
+                            coords: [item.lat, item.lng],
+                            items: []
+                        };
+                    }
+                    groups[key].items.push({...item, idx});
                 } else {
-                    // Estrai dall'indirizzo
-                    const indirizzoCol = Object.keys(item).find(k => /indirizzo/i.test(k));
-                    if (indirizzoCol && item[indirizzoCol]) {
-                        comune = extractComuneFromAddress(item[indirizzoCol]);
+                    // Fallback: se non ha coordinate, usa comune dalla cache statica
+                    const comuneCol = Object.keys(item).find(k => /comune/i.test(k));
+                    const comune = comuneCol ? item[comuneCol] : null;
+                    
+                    // Coordinate statiche principali città italiane
+                    const cittaCoords = {
+                        'Roma': [41.9028, 12.4964], 'Milano': [45.4642, 9.1900],
+                        'Napoli': [40.8518, 14.2681], 'Torino': [45.0703, 7.6869],
+                        'Genova': [44.4056, 8.9463], 'Bologna': [44.4949, 11.3426],
+                        'Firenze': [43.7696, 11.2558], 'Palermo': [38.1157, 13.3615]
+                    };
+                    
+                    if (comune && cittaCoords[comune]) {
+                        const key = comune;
+                        if (!groups[key]) {
+                            groups[key] = {
+                                coords: cittaCoords[comune],
+                                items: []
+                            };
+                        }
+                        groups[key].items.push({...item, idx});
                     }
                 }
-                
-                // Se non trova comune, usa la regione
-                if (!comune) {
-                    const regioneCol = Object.keys(item).find(k => /regione/i.test(k));
-                    if (regioneCol && item[regioneCol]) {
-                        comune = item[regioneCol];
-                    } else {
-                        comune = 'Sconosciuto';
-                    }
-                }
-                
-                if (!groups[comune]) groups[comune] = [];
-                groups[comune].push({...item, idx: i});
-            }
+            });
             
-            // Geocodifica ogni comune e crea marker
-            for (const [comune, items] of Object.entries(groups)) {
-                if (comune === 'Sconosciuto') continue;
-                
-                // Ottieni coordinate (con piccolo delay per rispettare rate limit)
-                await new Promise(resolve => setTimeout(resolve, 100));
-                const coords = await geocodeComune(comune);
-                
-                if (!coords) continue;
+            // Crea marker per ogni gruppo
+            for (const [key, group] of Object.entries(groups)) {
+                const items = group.items;
+                const coords = group.coords;
                 
                 const aste = items.filter(i => i.tipo === 'asta').length;
                 const npl = items.filter(i => i.tipo === 'npl').length;
@@ -1077,8 +1077,8 @@
                         background: ${color};
                         color: white;
                         border-radius: 50%;
-                        width: ${Math.min(50, 25 + items.length * 3)}px;
-                        height: ${Math.min(50, 25 + items.length * 3)}px;
+                        width: ${Math.min(50, 25 + items.length * 2)}px;
+                        height: ${Math.min(50, 25 + items.length * 2)}px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -1091,21 +1091,33 @@
                 
                 const marker = L.marker(coords, {icon}).addTo(map);
                 
+                // Popup con info
+                const comuneCol = Object.keys(items[0]).find(k => /comune/i.test(k));
+                const comuneNome = comuneCol && items[0][comuneCol] ? items[0][comuneCol] : 'Zona';
+                
                 let popup = `<div style="max-width: 300px; max-height: 400px; overflow-y: auto;">`;
-                popup += `<h3 style="color: #667eea;">${comune}</h3>`;
+                popup += `<h3 style="color: #667eea;">${comuneNome}</h3>`;
                 popup += `<p><strong>Aste:</strong> ${aste} | <strong>NPL:</strong> ${npl}</p><hr>`;
                 
                 items.slice(0, 10).forEach(item => {
-                    const idCol = Object.keys(item).find(c => /numero.*pratica|ndg|id/i.test(c));
-                    const indirizzoCol = Object.keys(item).find(c => /indirizzo/i.test(c));
+                    const idCol = Object.keys(item).find(c => /project.*id/i.test(c));
                     const id = idCol ? item[idCol] : '-';
-                    const indirizzo = indirizzoCol ? String(item[indirizzoCol]).substring(0, 30) : '-';
                     const icona = item.tipo === 'asta' ? '🔨' : '📋';
-                    popup += `<div style="cursor:pointer; padding:8px; background:#f5f5f5; margin:5px 0; border-radius:5px; border-left: 3px solid ${item.tipo === 'asta' ? '#ffc107' : '#e74c3c'};" onclick="showDetail(${item.idx})">${icona} ${id}<br><small>${indirizzo}...</small></div>`;
+                    
+                    let prezzo = 'N/D';
+                    if (item.tipo === 'asta') {
+                        const pCol = Object.keys(item).find(c => /prezzo.*base/i.test(c));
+                        if (pCol && item[pCol]) prezzo = item[pCol];
+                    } else {
+                        const dCol = Object.keys(item).find(c => /situazione.*debitoria/i.test(c));
+                        if (dCol && item[dCol]) prezzo = item[dCol];
+                    }
+                    
+                    popup += `<div style="cursor:pointer; padding:8px; background:#f5f5f5; margin:5px 0; border-radius:5px; border-left: 3px solid ${item.tipo === 'asta' ? '#ffc107' : '#e74c3c'};" onclick="showDetail(${item.idx})">${icona} ${id}<br><small>${prezzo}</small></div>`;
                 });
                 
                 if (items.length > 10) {
-                    popup += `<div style="text-align:center; color:#999; margin-top:10px;">...e altri ${items.length - 10} immobili</div>`;
+                    popup += `<div style="text-align:center; color:#999; margin-top:10px;">...altri ${items.length - 10}</div>`;
                 }
                 
                 popup += `</div>`;
@@ -1113,7 +1125,7 @@
                 markers.push(marker);
             }
             
-            // Auto-zoom sui marker
+            // Auto-zoom
             if (markers.length > 0) {
                 const group = L.featureGroup(markers);
                 map.fitBounds(group.getBounds().pad(0.1));
@@ -1128,13 +1140,28 @@
             }
             
             list.innerHTML = data.map((item, idx) => {
-                const idCol = Object.keys(item).find(c => /project.*id|id/i.test(c));
+                const idCol = Object.keys(item).find(c => /project.*id/i.test(c));
                 const indirizzoCol = Object.keys(item).find(c => /indirizzo/i.test(c));
-                const valCol = Object.keys(item).find(c => /valutazione|debitoria/i.test(c));
                 
                 const id = idCol ? item[idCol] : '-';
                 const indirizzo = indirizzoCol ? item[indirizzoCol] : '-';
-                const val = valCol ? item[valCol] : 0;
+                
+                // Leggi il prezzo dalla colonna corretta
+                let prezzoValore = 'N/D';
+                if (item.tipo === 'asta') {
+                    // Per ASTE: Prezzo base d'asta
+                    const prezzoCol = Object.keys(item).find(c => /prezzo.*base.*asta/i.test(c));
+                    if (prezzoCol && item[prezzoCol]) {
+                        prezzoValore = item[prezzoCol];
+                    }
+                } else {
+                    // Per NPL: Situazione debitoria
+                    const debCol = Object.keys(item).find(c => /situazione.*debitoria/i.test(c));
+                    if (debCol && item[debCol]) {
+                        prezzoValore = item[debCol];
+                    }
+                }
+                
                 const icona = item.tipo === 'asta' ? '🔨' : '📋';
                 
                 return `
@@ -1143,7 +1170,7 @@
                             ${icona} ${item.tipo === 'asta' ? 'ASTA' : 'NPL'}
                         </div>
                         <div class="property-title">ID: ${id}</div>
-                        <div class="property-price">€${parseFloat(val).toLocaleString('it-IT')}</div>
+                        <div class="property-price">${prezzoValore}</div>
                         <div class="property-details">${indirizzo}</div>
                     </div>
                 `;
@@ -1161,13 +1188,22 @@
                 return;
             }
             
-            const cols = Object.keys(data[0]).filter(k => k !== 'idx').slice(0, 8);
-            thead.innerHTML = '<tr><th>Tipo</th>' + cols.map(c => `<th>${c}</th>`).join('') + '<th>Azioni</th></tr>';
+            // Colonne da mostrare (con Prezzo base d'asta e Situazione debitoria)
+            const colsToShow = ['Tipo', 'Project ID', 'Numero Pratica / NDG', 'Titolo', 'Prezzo base d\'asta', 'Situazione debitoria', 'Indirizzo', 'Comune', 'Provincia', 'CAP', 'Regione'];
+            const cols = Object.keys(data[0]).filter(k => colsToShow.some(c => c.toLowerCase() === k.toLowerCase()));
+            
+            thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '<th>Azioni</th></tr>';
             
             tbody.innerHTML = data.map((item, idx) => {
                 const icona = item.tipo === 'asta' ? '🔨' : '📋';
-                const row = cols.map(col => `<td>${item[col] || '-'}</td>`).join('');
-                return `<tr><td><span class="property-type type-${item.tipo}">${icona} ${item.tipo.toUpperCase()}</span></td>${row}<td><button class="btn btn-upload" style="padding:6px 12px; font-size:12px;" onclick="showDetail(${idx})">Dettagli</button></td></tr>`;
+                const row = cols.map(col => {
+                    let val = item[col] || '-';
+                    if (col.toLowerCase().includes('tipo')) {
+                        return `<td><span class="property-type type-${item.tipo}">${icona} ${val.toUpperCase()}</span></td>`;
+                    }
+                    return `<td>${val}</td>`;
+                }).join('');
+                return `<tr>${row}<td><button class="btn btn-upload" style="padding:6px 12px; font-size:12px;" onclick="showDetail(${idx})">Dettagli</button></td></tr>`;
             }).join('');
             
             document.getElementById('recordCount').textContent = data.length;
@@ -1271,13 +1307,81 @@
         }
 
         async function saveToFirebase(newData) {
+            console.log(`Salvataggio ${newData.length} record senza geocoding (sarà fatto dopo)...`);
+            
+            // SALTA GEOCODING PER ORA - troppo lento
+            // Lo faremo in background dopo il caricamento
+            
+            // Salva in blocchi di 500 per evitare blocchi
             const snapshot = await db.ref('data').once('value');
             const existing = snapshot.val();
-            const merged = existing ? [...Object.values(existing), ...newData] : newData;
-            await db.ref('data').set(merged);
-            allData = merged;
+            let allRecords = existing ? Object.values(existing) : [];
+            
+            // Aggiungi nuovi dati
+            allRecords = [...allRecords, ...newData];
+            
+            // Salva in blocchi
+            const CHUNK_SIZE = 500;
+            await db.ref('data').remove(); // Pulisci prima
+            
+            for (let i = 0; i < allRecords.length; i += CHUNK_SIZE) {
+                const chunk = allRecords.slice(i, i + CHUNK_SIZE);
+                console.log(`Salvataggio blocco ${Math.floor(i/CHUNK_SIZE) + 1}/${Math.ceil(allRecords.length/CHUNK_SIZE)}...`);
+                
+                // Salva questo blocco
+                const updates = {};
+                chunk.forEach((item, idx) => {
+                    updates[i + idx] = item;
+                });
+                await db.ref('data').update(updates);
+            }
+            
+            console.log('✅ Salvataggio completato! (geocoding sarà fatto in background)');
+            allData = allRecords;
             populateFilters();
             renderAll();
+            
+            // Avvia geocoding in background DOPO aver mostrato i dati
+            setTimeout(() => geocodeInBackground(), 2000);
+        }
+        
+        async function geocodeInBackground() {
+            console.log('Inizio geocoding in background...');
+            let updated = 0;
+            
+            for (let i = 0; i < allData.length; i++) {
+                const item = allData[i];
+                
+                if (item.lat && item.lng) continue;
+                
+                const comuneCol = Object.keys(item).find(k => /comune/i.test(k));
+                const comune = comuneCol && item[comuneCol] ? item[comuneCol] : null;
+                
+                if (comune && comune !== 'nan') {
+                    try {
+                        const response = await fetch(`https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(comune)}&country=Italy&format=json&limit=1`);
+                        const data = await response.json();
+                        if (data && data.length > 0) {
+                            item.lat = parseFloat(data[0].lat);
+                            item.lng = parseFloat(data[0].lon);
+                            updated++;
+                            
+                            // Salva ogni 50 record
+                            if (updated % 50 === 0) {
+                                await db.ref(`data/${i}`).update({lat: item.lat, lng: item.lng});
+                                console.log(`Geocoding background: ${updated} coordinate trovate`);
+                                renderMap(applyFilters()); // Aggiorna mappa progressivamente
+                            }
+                        }
+                    } catch (error) {
+                        // Ignora errori
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+            
+            console.log(`✅ Geocoding completato: ${updated} coordinate aggiunte`);
         }
 
         async function resetDatabase() {
