@@ -718,14 +718,14 @@
         // CONFIGURAZIONE FIREBASE
         // IMPORTANTE: Sostituisci con la tua configurazione Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",
-            authDomain: "app-npl-italia.firebaseapp.com",
-            databaseURL: "https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "app-npl-italia",
-            storageBucket: "app-npl-italia.firebasestorage.app",
-            messagingSenderId: "299298163787",
-            appId: "1:299298163787:web:4d08b7dd3273aa4dc011ce"
-        };
+    apiKey: "AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",
+    authDomain: "app-npl-italia.firebaseapp.com",
+    databaseURL: "https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "app-npl-italia",
+    storageBucket: "app-npl-italia.firebasestorage.app",
+    messagingSenderId: "299298163787",
+    appId: "1:299298163787:web:4d08b7dd3273aa4dc011ce"
+};
 
         // Inizializza Firebase
         let firebaseInitialized = false;
@@ -765,17 +765,6 @@
             setTimeout(() => {
                 alertEl.innerHTML = '';
             }, 5000);
-        }
-
-        // Pulisce i nomi delle colonne rimuovendo caratteri non validi per Firebase
-        function cleanColumnName(name) {
-            return name.replace(/[.#$\/\[\]]/g, '_');
-        }
-
-        // Ottiene il valore da un oggetto usando sia il nome pulito che quello originale
-        function getValue(obj, key) {
-            const cleanKey = cleanColumnName(key);
-            return obj[cleanKey] !== undefined ? obj[cleanKey] : obj[key];
         }
 
         // LOGIN
@@ -831,33 +820,24 @@
                     // Modalità demo - carica dati locali
                     console.log('Modalità demo: caricamento dati di esempio');
                     hideLoading();
+                    showAlert('uploadAlert', '⚠️ Firebase non configurato. Usando dati di esempio. Carica un file Excel per iniziare.', 'info');
                     return;
                 }
 
                 const database = firebase.database();
-                
-                // Timeout di 5 secondi per evitare caricamenti infiniti
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Timeout')), 5000)
-                );
-                
-                const dataPromise = database.ref('immobili').once('value');
-                
-                const snapshot = await Promise.race([dataPromise, timeoutPromise]);
+                const snapshot = await database.ref('immobili').once('value');
                 const data = snapshot.val();
 
                 if (data) {
                     allData = Array.isArray(data) ? data : Object.values(data);
                     filteredData = [...allData];
                     initDashboard();
-                    console.log(`Caricati ${allData.length} immobili da Firebase`);
                 } else {
-                    console.log('Database Firebase vuoto - in attesa di dati');
-                    // Database vuoto è normale all'inizio
+                    console.log('Nessun dato trovato in Firebase');
                 }
             } catch (error) {
-                console.log('Firebase non disponibile o database vuoto:', error.message);
-                // Non mostrare errore, è normale se il database è vuoto
+                console.error('Errore caricamento da Firebase:', error);
+                showAlert('uploadAlert', 'Errore nel caricamento dei dati. Carica un file Excel.', 'error');
             } finally {
                 hideLoading();
             }
@@ -915,17 +895,14 @@
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                         const jsonData = XLSX.utils.sheet_to_json(firstSheet);
                         
-                        // Converti date in stringhe e pulisci nomi colonne
+                        // Converti date in stringhe
                         const processedData = jsonData.map(row => {
                             const newRow = {};
                             for (let key in row) {
-                                // Pulisci il nome della colonna rimuovendo caratteri non validi per Firebase
-                                const cleanKey = key.replace(/[.#$\/\[\]]/g, '_');
-                                
                                 if (row[key] instanceof Date) {
-                                    newRow[cleanKey] = row[key].toISOString().split('T')[0];
+                                    newRow[key] = row[key].toISOString().split('T')[0];
                                 } else {
-                                    newRow[cleanKey] = row[key];
+                                    newRow[key] = row[key];
                                 }
                             }
                             return newRow;
@@ -971,9 +948,9 @@
 
         // POPOLA FILTRI
         function populateFilters() {
-            const regioni = [...new Set(allData.map(d => getValue(d, 'Regione')).filter(Boolean))].sort();
-            const province = [...new Set(allData.map(d => getValue(d, 'Provincia')).filter(Boolean))].sort();
-            const tipologie = [...new Set(allData.map(d => getValue(d, 'Tipologia Asset')).filter(Boolean))].sort();
+            const regioni = [...new Set(allData.map(d => d.Regione).filter(Boolean))].sort();
+            const province = [...new Set(allData.map(d => d.Provincia).filter(Boolean))].sort();
+            const tipologie = [...new Set(allData.map(d => d['Tipologia Asset']).filter(Boolean))].sort();
 
             const selectRegione = document.getElementById('filterRegione');
             const selectProvincia = document.getElementById('filterProvincia');
@@ -1015,10 +992,10 @@
 
             filteredData = allData.filter(item => {
                 let match = true;
-                if (regione && getValue(item, 'Regione') !== regione) match = false;
-                if (provincia && getValue(item, 'Provincia') !== provincia) match = false;
-                if (tipologia && getValue(item, 'Tipologia Asset') !== tipologia) match = false;
-                if (comune && !getValue(item, 'Comune')?.toLowerCase().includes(comune)) match = false;
+                if (regione && item.Regione !== regione) match = false;
+                if (provincia && item.Provincia !== provincia) match = false;
+                if (tipologia && item['Tipologia Asset'] !== tipologia) match = false;
+                if (comune && !item.Comune?.toLowerCase().includes(comune)) match = false;
                 return match;
             });
 
@@ -1030,11 +1007,11 @@
         function updateStats() {
             const total = filteredData.length;
             const valoreTotale = filteredData.reduce((sum, item) => {
-                return sum + (parseFloat(getValue(item, 'Valore ultima perizia terzi')) || 0);
+                return sum + (parseFloat(item['Valore ultima perizia terzi']) || 0);
             }, 0);
-            const regioni = new Set(filteredData.map(d => getValue(d, 'Regione')).filter(Boolean)).size;
+            const regioni = new Set(filteredData.map(d => d.Regione).filter(Boolean)).size;
             const superficieTotale = filteredData.reduce((sum, item) => {
-                return sum + (parseFloat(getValue(item, 'Superficie mq')) || 0);
+                return sum + (parseFloat(item['Superficie mq']) || 0);
             }, 0);
 
             document.getElementById('statTotal').textContent = total.toLocaleString('it-IT');
@@ -1064,25 +1041,24 @@
                 const row = tbody.insertRow();
                 
                 let badgeClass = 'badge-altro';
-                const tipologia = getValue(item, 'Tipologia Asset');
-                if (tipologia?.includes('Residenziale')) badgeClass = 'badge-residenziale';
-                if (tipologia?.includes('Commerciale')) badgeClass = 'badge-commerciale';
+                if (item['Tipologia Asset']?.includes('Residenziale')) badgeClass = 'badge-residenziale';
+                if (item['Tipologia Asset']?.includes('Commerciale')) badgeClass = 'badge-commerciale';
 
                 const valore = currentUser.level >= 2 
-                    ? '€' + (parseFloat(getValue(item, 'Valore ultima perizia terzi')) || 0).toLocaleString('it-IT')
+                    ? '€' + (parseFloat(item['Valore ultima perizia terzi']) || 0).toLocaleString('it-IT')
                     : 'Riservato';
 
-                const superficie = (parseFloat(getValue(item, 'Superficie mq')) || 0).toLocaleString('it-IT');
+                const superficie = (parseFloat(item['Superficie mq']) || 0).toLocaleString('it-IT');
 
                 row.innerHTML = `
-                    <td>${getValue(item, 'ID Asset (PBE)') || '-'}</td>
-                    <td><span class="badge ${badgeClass}">${tipologia || '-'}</span></td>
-                    <td>${getValue(item, 'Descrizione asset') || '-'}</td>
-                    <td>${getValue(item, 'Comune') || '-'}</td>
-                    <td>${getValue(item, 'Provincia') || '-'}</td>
+                    <td>${item['ID Asset (PBE)'] || '-'}</td>
+                    <td><span class="badge ${badgeClass}">${item['Tipologia Asset'] || '-'}</span></td>
+                    <td>${item['Descrizione asset'] || '-'}</td>
+                    <td>${item.Comune || '-'}</td>
+                    <td>${item.Provincia || '-'}</td>
                     <td>${superficie} mq</td>
                     <td>${valore}</td>
-                    <td><button class="btn-filter" onclick="showDetail(${getValue(item, 'ID Asset (PBE)')})">Dettagli</button></td>
+                    <td><button class="btn-filter" onclick="showDetail(${item['ID Asset (PBE)']})">Dettagli</button></td>
                 `;
             });
 
@@ -1109,7 +1085,7 @@
 
         // MOSTRA DETTAGLIO
         function showDetail(id) {
-            const item = allData.find(d => getValue(d, 'ID Asset (PBE)') === id);
+            const item = allData.find(d => d['ID Asset (PBE)'] === id);
             if (!item) return;
 
             const detailContent = document.getElementById('detailContent');
@@ -1142,7 +1118,7 @@
             }
 
             fields.forEach(field => {
-                const value = getValue(item, field.key);
+                const value = item[field.key];
                 if (value !== null && value !== undefined && value !== '') {
                     const div = document.createElement('div');
                     div.className = 'detail-item';
