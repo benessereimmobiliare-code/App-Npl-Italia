@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Immobili</title>
+    <title>Dashboard Immobili - FINALE</title>
     <style>
         * {
             margin: 0;
@@ -18,7 +18,6 @@
             padding: 10px;
         }
 
-        /* LOGIN SCREEN */
         .login-container {
             display: flex;
             align-items: center;
@@ -60,7 +59,6 @@
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 16px;
-            transition: border 0.3s;
         }
 
         .input-group input:focus {
@@ -78,20 +76,10 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         .user-info {
@@ -102,10 +90,8 @@
             text-align: center;
             color: #667eea;
             font-size: 13px;
-            line-height: 1.6;
         }
 
-        /* DASHBOARD */
         .dashboard {
             display: none;
             max-width: 1400px;
@@ -172,7 +158,6 @@
             font-weight: 600;
         }
 
-        /* ADMIN PANEL */
         .admin-panel {
             background: white;
             padding: 20px;
@@ -185,6 +170,33 @@
             color: #667eea;
             margin-bottom: 15px;
             font-size: 20px;
+        }
+
+        .admin-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-danger {
+            padding: 10px 20px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-info {
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
         }
 
         .upload-area {
@@ -201,11 +213,6 @@
             border-color: #764ba2;
         }
 
-        .upload-area.dragover {
-            background: #e8eaff;
-            border-color: #4CAF50;
-        }
-
         .upload-icon {
             font-size: 48px;
             margin-bottom: 10px;
@@ -215,7 +222,6 @@
             display: none;
         }
 
-        /* STATISTICHE */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -243,7 +249,6 @@
             font-weight: bold;
         }
 
-        /* FILTRI */
         .filters {
             background: white;
             padding: 20px;
@@ -289,7 +294,6 @@
             font-weight: 600;
         }
 
-        /* TABELLA */
         .table-container {
             background: white;
             padding: 20px;
@@ -344,7 +348,6 @@
 
         tbody tr:hover {
             background: #f9f9f9;
-            cursor: pointer;
         }
 
         .badge {
@@ -370,7 +373,6 @@
             color: #7b1fa2;
         }
 
-        /* MODAL */
         .modal {
             display: none;
             position: fixed;
@@ -450,7 +452,6 @@
             font-weight: 500;
         }
 
-        /* LOADING */
         .loading-overlay {
             display: none;
             position: fixed;
@@ -515,72 +516,45 @@
             border: 1px solid #bee5eb;
         }
 
-        /* RESPONSIVE */
+        .hidden {
+            display: none;
+        }
+
         @media (max-width: 768px) {
-            .header {
-                text-align: center;
-            }
-
-            .header-right {
-                width: 100%;
-                justify-content: center;
-            }
-
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-
-            .filter-grid {
-                grid-template-columns: 1fr;
-            }
-
             table {
                 font-size: 12px;
             }
-
             th, td {
                 padding: 8px 5px;
             }
-
-            .modal-content {
-                padding: 20px;
-            }
-
-            .detail-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .hidden {
-            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- LOADING OVERLAY -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-content">
             <div class="spinner"></div>
-            <p id="loadingText">Caricamento in corso...</p>
+            <p id="loadingText">Caricamento...</p>
         </div>
     </div>
 
-    <!-- LOGIN SCREEN -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
-            <h1>🏢 Dashboard Immobili</h1>
+            <h1>Dashboard Immobili</h1>
             <div id="loginAlert"></div>
             <div class="input-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Inserisci username" autocomplete="username">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Inserisci username">
             </div>
             <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Inserisci password" autocomplete="current-password">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Inserisci password">
             </div>
-            <button class="btn" id="loginBtn" onclick="login()">Accedi</button>
+            <button class="btn" onclick="login()">Accedi</button>
             <div class="user-info">
-                <strong>Utenti di prova:</strong><br>
                 <strong>Admin:</strong> admin / admin123<br>
                 <strong>Manager:</strong> manager / manager123<br>
                 <strong>Viewer:</strong> viewer / viewer123
@@ -588,71 +562,63 @@
         </div>
     </div>
 
-    <!-- DASHBOARD -->
     <div id="dashboard" class="dashboard">
-        <!-- HEADER -->
         <div class="header">
-            <h1>📊 Dashboard Immobili</h1>
+            <h1>Dashboard Immobili</h1>
             <div class="header-right">
                 <span class="user-badge" id="userBadge"></span>
-                <button class="btn-upload hidden" id="uploadBtn" onclick="showUploadPanel()">📤 Carica Excel</button>
+                <button class="btn-upload hidden" id="uploadBtn" onclick="showUploadPanel()">Carica Excel</button>
                 <button class="btn-logout" onclick="logout()">Esci</button>
             </div>
         </div>
 
-        <!-- ADMIN PANEL -->
         <div id="adminPanel" class="admin-panel hidden">
-            <h2>⚙️ Pannello Amministratore</h2>
+            <h2>Pannello Amministratore</h2>
             <div id="uploadAlert"></div>
-            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+            <div class="admin-buttons">
+                <button class="btn-danger" onclick="resetDatabase()">Cancella Database</button>
+                <button class="btn-info" onclick="checkDatabase()">Controlla Database</button>
+            </div>
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">📁</div>
-                <h3>Carica nuovo file Excel</h3>
+                <h3>Carica file Excel</h3>
                 <p>Clicca qui o trascina il file .xlsx</p>
-                <p style="color: #999; font-size: 12px; margin-top: 10px;">I dati verranno aggiornati automaticamente per tutti gli utenti</p>
             </div>
             <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
         </div>
 
-        <!-- STATISTICHE -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Totale Immobili</h3>
-                <div class="value" id="statTotal">-</div>
+                <div class="value" id="statTotal">0</div>
             </div>
             <div class="stat-card">
-                <h3>Valore Totale Perizie</h3>
-                <div class="value" id="statValue">-</div>
+                <h3>Valore Totale</h3>
+                <div class="value" id="statValue">€0</div>
             </div>
             <div class="stat-card">
                 <h3>Regioni</h3>
-                <div class="value" id="statRegions">-</div>
+                <div class="value" id="statRegions">0</div>
             </div>
             <div class="stat-card">
                 <h3>Superficie Totale</h3>
-                <div class="value" id="statArea">-</div>
+                <div class="value" id="statArea">0 mq</div>
             </div>
         </div>
 
-        <!-- FILTRI -->
         <div class="filters">
             <div class="filter-grid">
                 <div class="filter-group">
                     <label>Regione</label>
-                    <select id="filterRegione">
-                        <option value="">Tutte</option>
-                    </select>
+                    <select id="filterRegione"><option value="">Tutte</option></select>
                 </div>
                 <div class="filter-group">
                     <label>Provincia</label>
-                    <select id="filterProvincia">
-                        <option value="">Tutte</option>
-                    </select>
+                    <select id="filterProvincia"><option value="">Tutte</option></select>
                 </div>
                 <div class="filter-group">
                     <label>Tipologia</label>
-                    <select id="filterTipologia">
-                        <option value="">Tutte</option>
-                    </select>
+                    <select id="filterTipologia"><option value="">Tutte</option></select>
                 </div>
                 <div class="filter-group">
                     <label>Comune</label>
@@ -662,95 +628,74 @@
             <button class="btn-filter" onclick="applyFilters()">Applica Filtri</button>
         </div>
 
-        <!-- TABELLA -->
         <div class="table-container">
             <div class="table-header">
                 <h2>Elenco Immobili (<span id="recordCount">0</span>)</h2>
-                <input type="text" id="searchBox" class="search-box" placeholder="🔍 Cerca..." onkeyup="searchTable()">
+                <input type="text" id="searchBox" class="search-box" placeholder="Cerca..." onkeyup="searchTable()">
             </div>
-            <div style="overflow-x: auto;">
-                <table id="dataTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tipologia</th>
-                            <th>Descrizione</th>
-                            <th>Comune</th>
-                            <th>Provincia</th>
-                            <th>Superficie (mq)</th>
-                            <th>Valore Perizia</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
-                                Nessun dato disponibile. Carica un file Excel per iniziare.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipologia</th>
+                        <th>Descrizione</th>
+                        <th>Comune</th>
+                        <th>Provincia</th>
+                        <th>Superficie</th>
+                        <th>Valore</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
+                            Nessun dato. Carica un file Excel.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- MODAL DETTAGLIO -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Dettaglio Immobile</h2>
                 <button class="btn-close" onclick="closeModal()">Chiudi</button>
             </div>
-            <div id="detailContent" class="detail-grid">
-            </div>
+            <div id="detailContent" class="detail-grid"></div>
         </div>
     </div>
 
-    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-
-    <!-- XLSX LIBRARY -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
-        // CONFIGURAZIONE FIREBASE
-        // IMPORTANTE: Sostituisci con la tua configurazione Firebase
         const firebaseConfig = {
-    apiKey: "AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",
-    authDomain: "app-npl-italia.firebaseapp.com",
-    databaseURL: "https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "app-npl-italia",
-    storageBucket: "app-npl-italia.firebasestorage.app",
-    messagingSenderId: "299298163787",
-    appId: "1:299298163787:web:4d08b7dd3273aa4dc011ce"
-};
+            apiKey: "AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",
+            authDomain: "app-npl-italia.firebaseapp.com",
+            databaseURL: "https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "app-npl-italia",
+            storageBucket: "app-npl-italia.firebasestorage.app",
+            messagingSenderId: "299298163787",
+            appId: "1:299298163787:web:4d08b7dd3273aa4dc011ce"
+        };
 
-        // Inizializza Firebase
-        let firebaseInitialized = false;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            firebaseInitialized = true;
-            console.log('Firebase inizializzato correttamente');
-        } catch (error) {
-            console.warn('Firebase non configurato. Usa modalità demo:', error.message);
-        }
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        // VARIABILI GLOBALI
         let allData = [];
         let filteredData = [];
         let currentUser = null;
 
-        // UTENTI
         const users = {
             'admin': { password: 'admin123', role: 'Admin', level: 3 },
             'manager': { password: 'manager123', role: 'Manager', level: 2 },
             'viewer': { password: 'viewer123', role: 'Viewer', level: 1 }
         };
 
-        // UTILITY FUNCTIONS
-        function showLoading(text = 'Caricamento in corso...') {
+        function showLoading(text = 'Caricamento...') {
             document.getElementById('loadingText').textContent = text;
             document.getElementById('loadingOverlay').classList.add('active');
         }
@@ -759,15 +704,12 @@
             document.getElementById('loadingOverlay').classList.remove('active');
         }
 
-        function showAlert(elementId, message, type = 'info') {
-            const alertEl = document.getElementById(elementId);
-            alertEl.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-            setTimeout(() => {
-                alertEl.innerHTML = '';
-            }, 5000);
+        function showAlert(id, message, type = 'info') {
+            const el = document.getElementById(id);
+            el.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => el.innerHTML = '', 5000);
         }
 
-        // LOGIN
         function login() {
             const username = document.getElementById('username').value.toLowerCase().trim();
             const password = document.getElementById('password').value;
@@ -788,18 +730,16 @@
                 document.getElementById('dashboard').classList.add('active');
                 document.getElementById('userBadge').textContent = `${currentUser.role}: ${username}`;
                 
-                // Mostra pannello admin se admin
                 if (currentUser.level === 3) {
                     document.getElementById('uploadBtn').classList.remove('hidden');
                 }
                 
-                loadDataFromFirebase();
+                loadData();
             } else {
-                showAlert('loginAlert', 'Username o password errati!', 'error');
+                showAlert('loginAlert', 'Credenziali errate', 'error');
             }
         }
 
-        // LOGOUT
         function logout() {
             currentUser = null;
             allData = [];
@@ -811,179 +751,207 @@
             document.getElementById('adminPanel').classList.add('hidden');
         }
 
-        // CARICA DATI DA FIREBASE
-        async function loadDataFromFirebase() {
+        async function loadData() {
             showLoading('Caricamento dati...');
-            
             try {
-                if (!firebaseInitialized) {
-                    // Modalità demo - carica dati locali
-                    console.log('Modalità demo: caricamento dati di esempio');
-                    hideLoading();
-                    showAlert('uploadAlert', '⚠️ Firebase non configurato. Usando dati di esempio. Carica un file Excel per iniziare.', 'info');
-                    return;
-                }
-
-                const database = firebase.database();
-                const snapshot = await database.ref('immobili').once('value');
+                const snapshot = await db.ref('immobili').once('value');
                 const data = snapshot.val();
 
                 if (data) {
                     allData = Array.isArray(data) ? data : Object.values(data);
+                    
+                    // VERIFICA SE I DATI SONO CORROTTI
+                    if (allData.length > 0) {
+                        const firstRecord = allData[0];
+                        const keys = Object.keys(firstRecord);
+                        const hasCorruptedKeys = keys.some(k => k.includes('__') || !keys.includes('ID Asset (PBE)'));
+                        
+                        if (hasCorruptedKeys) {
+                            console.log('Dati corrotti rilevati - Richiesta pulizia');
+                            hideLoading();
+                            if (currentUser.level === 3) {
+                                alert('ATTENZIONE: Database contiene dati corrotti!\n\nUsa il pulsante "Cancella Database" nel pannello admin e ricarica il file Excel.');
+                            }
+                            return;
+                        }
+                    }
+                    
                     filteredData = [...allData];
                     initDashboard();
                 } else {
-                    console.log('Nessun dato trovato in Firebase');
+                    console.log('Database vuoto');
                 }
             } catch (error) {
-                console.error('Errore caricamento da Firebase:', error);
-                showAlert('uploadAlert', 'Errore nel caricamento dei dati. Carica un file Excel.', 'error');
+                console.error('Errore:', error);
             } finally {
                 hideLoading();
             }
         }
 
-        // MOSTRA PANNELLO UPLOAD
         function showUploadPanel() {
-            const panel = document.getElementById('adminPanel');
-            panel.classList.toggle('hidden');
+            document.getElementById('adminPanel').classList.toggle('hidden');
         }
 
-        // GESTIONE UPLOAD FILE
         async function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            showLoading('Elaborazione file Excel...');
+            showLoading('Lettura file Excel...');
 
             try {
-                const data = await readExcelFile(file);
+                const data = await readExcel(file);
                 
                 if (data && data.length > 0) {
-                    // Salva su Firebase se configurato
-                    if (firebaseInitialized) {
-                        await saveToFirebase(data);
-                        showAlert('uploadAlert', `✅ File caricato con successo! ${data.length} immobili aggiornati.`, 'success');
-                    } else {
-                        // Usa dati localmente se Firebase non è configurato
-                        allData = data;
-                        filteredData = [...allData];
-                        initDashboard();
-                        showAlert('uploadAlert', `✅ File caricato! ${data.length} immobili visualizzati (solo in questa sessione).`, 'success');
-                    }
+                    showLoading('Salvataggio su Firebase...');
+                    await saveToFirebase(data);
+                    showAlert('uploadAlert', `File caricato: ${data.length} immobili`, 'success');
                 } else {
-                    showAlert('uploadAlert', '❌ Il file Excel è vuoto o non valido', 'error');
+                    showAlert('uploadAlert', 'File vuoto', 'error');
                 }
             } catch (error) {
-                console.error('Errore elaborazione file:', error);
-                showAlert('uploadAlert', `❌ Errore: ${error.message}`, 'error');
+                showAlert('uploadAlert', 'Errore: ' + error.message, 'error');
             } finally {
                 hideLoading();
-                event.target.value = ''; // Reset input
+                event.target.value = '';
             }
         }
 
-        // LEGGI FILE EXCEL
-        function readExcelFile(file) {
+        function readExcel(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     try {
                         const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(sheet);
                         
-                        // Converti date in stringhe
-                        const processedData = jsonData.map(row => {
+                        // Converti date e pulisci caratteri non validi per Firebase
+                        const cleaned = jsonData.map(row => {
                             const newRow = {};
                             for (let key in row) {
-                                if (row[key] instanceof Date) {
-                                    newRow[key] = row[key].toISOString().split('T')[0];
-                                } else {
-                                    newRow[key] = row[key];
-                                }
+                                const cleanKey = key.replace(/[.#$\/\[\]]/g, '_');
+                                newRow[cleanKey] = row[key] instanceof Date 
+                                    ? row[key].toISOString().split('T')[0] 
+                                    : row[key];
                             }
                             return newRow;
                         });
                         
-                        resolve(processedData);
-                    } catch (error) {
-                        reject(new Error('Formato file non valido'));
+                        resolve(cleaned);
+                    } catch (err) {
+                        reject(new Error('File non valido'));
                     }
                 };
-                
                 reader.onerror = () => reject(new Error('Errore lettura file'));
                 reader.readAsArrayBuffer(file);
             });
         }
 
-        // SALVA SU FIREBASE
-        async function saveToFirebase(data) {
+        async function saveToFirebase(newData) {
             try {
-                const database = firebase.database();
-                await database.ref('immobili').set(data);
-                console.log('Dati salvati su Firebase');
+                const snapshot = await db.ref('immobili').once('value');
+                const existing = snapshot.val();
                 
-                // Aggiorna dati locali
-                allData = data;
+                let merged = [];
+                
+                if (existing) {
+                    const existingArray = Array.isArray(existing) ? existing : Object.values(existing);
+                    const existingIds = new Set(existingArray.map(item => item['ID Asset (PBE)'] || item['ID_Asset_(PBE)']).filter(Boolean));
+                    const newUnique = newData.filter(item => {
+                        const id = item['ID Asset (PBE)'] || item['ID_Asset_(PBE)'];
+                        return id && !existingIds.has(id);
+                    });
+                    merged = [...existingArray, ...newUnique];
+                } else {
+                    merged = newData;
+                }
+                
+                await db.ref('immobili').set(merged);
+                allData = merged;
                 filteredData = [...allData];
                 initDashboard();
             } catch (error) {
-                throw new Error('Errore salvataggio su Firebase: ' + error.message);
+                throw new Error('Errore salvataggio: ' + error.message);
             }
         }
 
-        // INIZIALIZZA DASHBOARD
-        function initDashboard() {
-            if (allData.length === 0) {
-                console.log('Nessun dato da visualizzare');
-                return;
+        async function resetDatabase() {
+            if (!confirm('Cancellare TUTTI i dati?')) return;
+            if (!confirm('CONFERMA FINALE: Cancello tutto?')) return;
+
+            showLoading('Cancellazione...');
+            try {
+                await db.ref('immobili').remove();
+                allData = [];
+                filteredData = [];
+                updateStats();
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Database vuoto</td></tr>';
+                showAlert('uploadAlert', 'Database cancellato', 'success');
+            } catch (error) {
+                showAlert('uploadAlert', 'Errore: ' + error.message, 'error');
+            } finally {
+                hideLoading();
             }
+        }
+
+        async function checkDatabase() {
+            showLoading('Controllo...');
+            try {
+                const snapshot = await db.ref('immobili').once('value');
+                const data = snapshot.val();
+
+                if (!data) {
+                    alert('Database vuoto');
+                } else {
+                    const arr = Array.isArray(data) ? data : Object.values(data);
+                    const keys = arr.length > 0 ? Object.keys(arr[0]) : [];
+                    const corrupted = keys.some(k => k.includes('__') || k.match(/[.#$\/\[\]]/));
+                    const hasCorrect = keys.includes('ID Asset (PBE)');
+                    
+                    let msg = `Record: ${arr.length}\n\n`;
+                    if (corrupted) {
+                        msg += 'DATI CORROTTI\nCancella e ricarica';
+                    } else if (hasCorrect) {
+                        msg += 'Dati OK';
+                    } else {
+                        msg += 'Struttura sconosciuta';
+                    }
+                    msg += '\n\nPrime chiavi:\n' + keys.slice(0, 5).join(', ');
+                    alert(msg);
+                }
+            } catch (error) {
+                alert('Errore: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function initDashboard() {
+            if (!allData.length) return;
             populateFilters();
             updateStats();
             renderTable();
         }
 
-        // POPOLA FILTRI
         function populateFilters() {
             const regioni = [...new Set(allData.map(d => d.Regione).filter(Boolean))].sort();
             const province = [...new Set(allData.map(d => d.Provincia).filter(Boolean))].sort();
-            const tipologie = [...new Set(allData.map(d => d['Tipologia Asset']).filter(Boolean))].sort();
+            const tipologie = [...new Set(allData.map(d => d['Tipologia Asset'] || d['Tipologia_Asset']).filter(Boolean))].sort();
 
-            const selectRegione = document.getElementById('filterRegione');
-            const selectProvincia = document.getElementById('filterProvincia');
-            const selectTipologia = document.getElementById('filterTipologia');
+            const selRegione = document.getElementById('filterRegione');
+            const selProvincia = document.getElementById('filterProvincia');
+            const selTipologia = document.getElementById('filterTipologia');
 
-            // Reset
-            selectRegione.innerHTML = '<option value="">Tutte</option>';
-            selectProvincia.innerHTML = '<option value="">Tutte</option>';
-            selectTipologia.innerHTML = '<option value="">Tutte</option>';
+            selRegione.innerHTML = '<option value="">Tutte</option>';
+            selProvincia.innerHTML = '<option value="">Tutte</option>';
+            selTipologia.innerHTML = '<option value="">Tutte</option>';
 
-            regioni.forEach(r => {
-                const option = document.createElement('option');
-                option.value = r;
-                option.textContent = r;
-                selectRegione.appendChild(option);
-            });
-
-            province.forEach(p => {
-                const option = document.createElement('option');
-                option.value = p;
-                option.textContent = p;
-                selectProvincia.appendChild(option);
-            });
-
-            tipologie.forEach(t => {
-                const option = document.createElement('option');
-                option.value = t;
-                option.textContent = t;
-                selectTipologia.appendChild(option);
-            });
+            regioni.forEach(r => selRegione.innerHTML += `<option value="${r}">${r}</option>`);
+            province.forEach(p => selProvincia.innerHTML += `<option value="${p}">${p}</option>`);
+            tipologie.forEach(t => selTipologia.innerHTML += `<option value="${t}">${t}</option>`);
         }
 
-        // APPLICA FILTRI
         function applyFilters() {
             const regione = document.getElementById('filterRegione').value;
             const provincia = document.getElementById('filterProvincia').value;
@@ -994,7 +962,7 @@
                 let match = true;
                 if (regione && item.Regione !== regione) match = false;
                 if (provincia && item.Provincia !== provincia) match = false;
-                if (tipologia && item['Tipologia Asset'] !== tipologia) match = false;
+                if (tipologia && (item['Tipologia Asset'] !== tipologia && item['Tipologia_Asset'] !== tipologia)) match = false;
                 if (comune && !item.Comune?.toLowerCase().includes(comune)) match = false;
                 return match;
             });
@@ -1003,36 +971,24 @@
             renderTable();
         }
 
-        // AGGIORNA STATISTICHE
         function updateStats() {
             const total = filteredData.length;
-            const valoreTotale = filteredData.reduce((sum, item) => {
-                return sum + (parseFloat(item['Valore ultima perizia terzi']) || 0);
-            }, 0);
+            const valore = filteredData.reduce((sum, item) => sum + (parseFloat(item['Valore ultima perizia terzi'] || item['Valore_ultima_perizia_terzi'] || 0)), 0);
             const regioni = new Set(filteredData.map(d => d.Regione).filter(Boolean)).size;
-            const superficieTotale = filteredData.reduce((sum, item) => {
-                return sum + (parseFloat(item['Superficie mq']) || 0);
-            }, 0);
+            const superficie = filteredData.reduce((sum, item) => sum + (parseFloat(item['Superficie mq'] || item['Superficie_mq'] || 0)), 0);
 
             document.getElementById('statTotal').textContent = total.toLocaleString('it-IT');
-            document.getElementById('statValue').textContent = '€' + valoreTotale.toLocaleString('it-IT');
+            document.getElementById('statValue').textContent = '€' + valore.toLocaleString('it-IT');
             document.getElementById('statRegions').textContent = regioni;
-            document.getElementById('statArea').textContent = Math.round(superficieTotale).toLocaleString('it-IT') + ' mq';
+            document.getElementById('statArea').textContent = Math.round(superficie).toLocaleString('it-IT') + ' mq';
         }
 
-        // RENDERIZZA TABELLA
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            if (filteredData.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
-                            Nessun immobile trovato con i filtri selezionati
-                        </td>
-                    </tr>
-                `;
+            if (!filteredData.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Nessun risultato</td></tr>';
                 document.getElementById('recordCount').textContent = '0';
                 return;
             }
@@ -1040,119 +996,82 @@
             filteredData.forEach(item => {
                 const row = tbody.insertRow();
                 
+                const id = item['ID Asset (PBE)'] || item['ID_Asset_(PBE)'] || '-';
+                const tipologia = item['Tipologia Asset'] || item['Tipologia_Asset'] || '-';
+                const descrizione = item['Descrizione asset'] || item['Descrizione_asset'] || '-';
+                const comune = item.Comune || '-';
+                const provincia = item.Provincia || '-';
+                const superficie = item['Superficie mq'] || item['Superficie_mq'] || 0;
+                const valore = item['Valore ultima perizia terzi'] || item['Valore_ultima_perizia_terzi'] || 0;
+                
                 let badgeClass = 'badge-altro';
-                if (item['Tipologia Asset']?.includes('Residenziale')) badgeClass = 'badge-residenziale';
-                if (item['Tipologia Asset']?.includes('Commerciale')) badgeClass = 'badge-commerciale';
+                if (tipologia.includes('Residenziale')) badgeClass = 'badge-residenziale';
+                if (tipologia.includes('Commerciale')) badgeClass = 'badge-commerciale';
 
-                const valore = currentUser.level >= 2 
-                    ? '€' + (parseFloat(item['Valore ultima perizia terzi']) || 0).toLocaleString('it-IT')
-                    : 'Riservato';
-
-                const superficie = (parseFloat(item['Superficie mq']) || 0).toLocaleString('it-IT');
+                const valoreText = currentUser.level >= 2 ? '€' + parseFloat(valore).toLocaleString('it-IT') : 'Riservato';
 
                 row.innerHTML = `
-                    <td>${item['ID Asset (PBE)'] || '-'}</td>
-                    <td><span class="badge ${badgeClass}">${item['Tipologia Asset'] || '-'}</span></td>
-                    <td>${item['Descrizione asset'] || '-'}</td>
-                    <td>${item.Comune || '-'}</td>
-                    <td>${item.Provincia || '-'}</td>
-                    <td>${superficie} mq</td>
-                    <td>${valore}</td>
-                    <td><button class="btn-filter" onclick="showDetail(${item['ID Asset (PBE)']})">Dettagli</button></td>
+                    <td>${id}</td>
+                    <td><span class="badge ${badgeClass}">${tipologia}</span></td>
+                    <td>${descrizione}</td>
+                    <td>${comune}</td>
+                    <td>${provincia}</td>
+                    <td>${parseFloat(superficie).toLocaleString('it-IT')} mq</td>
+                    <td>${valoreText}</td>
+                    <td><button class="btn-filter" onclick="showDetail('${id}')">Dettagli</button></td>
                 `;
             });
 
             document.getElementById('recordCount').textContent = filteredData.length;
         }
 
-        // RICERCA TABELLA
         function searchTable() {
-            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-            
-            if (searchTerm === '') {
-                filteredData = [...allData];
-            } else {
-                filteredData = allData.filter(item => {
-                    return Object.values(item).some(val => 
-                        String(val).toLowerCase().includes(searchTerm)
-                    );
-                });
-            }
-
+            const term = document.getElementById('searchBox').value.toLowerCase();
+            filteredData = term === '' ? [...allData] : allData.filter(item => 
+                Object.values(item).some(val => String(val).toLowerCase().includes(term))
+            );
             updateStats();
             renderTable();
         }
 
-        // MOSTRA DETTAGLIO
         function showDetail(id) {
-            const item = allData.find(d => d['ID Asset (PBE)'] === id);
+            const item = allData.find(d => (d['ID Asset (PBE)'] || d['ID_Asset_(PBE)']) == id);
             if (!item) return;
 
-            const detailContent = document.getElementById('detailContent');
-            detailContent.innerHTML = '';
+            const content = document.getElementById('detailContent');
+            content.innerHTML = '';
 
             const fields = [
-                { label: 'ID Asset', key: 'ID Asset (PBE)' },
-                { label: 'ID Collateral', key: 'ID Collateral (CGA)' },
-                { label: 'Tipologia', key: 'Tipologia Asset' },
-                { label: 'Descrizione', key: 'Descrizione asset' },
-                { label: 'Regione', key: 'Regione' },
-                { label: 'Provincia', key: 'Provincia' },
-                { label: 'Comune', key: 'Comune' },
-                { label: 'Indirizzo', key: 'Indirizzo' },
-                { label: 'Località', key: 'Localita' },
-                { label: 'Superficie', key: 'Superficie mq' },
-                { label: '% Proprietà', key: '% di proprieta' },
-                { label: 'Tipo Diritto', key: 'Tipo diritto reale' }
+                'ID Asset (PBE)', 'Tipologia Asset', 'Descrizione asset',
+                'Regione', 'Provincia', 'Comune', 'Indirizzo', 'Localita',
+                'Superficie mq', '% di proprieta', 'Tipo diritto reale'
             ];
 
             if (currentUser.level >= 2) {
-                fields.push(
-                    { label: 'Valore Perizia', key: 'Valore ultima perizia terzi' },
-                    { label: 'Data Perizia', key: 'Data ultima perizia terzi' },
-                    { label: 'Prezzo Base Asta', key: 'Prezzo base ultima asta' },
-                    { label: 'Data Ultima Asta', key: 'Data ultima asta' },
-                    { label: 'Aste Deserte', key: 'Numero aste deserte' },
-                    { label: 'Tribunale', key: 'Tribunale asta' }
-                );
+                fields.push('Valore ultima perizia terzi', 'Data ultima perizia terzi', 
+                           'Prezzo base ultima asta', 'Data ultima asta');
             }
 
             fields.forEach(field => {
-                const value = item[field.key];
-                if (value !== null && value !== undefined && value !== '') {
-                    const div = document.createElement('div');
-                    div.className = 'detail-item';
-                    div.innerHTML = `
-                        <label>${field.label}</label>
-                        <div class="value">${formatValue(value, field.key)}</div>
+                const cleanField = field.replace(/[.#$\/\[\]]/g, '_');
+                const val = item[field] || item[cleanField];
+                if (val !== null && val !== undefined && val !== '') {
+                    content.innerHTML += `
+                        <div class="detail-item">
+                            <label>${field}</label>
+                            <div class="value">${val}</div>
+                        </div>
                     `;
-                    detailContent.appendChild(div);
                 }
             });
 
             document.getElementById('detailModal').classList.add('active');
         }
 
-        // FORMATTA VALORE
-        function formatValue(value, key) {
-            if (key.includes('Valore') || key.includes('Prezzo')) {
-                return '€' + parseFloat(value).toLocaleString('it-IT');
-            }
-            if (key.includes('Superficie')) {
-                return parseFloat(value).toLocaleString('it-IT') + ' mq';
-            }
-            if (key.includes('%')) {
-                return parseFloat(value).toLocaleString('it-IT') + '%';
-            }
-            return value;
-        }
-
-        // CHIUDI MODAL
         function closeModal() {
             document.getElementById('detailModal').classList.remove('active');
         }
 
-        // EVENT LISTENERS
         document.getElementById('detailModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
@@ -1161,41 +1080,15 @@
             if (e.key === 'Enter') login();
         });
 
-        // Drag & Drop
-        const uploadArea = document.getElementById('uploadArea');
-        
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                document.getElementById('fileInput').files = files;
-                handleFileUpload({ target: { files: files } });
+        // Listener tempo reale
+        db.ref('immobili').on('value', (snapshot) => {
+            if (currentUser && snapshot.exists()) {
+                const data = snapshot.val();
+                allData = Array.isArray(data) ? data : Object.values(data);
+                filteredData = [...allData];
+                initDashboard();
             }
         });
-
-        // ASCOLTA CAMBIAMENTI IN TEMPO REALE DA FIREBASE
-        if (firebaseInitialized) {
-            const database = firebase.database();
-            database.ref('immobili').on('value', (snapshot) => {
-                if (currentUser && snapshot.exists()) {
-                    const data = snapshot.val();
-                    allData = Array.isArray(data) ? data : Object.values(data);
-                    filteredData = [...allData];
-                    initDashboard();
-                    console.log('Dati aggiornati automaticamente da Firebase');
-                }
-            });
-        }
     </script>
 </body>
 </html>
