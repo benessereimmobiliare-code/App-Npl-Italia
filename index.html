@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Immobili - FINALE</title>
+    <title>Dashboard Dinamica - Universal</title>
     <style>
         * {
             margin: 0;
@@ -39,7 +39,6 @@
             color: #667eea;
             margin-bottom: 30px;
             text-align: center;
-            font-size: 28px;
         }
 
         .input-group {
@@ -78,10 +77,6 @@
             cursor: pointer;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
         .user-info {
             background: rgba(102, 126, 234, 0.1);
             padding: 15px;
@@ -94,7 +89,7 @@
 
         .dashboard {
             display: none;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -117,13 +112,11 @@
 
         .header h1 {
             color: #667eea;
-            font-size: clamp(20px, 4vw, 28px);
         }
 
         .header-right {
             display: flex;
             gap: 15px;
-            align-items: center;
             flex-wrap: wrap;
         }
 
@@ -136,9 +129,8 @@
             font-weight: 500;
         }
 
-        .btn-logout {
+        .btn-logout, .btn-upload, .btn-danger, .btn-info {
             padding: 10px 20px;
-            background: #f44336;
             color: white;
             border: none;
             border-radius: 8px;
@@ -147,16 +139,10 @@
             font-weight: 600;
         }
 
-        .btn-upload {
-            padding: 10px 20px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-        }
+        .btn-logout { background: #f44336; }
+        .btn-upload { background: #4CAF50; }
+        .btn-danger { background: #f44336; }
+        .btn-info { background: #2196F3; }
 
         .admin-panel {
             background: white;
@@ -169,7 +155,6 @@
         .admin-panel h2 {
             color: #667eea;
             margin-bottom: 15px;
-            font-size: 20px;
         }
 
         .admin-buttons {
@@ -177,26 +162,6 @@
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
-        }
-
-        .btn-danger {
-            padding: 10px 20px;
-            background: #f44336;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-info {
-            padding: 10px 20px;
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
         }
 
         .upload-area {
@@ -210,12 +175,6 @@
 
         .upload-area:hover {
             background: #f5f5ff;
-            border-color: #764ba2;
-        }
-
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
         }
 
         #fileInput {
@@ -249,51 +208,6 @@
             font-weight: bold;
         }
 
-        .filters {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .filter-group label {
-            font-size: 14px;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .filter-group select,
-        .filter-group input {
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .btn-filter {
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
         .table-container {
             background: white;
             padding: 20px;
@@ -323,7 +237,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         thead {
@@ -333,7 +247,7 @@
         }
 
         th {
-            padding: 15px 10px;
+            padding: 12px 8px;
             text-align: left;
             color: #333;
             font-weight: 600;
@@ -342,35 +256,12 @@
         }
 
         td {
-            padding: 12px 10px;
+            padding: 10px 8px;
             border-bottom: 1px solid #e0e0e0;
         }
 
         tbody tr:hover {
             background: #f9f9f9;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-residenziale {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .badge-commerciale {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .badge-altro {
-            background: #f3e5f5;
-            color: #7b1fa2;
         }
 
         .modal {
@@ -396,7 +287,7 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
@@ -409,10 +300,6 @@
             margin-bottom: 20px;
             padding-bottom: 15px;
             border-bottom: 2px solid #e0e0e0;
-        }
-
-        .modal-header h2 {
-            color: #667eea;
         }
 
         .btn-close {
@@ -428,18 +315,18 @@
         .detail-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            gap: 15px;
         }
 
         .detail-item {
-            padding: 15px;
+            padding: 12px;
             background: #f9f9f9;
             border-radius: 8px;
         }
 
         .detail-item label {
             display: block;
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
             margin-bottom: 5px;
             text-transform: uppercase;
@@ -447,9 +334,10 @@
         }
 
         .detail-item .value {
-            font-size: 16px;
+            font-size: 14px;
             color: #333;
             font-weight: 500;
+            word-break: break-word;
         }
 
         .loading-overlay {
@@ -501,35 +389,32 @@
         .alert-success {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
         }
 
         .alert-error {
             background: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
         }
 
         .alert-info {
             background: #d1ecf1;
             color: #0c5460;
-            border: 1px solid #bee5eb;
         }
 
         .hidden {
             display: none;
         }
 
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            table {
-                font-size: 12px;
-            }
-            th, td {
-                padding: 8px 5px;
-            }
+        .columns-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .columns-info strong {
+            color: #1976d2;
         }
     </style>
 </head>
@@ -543,28 +428,26 @@
 
     <div id="loginScreen" class="login-container">
         <div class="login-box">
-            <h1>Dashboard Immobili</h1>
+            <h1>Dashboard Dinamica</h1>
             <div id="loginAlert"></div>
             <div class="input-group">
                 <label>Username</label>
-                <input type="text" id="username" placeholder="Inserisci username">
+                <input type="text" id="username" placeholder="admin">
             </div>
             <div class="input-group">
                 <label>Password</label>
-                <input type="password" id="password" placeholder="Inserisci password">
+                <input type="password" id="password" placeholder="admin123">
             </div>
             <button class="btn" onclick="login()">Accedi</button>
             <div class="user-info">
-                <strong>Admin:</strong> admin / admin123<br>
-                <strong>Manager:</strong> manager / manager123<br>
-                <strong>Viewer:</strong> viewer / viewer123
+                <strong>Admin:</strong> admin / admin123
             </div>
         </div>
     </div>
 
     <div id="dashboard" class="dashboard">
         <div class="header">
-            <h1>Dashboard Immobili</h1>
+            <h1>Dashboard Dinamica</h1>
             <div class="header-right">
                 <span class="user-badge" id="userBadge"></span>
                 <button class="btn-upload hidden" id="uploadBtn" onclick="showUploadPanel()">Carica Excel</button>
@@ -573,94 +456,69 @@
         </div>
 
         <div id="adminPanel" class="admin-panel hidden">
-            <h2>Pannello Amministratore</h2>
+            <h2>Pannello Admin</h2>
             <div id="uploadAlert"></div>
             <div class="admin-buttons">
                 <button class="btn-danger" onclick="resetDatabase()">Cancella Database</button>
-                <button class="btn-info" onclick="checkDatabase()">Controlla Database</button>
+                <button class="btn-info" onclick="showColumnsInfo()">Mostra Colonne</button>
             </div>
             <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                <div class="upload-icon">📁</div>
+                <div style="font-size: 48px; margin-bottom: 10px;">📁</div>
                 <h3>Carica file Excel</h3>
-                <p>Clicca qui o trascina il file .xlsx</p>
+                <p>La dashboard si adatterà automaticamente alle colonne del file</p>
             </div>
             <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>Totale Immobili</h3>
+                <h3>Totale Record</h3>
                 <div class="value" id="statTotal">0</div>
             </div>
             <div class="stat-card">
-                <h3>Valore Totale</h3>
-                <div class="value" id="statValue">€0</div>
+                <h3>Colonne Totali</h3>
+                <div class="value" id="statColumns">0</div>
             </div>
             <div class="stat-card">
-                <h3>Regioni</h3>
-                <div class="value" id="statRegions">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>Superficie Totale</h3>
-                <div class="value" id="statArea">0 mq</div>
+                <h3>File Caricati</h3>
+                <div class="value" id="statFiles">0</div>
             </div>
         </div>
 
-        <div class="filters">
-            <div class="filter-grid">
-                <div class="filter-group">
-                    <label>Regione</label>
-                    <select id="filterRegione"><option value="">Tutte</option></select>
-                </div>
-                <div class="filter-group">
-                    <label>Provincia</label>
-                    <select id="filterProvincia"><option value="">Tutte</option></select>
-                </div>
-                <div class="filter-group">
-                    <label>Tipologia</label>
-                    <select id="filterTipologia"><option value="">Tutte</option></select>
-                </div>
-                <div class="filter-group">
-                    <label>Comune</label>
-                    <input type="text" id="filterComune" placeholder="Cerca comune...">
-                </div>
-            </div>
-            <button class="btn-filter" onclick="applyFilters()">Applica Filtri</button>
+        <div id="filtersContainer" class="hidden" style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            <h3 style="color: #667eea; margin-bottom: 15px;">Filtri</h3>
+            <div id="dynamicFilters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;"></div>
+            <button class="btn-info" onclick="applyFilters()">Applica Filtri</button>
+            <button class="btn-danger" style="margin-left: 10px;" onclick="clearFilters()">Azzera Filtri</button>
         </div>
 
         <div class="table-container">
             <div class="table-header">
-                <h2>Elenco Immobili (<span id="recordCount">0</span>)</h2>
+                <h2>Elenco Dati (<span id="recordCount">0</span>)</h2>
                 <input type="text" id="searchBox" class="search-box" placeholder="Cerca..." onkeyup="searchTable()">
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Tipologia</th>
-                        <th>Descrizione</th>
-                        <th>Comune</th>
-                        <th>Provincia</th>
-                        <th>Superficie</th>
-                        <th>Valore</th>
-                        <th>Azioni</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
-                            Nessun dato. Carica un file Excel.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div id="columnsInfo" class="columns-info hidden"></div>
+            <div style="overflow-x: auto;">
+                <table id="dataTable">
+                    <thead id="tableHead">
+                        <tr><th>Nessuna colonna</th></tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td style="text-align: center; padding: 40px; color: #999;">
+                                Nessun dato. Carica un file Excel.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Dettaglio Immobile</h2>
+                <h2>Dettaglio Record</h2>
                 <button class="btn-close" onclick="closeModal()">Chiudi</button>
             </div>
             <div id="detailContent" class="detail-grid"></div>
@@ -687,12 +545,12 @@
 
         let allData = [];
         let filteredData = [];
+        let allColumns = new Set();
         let currentUser = null;
+        let activeFilters = {};
 
         const users = {
-            'admin': { password: 'admin123', role: 'Admin', level: 3 },
-            'manager': { password: 'manager123', role: 'Manager', level: 2 },
-            'viewer': { password: 'viewer123', role: 'Viewer', level: 1 }
+            'admin': { password: 'admin123', role: 'Admin', level: 3 }
         };
 
         function showLoading(text = 'Caricamento...') {
@@ -714,11 +572,6 @@
             const username = document.getElementById('username').value.toLowerCase().trim();
             const password = document.getElementById('password').value;
 
-            if (!username || !password) {
-                showAlert('loginAlert', 'Inserisci username e password', 'error');
-                return;
-            }
-
             if (users[username] && users[username].password === password) {
                 currentUser = {
                     username: username,
@@ -729,10 +582,7 @@
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').classList.add('active');
                 document.getElementById('userBadge').textContent = `${currentUser.role}: ${username}`;
-                
-                if (currentUser.level === 3) {
-                    document.getElementById('uploadBtn').classList.remove('hidden');
-                }
+                document.getElementById('uploadBtn').classList.remove('hidden');
                 
                 loadData();
             } else {
@@ -743,41 +593,24 @@
         function logout() {
             currentUser = null;
             allData = [];
-            filteredData = [];
+            allColumns.clear();
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('dashboard').classList.remove('active');
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
-            document.getElementById('adminPanel').classList.add('hidden');
         }
 
         async function loadData() {
             showLoading('Caricamento dati...');
             try {
-                const snapshot = await db.ref('immobili').once('value');
+                const snapshot = await db.ref('data').once('value');
                 const data = snapshot.val();
 
                 if (data) {
                     allData = Array.isArray(data) ? data : Object.values(data);
-                    
-                    // VERIFICA SE I DATI SONO CORROTTI
-                    if (allData.length > 0) {
-                        const firstRecord = allData[0];
-                        const keys = Object.keys(firstRecord);
-                        const hasCorruptedKeys = keys.some(k => k.includes('__') || !keys.includes('ID Asset (PBE)'));
-                        
-                        if (hasCorruptedKeys) {
-                            console.log('Dati corrotti rilevati - Richiesta pulizia');
-                            hideLoading();
-                            if (currentUser.level === 3) {
-                                alert('ATTENZIONE: Database contiene dati corrotti!\n\nUsa il pulsante "Cancella Database" nel pannello admin e ricarica il file Excel.');
-                            }
-                            return;
-                        }
-                    }
-                    
-                    filteredData = [...allData];
-                    initDashboard();
+                    extractAllColumns();
+                    renderTable();
+                    updateStats();
                 } else {
                     console.log('Database vuoto');
                 }
@@ -786,6 +619,119 @@
             } finally {
                 hideLoading();
             }
+        }
+
+        function extractAllColumns() {
+            allColumns.clear();
+            allData.forEach(record => {
+                Object.keys(record).forEach(key => allColumns.add(key));
+            });
+            
+            // Genera filtri dinamici dopo aver estratto le colonne
+            generateDynamicFilters();
+        }
+
+        function generateDynamicFilters() {
+            const filterContainer = document.getElementById('dynamicFilters');
+            const filtersSection = document.getElementById('filtersContainer');
+            
+            // Colonne per cui creare filtri
+            const filterableColumns = ['Regione', 'Provincia', 'Comune', 'Tipologia Asset', 'Destinazione d\'uso', 'Tipo'];
+            const foundColumns = filterableColumns.filter(col => 
+                Array.from(allColumns).some(c => c.toLowerCase().includes(col.toLowerCase()))
+            );
+            
+            if (foundColumns.length === 0) {
+                filtersSection.classList.add('hidden');
+                return;
+            }
+            
+            filtersSection.classList.remove('hidden');
+            filterContainer.innerHTML = '';
+            
+            foundColumns.forEach(filterName => {
+                // Trova la colonna esatta nel database
+                const actualColumn = Array.from(allColumns).find(c => 
+                    c.toLowerCase().includes(filterName.toLowerCase())
+                );
+                
+                if (!actualColumn) return;
+                
+                // Estrai valori unici per questa colonna
+                const uniqueValues = [...new Set(
+                    allData.map(record => record[actualColumn]).filter(Boolean)
+                )].sort();
+                
+                // Crea il filtro
+                const filterDiv = document.createElement('div');
+                filterDiv.innerHTML = `
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #666;">${actualColumn}</label>
+                    <select id="filter_${actualColumn.replace(/[^a-zA-Z0-9]/g, '_')}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                        <option value="">Tutti</option>
+                        ${uniqueValues.map(val => `<option value="${val}">${val}</option>`).join('')}
+                    </select>
+                `;
+                filterContainer.appendChild(filterDiv);
+            });
+            
+            // Aggiungi anche la casella di ricerca libera se non c'è già
+            const searchDiv = document.createElement('div');
+            searchDiv.innerHTML = `
+                <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #666;">Ricerca libera</label>
+                <input type="text" id="freeSearchFilter" placeholder="Cerca in tutti i campi..." style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+            `;
+            filterContainer.appendChild(searchDiv);
+        }
+
+        function applyFilters() {
+            activeFilters = {};
+            filteredData = [...allData];
+            
+            // Applica ogni filtro select
+            const selects = document.getElementById('dynamicFilters').querySelectorAll('select');
+            selects.forEach(select => {
+                if (select.value) {
+                    const columnName = select.id.replace('filter_', '').replace(/_/g, ' ');
+                    // Trova la colonna esatta
+                    const actualColumn = Array.from(allColumns).find(c => 
+                        c.replace(/[^a-zA-Z0-9]/g, '_') === select.id.replace('filter_', '')
+                    );
+                    
+                    if (actualColumn) {
+                        filteredData = filteredData.filter(record => 
+                            record[actualColumn] === select.value
+                        );
+                    }
+                }
+            });
+            
+            // Applica ricerca libera
+            const freeSearch = document.getElementById('freeSearchFilter');
+            if (freeSearch && freeSearch.value) {
+                const searchTerm = freeSearch.value.toLowerCase();
+                filteredData = filteredData.filter(record =>
+                    Object.values(record).some(val => 
+                        String(val).toLowerCase().includes(searchTerm)
+                    )
+                );
+            }
+            
+            renderTable();
+        }
+
+        function clearFilters() {
+            // Reset tutti i select
+            const selects = document.getElementById('dynamicFilters').querySelectorAll('select');
+            selects.forEach(select => select.value = '');
+            
+            // Reset ricerca libera
+            const freeSearch = document.getElementById('freeSearchFilter');
+            if (freeSearch) freeSearch.value = '';
+            
+            // Reset dati
+            filteredData = [];
+            activeFilters = {};
+            renderTable();
         }
 
         function showUploadPanel() {
@@ -802,9 +748,9 @@
                 const data = await readExcel(file);
                 
                 if (data && data.length > 0) {
-                    showLoading('Salvataggio su Firebase...');
+                    showLoading('Salvataggio...');
                     await saveToFirebase(data);
-                    showAlert('uploadAlert', `File caricato: ${data.length} immobili`, 'success');
+                    showAlert('uploadAlert', `File caricato: ${data.length} record, ${Object.keys(data[0]).length} colonne`, 'success');
                 } else {
                     showAlert('uploadAlert', 'File vuoto', 'error');
                 }
@@ -826,11 +772,11 @@
                         const sheet = workbook.Sheets[workbook.SheetNames[0]];
                         const jsonData = XLSX.utils.sheet_to_json(sheet);
                         
-                        // Converti date e pulisci caratteri non validi per Firebase
+                        // Pulisci caratteri non validi per Firebase
                         const cleaned = jsonData.map(row => {
                             const newRow = {};
                             for (let key in row) {
-                                const cleanKey = key.replace(/[.#$\/\[\]]/g, '_');
+                                const cleanKey = String(key).replace(/[.#$\/\[\]]/g, '_');
                                 newRow[cleanKey] = row[key] instanceof Date 
                                     ? row[key].toISOString().split('T')[0] 
                                     : row[key];
@@ -843,34 +789,31 @@
                         reject(new Error('File non valido'));
                     }
                 };
-                reader.onerror = () => reject(new Error('Errore lettura file'));
+                reader.onerror = () => reject(new Error('Errore lettura'));
                 reader.readAsArrayBuffer(file);
             });
         }
 
         async function saveToFirebase(newData) {
             try {
-                const snapshot = await db.ref('immobili').once('value');
+                const snapshot = await db.ref('data').once('value');
                 const existing = snapshot.val();
                 
                 let merged = [];
                 
                 if (existing) {
                     const existingArray = Array.isArray(existing) ? existing : Object.values(existing);
-                    const existingIds = new Set(existingArray.map(item => item['ID Asset (PBE)'] || item['ID_Asset_(PBE)']).filter(Boolean));
-                    const newUnique = newData.filter(item => {
-                        const id = item['ID Asset (PBE)'] || item['ID_Asset_(PBE)'];
-                        return id && !existingIds.has(id);
-                    });
-                    merged = [...existingArray, ...newUnique];
+                    // Unisci tutti i dati senza verificare duplicati
+                    merged = [...existingArray, ...newData];
                 } else {
                     merged = newData;
                 }
                 
-                await db.ref('immobili').set(merged);
+                await db.ref('data').set(merged);
                 allData = merged;
-                filteredData = [...allData];
-                initDashboard();
+                extractAllColumns();
+                renderTable();
+                updateStats();
             } catch (error) {
                 throw new Error('Errore salvataggio: ' + error.message);
             }
@@ -878,15 +821,14 @@
 
         async function resetDatabase() {
             if (!confirm('Cancellare TUTTI i dati?')) return;
-            if (!confirm('CONFERMA FINALE: Cancello tutto?')) return;
 
             showLoading('Cancellazione...');
             try {
-                await db.ref('immobili').remove();
+                await db.ref('data').remove();
                 allData = [];
-                filteredData = [];
+                allColumns.clear();
+                renderTable();
                 updateStats();
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Database vuoto</td></tr>';
                 showAlert('uploadAlert', 'Database cancellato', 'success');
             } catch (error) {
                 showAlert('uploadAlert', 'Errore: ' + error.message, 'error');
@@ -895,171 +837,120 @@
             }
         }
 
-        async function checkDatabase() {
-            showLoading('Controllo...');
-            try {
-                const snapshot = await db.ref('immobili').once('value');
-                const data = snapshot.val();
-
-                if (!data) {
-                    alert('Database vuoto');
-                } else {
-                    const arr = Array.isArray(data) ? data : Object.values(data);
-                    const keys = arr.length > 0 ? Object.keys(arr[0]) : [];
-                    const corrupted = keys.some(k => k.includes('__') || k.match(/[.#$\/\[\]]/));
-                    const hasCorrect = keys.includes('ID Asset (PBE)');
-                    
-                    let msg = `Record: ${arr.length}\n\n`;
-                    if (corrupted) {
-                        msg += 'DATI CORROTTI\nCancella e ricarica';
-                    } else if (hasCorrect) {
-                        msg += 'Dati OK';
-                    } else {
-                        msg += 'Struttura sconosciuta';
-                    }
-                    msg += '\n\nPrime chiavi:\n' + keys.slice(0, 5).join(', ');
-                    alert(msg);
-                }
-            } catch (error) {
-                alert('Errore: ' + error.message);
-            } finally {
-                hideLoading();
+        function showColumnsInfo() {
+            const info = document.getElementById('columnsInfo');
+            if (allColumns.size === 0) {
+                alert('Nessuna colonna presente. Carica un file Excel.');
+                return;
             }
-        }
-
-        function initDashboard() {
-            if (!allData.length) return;
-            populateFilters();
-            updateStats();
-            renderTable();
-        }
-
-        function populateFilters() {
-            const regioni = [...new Set(allData.map(d => d.Regione).filter(Boolean))].sort();
-            const province = [...new Set(allData.map(d => d.Provincia).filter(Boolean))].sort();
-            const tipologie = [...new Set(allData.map(d => d['Tipologia Asset'] || d['Tipologia_Asset']).filter(Boolean))].sort();
-
-            const selRegione = document.getElementById('filterRegione');
-            const selProvincia = document.getElementById('filterProvincia');
-            const selTipologia = document.getElementById('filterTipologia');
-
-            selRegione.innerHTML = '<option value="">Tutte</option>';
-            selProvincia.innerHTML = '<option value="">Tutte</option>';
-            selTipologia.innerHTML = '<option value="">Tutte</option>';
-
-            regioni.forEach(r => selRegione.innerHTML += `<option value="${r}">${r}</option>`);
-            province.forEach(p => selProvincia.innerHTML += `<option value="${p}">${p}</option>`);
-            tipologie.forEach(t => selTipologia.innerHTML += `<option value="${t}">${t}</option>`);
-        }
-
-        function applyFilters() {
-            const regione = document.getElementById('filterRegione').value;
-            const provincia = document.getElementById('filterProvincia').value;
-            const tipologia = document.getElementById('filterTipologia').value;
-            const comune = document.getElementById('filterComune').value.toLowerCase();
-
-            filteredData = allData.filter(item => {
-                let match = true;
-                if (regione && item.Regione !== regione) match = false;
-                if (provincia && item.Provincia !== provincia) match = false;
-                if (tipologia && (item['Tipologia Asset'] !== tipologia && item['Tipologia_Asset'] !== tipologia)) match = false;
-                if (comune && !item.Comune?.toLowerCase().includes(comune)) match = false;
-                return match;
-            });
-
-            updateStats();
-            renderTable();
-        }
-
-        function updateStats() {
-            const total = filteredData.length;
-            const valore = filteredData.reduce((sum, item) => sum + (parseFloat(item['Valore ultima perizia terzi'] || item['Valore_ultima_perizia_terzi'] || 0)), 0);
-            const regioni = new Set(filteredData.map(d => d.Regione).filter(Boolean)).size;
-            const superficie = filteredData.reduce((sum, item) => sum + (parseFloat(item['Superficie mq'] || item['Superficie_mq'] || 0)), 0);
-
-            document.getElementById('statTotal').textContent = total.toLocaleString('it-IT');
-            document.getElementById('statValue').textContent = '€' + valore.toLocaleString('it-IT');
-            document.getElementById('statRegions').textContent = regioni;
-            document.getElementById('statArea').textContent = Math.round(superficie).toLocaleString('it-IT') + ' mq';
+            
+            const columnsList = Array.from(allColumns).sort().join(', ');
+            info.innerHTML = `<strong>Colonne presenti (${allColumns.size}):</strong> ${columnsList}`;
+            info.classList.toggle('hidden');
         }
 
         function renderTable() {
+            const thead = document.getElementById('tableHead');
             const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-
-            if (!filteredData.length) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Nessun risultato</td></tr>';
+            
+            if (allColumns.size === 0 || allData.length === 0) {
+                thead.innerHTML = '<tr><th>Nessuna colonna</th></tr>';
+                tbody.innerHTML = '<tr><td style="text-align: center; padding: 40px;">Nessun dato</td></tr>';
                 document.getElementById('recordCount').textContent = '0';
                 return;
             }
 
-            filteredData.forEach(item => {
+            // Identifica le colonne prioritarie da mostrare (max 6-8)
+            const priorityColumns = identifyPriorityColumns();
+            
+            // Crea header con colonne prioritarie + Azioni
+            thead.innerHTML = '<tr>' + 
+                priorityColumns.map(col => `<th>${col}</th>`).join('') + 
+                '<th>Azioni</th></tr>';
+
+            // Filtra i dati se ci sono filtri attivi
+            const dataToShow = filteredData.length > 0 ? filteredData : allData;
+
+            // Crea righe
+            tbody.innerHTML = '';
+            dataToShow.forEach((record, index) => {
                 const row = tbody.insertRow();
                 
-                const id = item['ID Asset (PBE)'] || item['ID_Asset_(PBE)'] || '-';
-                const tipologia = item['Tipologia Asset'] || item['Tipologia_Asset'] || '-';
-                const descrizione = item['Descrizione asset'] || item['Descrizione_asset'] || '-';
-                const comune = item.Comune || '-';
-                const provincia = item.Provincia || '-';
-                const superficie = item['Superficie mq'] || item['Superficie_mq'] || 0;
-                const valore = item['Valore ultima perizia terzi'] || item['Valore_ultima_perizia_terzi'] || 0;
+                // Mostra solo le colonne prioritarie
+                priorityColumns.forEach(col => {
+                    const cell = row.insertCell();
+                    const value = record[col];
+                    cell.textContent = value !== undefined && value !== null && value !== '' ? value : '-';
+                });
                 
-                let badgeClass = 'badge-altro';
-                if (tipologia.includes('Residenziale')) badgeClass = 'badge-residenziale';
-                if (tipologia.includes('Commerciale')) badgeClass = 'badge-commerciale';
-
-                const valoreText = currentUser.level >= 2 ? '€' + parseFloat(valore).toLocaleString('it-IT') : 'Riservato';
-
-                row.innerHTML = `
-                    <td>${id}</td>
-                    <td><span class="badge ${badgeClass}">${tipologia}</span></td>
-                    <td>${descrizione}</td>
-                    <td>${comune}</td>
-                    <td>${provincia}</td>
-                    <td>${parseFloat(superficie).toLocaleString('it-IT')} mq</td>
-                    <td>${valoreText}</td>
-                    <td><button class="btn-filter" onclick="showDetail('${id}')">Dettagli</button></td>
-                `;
+                const actionsCell = row.insertCell();
+                actionsCell.innerHTML = `<button class="btn-info" style="padding: 6px 12px; font-size: 12px;" onclick="showDetail(${index})">Dettagli</button>`;
             });
 
-            document.getElementById('recordCount').textContent = filteredData.length;
+            document.getElementById('recordCount').textContent = dataToShow.length;
+        }
+
+        // Identifica le colonne più importanti da mostrare
+        function identifyPriorityColumns() {
+            const columnsArray = Array.from(allColumns);
+            const priority = [];
+            
+            // Lista di pattern per colonne importanti (in ordine di priorità)
+            const patterns = [
+                /^id/i, /asset/i, /project/i, /pratica/i, /ndg/i,  // ID
+                /tipologia/i, /tipo/i, /destinazione/i,              // Tipo
+                /descrizione/i, /titolo/i,                           // Descrizione
+                /comune/i,                                            // Comune
+                /provincia/i,                                         // Provincia
+                /regione/i,                                           // Regione
+                /superficie/i, /area/i, /mq/i,                       // Superficie
+                /valore/i, /valutazione/i, /perizia/i, /prezzo/i    // Valore
+            ];
+            
+            // Trova colonne che matchano i pattern
+            patterns.forEach(pattern => {
+                const match = columnsArray.find(col => 
+                    pattern.test(col) && !priority.includes(col)
+                );
+                if (match) priority.push(match);
+            });
+            
+            // Se abbiamo meno di 6 colonne, aggiungi le prime disponibili
+            columnsArray.forEach(col => {
+                if (priority.length < 8 && !priority.includes(col)) {
+                    priority.push(col);
+                }
+            });
+            
+            return priority.slice(0, 8); // Max 8 colonne
         }
 
         function searchTable() {
             const term = document.getElementById('searchBox').value.toLowerCase();
-            filteredData = term === '' ? [...allData] : allData.filter(item => 
-                Object.values(item).some(val => String(val).toLowerCase().includes(term))
-            );
-            updateStats();
-            renderTable();
+            const tbody = document.getElementById('tableBody');
+            const rows = tbody.getElementsByTagName('tr');
+
+            for (let row of rows) {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            }
         }
 
-        function showDetail(id) {
-            const item = allData.find(d => (d['ID Asset (PBE)'] || d['ID_Asset_(PBE)']) == id);
-            if (!item) return;
-
+        function showDetail(displayIndex) {
+            // Se ci sono filtri attivi, usa filteredData, altrimenti usa allData
+            const dataSource = filteredData.length > 0 ? filteredData : allData;
+            const record = dataSource[displayIndex];
+            
             const content = document.getElementById('detailContent');
             content.innerHTML = '';
 
-            const fields = [
-                'ID Asset (PBE)', 'Tipologia Asset', 'Descrizione asset',
-                'Regione', 'Provincia', 'Comune', 'Indirizzo', 'Localita',
-                'Superficie mq', '% di proprieta', 'Tipo diritto reale'
-            ];
-
-            if (currentUser.level >= 2) {
-                fields.push('Valore ultima perizia terzi', 'Data ultima perizia terzi', 
-                           'Prezzo base ultima asta', 'Data ultima asta');
-            }
-
-            fields.forEach(field => {
-                const cleanField = field.replace(/[.#$\/\[\]]/g, '_');
-                const val = item[field] || item[cleanField];
-                if (val !== null && val !== undefined && val !== '') {
+            Object.keys(record).sort().forEach(key => {
+                const value = record[key];
+                if (value !== undefined && value !== null && value !== '') {
                     content.innerHTML += `
                         <div class="detail-item">
-                            <label>${field}</label>
-                            <div class="value">${val}</div>
+                            <label>${key}</label>
+                            <div class="value">${value}</div>
                         </div>
                     `;
                 }
@@ -1072,6 +963,15 @@
             document.getElementById('detailModal').classList.remove('active');
         }
 
+        function updateStats() {
+            document.getElementById('statTotal').textContent = allData.length;
+            document.getElementById('statColumns').textContent = allColumns.size;
+            
+            // Conta quanti tipi di strutture diverse ci sono
+            const structures = new Set(allData.map(r => Object.keys(r).sort().join('|')));
+            document.getElementById('statFiles').textContent = structures.size;
+        }
+
         document.getElementById('detailModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
@@ -1081,12 +981,13 @@
         });
 
         // Listener tempo reale
-        db.ref('immobili').on('value', (snapshot) => {
+        db.ref('data').on('value', (snapshot) => {
             if (currentUser && snapshot.exists()) {
                 const data = snapshot.val();
                 allData = Array.isArray(data) ? data : Object.values(data);
-                filteredData = [...allData];
-                initDashboard();
+                extractAllColumns();
+                renderTable();
+                updateStats();
             }
         });
     </script>
