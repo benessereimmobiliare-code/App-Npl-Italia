@@ -604,21 +604,11 @@
         <div id="adminPanel" class="admin-panel hidden">
             <h2>⚙️ Pannello Amministratore</h2>
             <div id="uploadAlert"></div>
-            
-            <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn-filter" style="background: #f44336;" onclick="resetDatabase()">
-                    🗑️ Cancella Database (usa solo se i dati sono corrotti)
-                </button>
-                <button class="btn-filter" style="background: #2196F3;" onclick="checkDatabaseStatus()">
-                    📊 Controlla Database
-                </button>
-            </div>
-            
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">📁</div>
                 <h3>Carica nuovo file Excel</h3>
                 <p>Clicca qui o trascina il file .xlsx</p>
-                <p style="color: #999; font-size: 12px; margin-top: 10px;">I nomi delle colonne verranno automaticamente puliti</p>
+                <p style="color: #999; font-size: 12px; margin-top: 10px;">I dati verranno aggiornati automaticamente per tutti gli utenti</p>
             </div>
             <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
         </div>
@@ -726,24 +716,25 @@
 
     <script>
         // CONFIGURAZIONE FIREBASE
+        // IMPORTANTE: Sostituisci con la tua configurazione Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",
-            authDomain: "app-npl-italia.firebaseapp.com",
-            databaseURL: "https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "app-npl-italia",
-            storageBucket: "app-npl-italia.firebasestorage.app",
-            messagingSenderId: "299298163787",
-            appId: "1:299298163787:web:4d08b7dd3273aa4dc011ce"
-        };
+    apiKey: "AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",
+    authDomain: "app-npl-italia.firebaseapp.com",
+    databaseURL: "https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "app-npl-italia",
+    storageBucket: "app-npl-italia.firebasestorage.app",
+    messagingSenderId: "299298163787",
+    appId: "1:299298163787:web:4d08b7dd3273aa4dc011ce"
+};
 
         // Inizializza Firebase
         let firebaseInitialized = false;
         try {
             firebase.initializeApp(firebaseConfig);
             firebaseInitialized = true;
-            console.log('✅ Firebase inizializzato correttamente');
+            console.log('Firebase inizializzato correttamente');
         } catch (error) {
-            console.warn('⚠️ Firebase non configurato:', error.message);
+            console.warn('Firebase non configurato. Usa modalità demo:', error.message);
         }
 
         // VARIABILI GLOBALI
@@ -757,53 +748,6 @@
             'manager': { password: 'manager123', role: 'Manager', level: 2 },
             'viewer': { password: 'viewer123', role: 'Viewer', level: 1 }
         };
-
-        // ==========================================
-        // FUNZIONE CRUCIALE: PULISCE I NOMI DELLE COLONNE
-        // Rimuove SOLO i caratteri non validi per Firebase: . # $ / [ ]
-        // NON tocca spazi, parentesi, trattini, underscore
-        // ==========================================
-        function cleanColumnName(name) {
-            if (!name) return name;
-            // Sostituisce SOLO . # $ / [ ] con underscore
-            return String(name).replace(/[.#$\/\[\]]/g, '_');
-        }
-
-        // ==========================================
-        // PULISCE UN INTERO OGGETTO (TUTTI I NOMI DELLE CHIAVI)
-        // Usa cleanColumnName per ogni chiave
-        // ==========================================
-        function cleanObject(obj) {
-            if (!obj || typeof obj !== 'object') return obj;
-            
-            const cleanedObj = {};
-            for (let key in obj) {
-                const cleanKey = cleanColumnName(key);
-                cleanedObj[cleanKey] = obj[key];
-            }
-            return cleanedObj;
-        }
-
-        // ==========================================
-        // OTTIENE IL VALORE DA UN OGGETTO
-        // Prova prima con il nome esatto, poi con quello pulito
-        // ==========================================
-        function getValue(obj, key) {
-            if (!obj) return null;
-            
-            // Prima prova con la chiave esatta
-            if (obj[key] !== undefined && obj[key] !== null) {
-                return obj[key];
-            }
-            
-            // Poi prova con la chiave pulita
-            const cleanKey = cleanColumnName(key);
-            if (cleanKey !== key && obj[cleanKey] !== undefined && obj[cleanKey] !== null) {
-                return obj[cleanKey];
-            }
-            
-            return null;
-        }
 
         // UTILITY FUNCTIONS
         function showLoading(text = 'Caricamento in corso...') {
@@ -844,6 +788,7 @@
                 document.getElementById('dashboard').classList.add('active');
                 document.getElementById('userBadge').textContent = `${currentUser.role}: ${username}`;
                 
+                // Mostra pannello admin se admin
                 if (currentUser.level === 3) {
                     document.getElementById('uploadBtn').classList.remove('hidden');
                 }
@@ -866,16 +811,16 @@
             document.getElementById('adminPanel').classList.add('hidden');
         }
 
-        // ==========================================
         // CARICA DATI DA FIREBASE
-        // ==========================================
         async function loadDataFromFirebase() {
-            showLoading('Caricamento dati da Firebase...');
+            showLoading('Caricamento dati...');
             
             try {
                 if (!firebaseInitialized) {
-                    console.log('Firebase non configurato');
+                    // Modalità demo - carica dati locali
+                    console.log('Modalità demo: caricamento dati di esempio');
                     hideLoading();
+                    showAlert('uploadAlert', '⚠️ Firebase non configurato. Usando dati di esempio. Carica un file Excel per iniziare.', 'info');
                     return;
                 }
 
@@ -884,17 +829,15 @@
                 const data = snapshot.val();
 
                 if (data) {
-                    // Converti in array senza modificare i nomi delle chiavi
                     allData = Array.isArray(data) ? data : Object.values(data);
                     filteredData = [...allData];
                     initDashboard();
-                    console.log(`✅ Caricati ${allData.length} immobili da Firebase`);
                 } else {
-                    console.log('Database Firebase vuoto');
+                    console.log('Nessun dato trovato in Firebase');
                 }
             } catch (error) {
-                console.error('❌ Errore caricamento Firebase:', error);
-                showAlert('loginAlert', 'Errore caricamento dati', 'error');
+                console.error('Errore caricamento da Firebase:', error);
+                showAlert('uploadAlert', 'Errore nel caricamento dei dati. Carica un file Excel.', 'error');
             } finally {
                 hideLoading();
             }
@@ -906,9 +849,7 @@
             panel.classList.toggle('hidden');
         }
 
-        // ==========================================
-        // GESTIONE UPLOAD FILE CON PULIZIA AUTOMATICA
-        // ==========================================
+        // GESTIONE UPLOAD FILE
         async function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -919,40 +860,30 @@
                 const data = await readExcelFile(file);
                 
                 if (data && data.length > 0) {
-                    console.log(`✅ Letti ${data.length} record dal file Excel`);
-                    
+                    // Salva su Firebase se configurato
                     if (firebaseInitialized) {
-                        const previousTotal = allData.length;
                         await saveToFirebase(data);
-                        const newTotal = allData.length;
-                        const added = newTotal - previousTotal;
-                        
-                        if (added > 0) {
-                            showAlert('uploadAlert', `✅ File caricato! ${added} nuovi immobili aggiunti. Totale: ${newTotal}`, 'success');
-                        } else {
-                            showAlert('uploadAlert', `ℹ️ File caricato! Nessun nuovo immobile (tutti già presenti). Totale: ${newTotal}`, 'info');
-                        }
+                        showAlert('uploadAlert', `✅ File caricato con successo! ${data.length} immobili aggiornati.`, 'success');
                     } else {
+                        // Usa dati localmente se Firebase non è configurato
                         allData = data;
                         filteredData = [...allData];
                         initDashboard();
-                        showAlert('uploadAlert', `✅ File caricato! ${data.length} immobili visualizzati.`, 'success');
+                        showAlert('uploadAlert', `✅ File caricato! ${data.length} immobili visualizzati (solo in questa sessione).`, 'success');
                     }
                 } else {
-                    showAlert('uploadAlert', '❌ Il file Excel è vuoto', 'error');
+                    showAlert('uploadAlert', '❌ Il file Excel è vuoto o non valido', 'error');
                 }
             } catch (error) {
-                console.error('❌ Errore elaborazione file:', error);
+                console.error('Errore elaborazione file:', error);
                 showAlert('uploadAlert', `❌ Errore: ${error.message}`, 'error');
             } finally {
                 hideLoading();
-                event.target.value = '';
+                event.target.value = ''; // Reset input
             }
         }
 
-        // ==========================================
-        // LEGGI FILE EXCEL E PULISCE AUTOMATICAMENTE I NOMI DELLE COLONNE
-        // ==========================================
+        // LEGGI FILE EXCEL
         function readExcelFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -964,24 +895,19 @@
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                         const jsonData = XLSX.utils.sheet_to_json(firstSheet);
                         
-                        // PULISCE automaticamente i nomi delle colonne
+                        // Converti date in stringhe
                         const processedData = jsonData.map(row => {
-                            const cleanedRow = {};
+                            const newRow = {};
                             for (let key in row) {
-                                // PULIZIA: Rimuove caratteri non validi
-                                const cleanKey = cleanColumnName(key);
-                                
-                                // Converti date in stringhe
                                 if (row[key] instanceof Date) {
-                                    cleanedRow[cleanKey] = row[key].toISOString().split('T')[0];
+                                    newRow[key] = row[key].toISOString().split('T')[0];
                                 } else {
-                                    cleanedRow[cleanKey] = row[key];
+                                    newRow[key] = row[key];
                                 }
                             }
-                            return cleanedRow;
+                            return newRow;
                         });
                         
-                        console.log(`✅ Colonne pulite automaticamente`);
                         resolve(processedData);
                     } catch (error) {
                         reject(new Error('Formato file non valido'));
@@ -993,50 +919,15 @@
             });
         }
 
-        // SALVA SU FIREBASE - MERGE DEI DATI
+        // SALVA SU FIREBASE
         async function saveToFirebase(data) {
             try {
                 const database = firebase.database();
+                await database.ref('immobili').set(data);
+                console.log('Dati salvati su Firebase');
                 
-                // Legge i dati esistenti
-                const snapshot = await database.ref('immobili').once('value');
-                const existingData = snapshot.val();
-                
-                let mergedData = [];
-                
-                if (existingData) {
-                    // Converte i dati esistenti in array (senza modificarli)
-                    const existingArray = Array.isArray(existingData) ? existingData : Object.values(existingData);
-                    
-                    // Crea una mappa degli ID esistenti per evitare duplicati
-                    const existingIds = new Set(
-                        existingArray.map(item => getValue(item, 'ID Asset (PBE)')).filter(Boolean)
-                    );
-                    
-                    // Filtra i nuovi dati per rimuovere duplicati
-                    const newUniqueData = data.filter(item => {
-                        const id = getValue(item, 'ID Asset (PBE)');
-                        return id && !existingIds.has(id);
-                    });
-                    
-                    // Unisce i dati esistenti con i nuovi
-                    mergedData = [...existingArray, ...newUniqueData];
-                    
-                    console.log(`📊 Dati esistenti: ${existingArray.length}`);
-                    console.log(`📊 Nuovi dati unici: ${newUniqueData.length}`);
-                    console.log(`📊 Totale dopo merge: ${mergedData.length}`);
-                } else {
-                    // Nessun dato esistente, salva tutto
-                    mergedData = data;
-                    console.log(`📊 Primo caricamento: ${data.length} immobili`);
-                }
-                
-                // Salva i dati uniti
-                await database.ref('immobili').set(mergedData);
-                console.log('✅ Dati salvati su Firebase');
-                
-                // Aggiorna i dati locali
-                allData = mergedData;
+                // Aggiorna dati locali
+                allData = data;
                 filteredData = [...allData];
                 initDashboard();
             } catch (error) {
@@ -1057,14 +948,15 @@
 
         // POPOLA FILTRI
         function populateFilters() {
-            const regioni = [...new Set(allData.map(d => getValue(d, 'Regione')).filter(Boolean))].sort();
-            const province = [...new Set(allData.map(d => getValue(d, 'Provincia')).filter(Boolean))].sort();
-            const tipologie = [...new Set(allData.map(d => getValue(d, 'Tipologia Asset')).filter(Boolean))].sort();
+            const regioni = [...new Set(allData.map(d => d.Regione).filter(Boolean))].sort();
+            const province = [...new Set(allData.map(d => d.Provincia).filter(Boolean))].sort();
+            const tipologie = [...new Set(allData.map(d => d['Tipologia Asset']).filter(Boolean))].sort();
 
             const selectRegione = document.getElementById('filterRegione');
             const selectProvincia = document.getElementById('filterProvincia');
             const selectTipologia = document.getElementById('filterTipologia');
 
+            // Reset
             selectRegione.innerHTML = '<option value="">Tutte</option>';
             selectProvincia.innerHTML = '<option value="">Tutte</option>';
             selectTipologia.innerHTML = '<option value="">Tutte</option>';
@@ -1100,10 +992,10 @@
 
             filteredData = allData.filter(item => {
                 let match = true;
-                if (regione && getValue(item, 'Regione') !== regione) match = false;
-                if (provincia && getValue(item, 'Provincia') !== provincia) match = false;
-                if (tipologia && getValue(item, 'Tipologia Asset') !== tipologia) match = false;
-                if (comune && !getValue(item, 'Comune')?.toLowerCase().includes(comune)) match = false;
+                if (regione && item.Regione !== regione) match = false;
+                if (provincia && item.Provincia !== provincia) match = false;
+                if (tipologia && item['Tipologia Asset'] !== tipologia) match = false;
+                if (comune && !item.Comune?.toLowerCase().includes(comune)) match = false;
                 return match;
             });
 
@@ -1115,11 +1007,11 @@
         function updateStats() {
             const total = filteredData.length;
             const valoreTotale = filteredData.reduce((sum, item) => {
-                return sum + (parseFloat(getValue(item, 'Valore ultima perizia terzi')) || 0);
+                return sum + (parseFloat(item['Valore ultima perizia terzi']) || 0);
             }, 0);
-            const regioni = new Set(filteredData.map(d => getValue(d, 'Regione')).filter(Boolean)).size;
+            const regioni = new Set(filteredData.map(d => d.Regione).filter(Boolean)).size;
             const superficieTotale = filteredData.reduce((sum, item) => {
-                return sum + (parseFloat(getValue(item, 'Superficie mq')) || 0);
+                return sum + (parseFloat(item['Superficie mq']) || 0);
             }, 0);
 
             document.getElementById('statTotal').textContent = total.toLocaleString('it-IT');
@@ -1137,7 +1029,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
-                            Nessun immobile trovato
+                            Nessun immobile trovato con i filtri selezionati
                         </td>
                     </tr>
                 `;
@@ -1149,26 +1041,24 @@
                 const row = tbody.insertRow();
                 
                 let badgeClass = 'badge-altro';
-                const tipologia = getValue(item, 'Tipologia Asset');
-                if (tipologia?.includes('Residenziale')) badgeClass = 'badge-residenziale';
-                if (tipologia?.includes('Commerciale')) badgeClass = 'badge-commerciale';
+                if (item['Tipologia Asset']?.includes('Residenziale')) badgeClass = 'badge-residenziale';
+                if (item['Tipologia Asset']?.includes('Commerciale')) badgeClass = 'badge-commerciale';
 
                 const valore = currentUser.level >= 2 
-                    ? '€' + (parseFloat(getValue(item, 'Valore ultima perizia terzi')) || 0).toLocaleString('it-IT')
+                    ? '€' + (parseFloat(item['Valore ultima perizia terzi']) || 0).toLocaleString('it-IT')
                     : 'Riservato';
 
-                const superficie = (parseFloat(getValue(item, 'Superficie mq')) || 0).toLocaleString('it-IT');
-                const idAsset = getValue(item, 'ID Asset (PBE)') || '-';
+                const superficie = (parseFloat(item['Superficie mq']) || 0).toLocaleString('it-IT');
 
                 row.innerHTML = `
-                    <td>${idAsset}</td>
-                    <td><span class="badge ${badgeClass}">${tipologia || '-'}</span></td>
-                    <td>${getValue(item, 'Descrizione asset') || '-'}</td>
-                    <td>${getValue(item, 'Comune') || '-'}</td>
-                    <td>${getValue(item, 'Provincia') || '-'}</td>
+                    <td>${item['ID Asset (PBE)'] || '-'}</td>
+                    <td><span class="badge ${badgeClass}">${item['Tipologia Asset'] || '-'}</span></td>
+                    <td>${item['Descrizione asset'] || '-'}</td>
+                    <td>${item.Comune || '-'}</td>
+                    <td>${item.Provincia || '-'}</td>
                     <td>${superficie} mq</td>
                     <td>${valore}</td>
-                    <td><button class="btn-filter" onclick="showDetail('${idAsset}')">Dettagli</button></td>
+                    <td><button class="btn-filter" onclick="showDetail(${item['ID Asset (PBE)']})">Dettagli</button></td>
                 `;
             });
 
@@ -1195,7 +1085,7 @@
 
         // MOSTRA DETTAGLIO
         function showDetail(id) {
-            const item = allData.find(d => String(getValue(d, 'ID Asset (PBE)')) === String(id));
+            const item = allData.find(d => d['ID Asset (PBE)'] === id);
             if (!item) return;
 
             const detailContent = document.getElementById('detailContent');
@@ -1228,7 +1118,7 @@
             }
 
             fields.forEach(field => {
-                const value = getValue(item, field.key);
+                const value = item[field.key];
                 if (value !== null && value !== undefined && value !== '') {
                     const div = document.createElement('div');
                     div.className = 'detail-item';
@@ -1260,98 +1150,6 @@
         // CHIUDI MODAL
         function closeModal() {
             document.getElementById('detailModal').classList.remove('active');
-        }
-
-        // ==========================================
-        // FUNZIONI ADMIN: RESET E CHECK DATABASE
-        // ==========================================
-        async function resetDatabase() {
-            if (currentUser.level !== 3) {
-                alert('Solo gli admin possono cancellare il database');
-                return;
-            }
-
-            if (!confirm('⚠️ ATTENZIONE!\n\nQuesta operazione cancellerà TUTTI i dati dal database Firebase.\n\nSei SICURO di voler procedere?')) {
-                return;
-            }
-
-            if (!confirm('ULTIMA CONFERMA:\n\nCancello definitivamente tutti i dati?\n\nQuesta operazione è IRREVERSIBILE!')) {
-                return;
-            }
-
-            showLoading('Cancellazione database in corso...');
-
-            try {
-                const database = firebase.database();
-                await database.ref('immobili').remove();
-                
-                allData = [];
-                filteredData = [];
-                document.getElementById('tableBody').innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
-                            Database cancellato. Carica un file Excel per iniziare.
-                        </td>
-                    </tr>
-                `;
-                document.getElementById('recordCount').textContent = '0';
-                updateStats();
-                
-                showAlert('uploadAlert', '✅ Database cancellato con successo! Ora puoi caricare un nuovo file Excel.', 'success');
-                console.log('✅ Database resettato');
-            } catch (error) {
-                console.error('❌ Errore reset database:', error);
-                showAlert('uploadAlert', '❌ Errore: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        async function checkDatabaseStatus() {
-            showLoading('Controllo database...');
-
-            try {
-                const database = firebase.database();
-                const snapshot = await database.ref('immobili').once('value');
-                const data = snapshot.val();
-
-                if (!data) {
-                    showAlert('uploadAlert', '📭 Database vuoto - Pronto per caricare nuovi dati', 'info');
-                    hideLoading();
-                    return;
-                }
-
-                const dataArray = Array.isArray(data) ? data : Object.values(data);
-                
-                if (dataArray.length > 0) {
-                    const firstRecord = dataArray[0];
-                    const keys = Object.keys(firstRecord);
-                    
-                    // Verifica se le chiavi sono corrette
-                    const hasCorrectKeys = keys.includes('ID Asset (PBE)') && keys.includes('Comune') && keys.includes('Superficie mq');
-                    const hasCorruptedKeys = keys.some(k => k.includes('__') || k.match(/[.#$\/\[\]]/));
-                    
-                    let message = `📊 Database contiene ${dataArray.length} record\n\n`;
-                    
-                    if (hasCorruptedKeys) {
-                        message += '⚠️ ATTENZIONE: Database contiene chiavi corrotte!\n';
-                        message += 'Usa il pulsante "Cancella Database" e ricarica il file Excel.\n\n';
-                    } else if (hasCorrectKeys) {
-                        message += '✅ Database OK - Chiavi corrette\n\n';
-                    }
-                    
-                    message += 'Prime 5 chiavi:\n' + keys.slice(0, 5).join(', ');
-                    
-                    alert(message);
-                } else {
-                    showAlert('uploadAlert', '📭 Database vuoto', 'info');
-                }
-            } catch (error) {
-                console.error('❌ Errore controllo database:', error);
-                showAlert('uploadAlert', '❌ Errore: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
         }
 
         // EVENT LISTENERS
@@ -1394,7 +1192,7 @@
                     allData = Array.isArray(data) ? data : Object.values(data);
                     filteredData = [...allData];
                     initDashboard();
-                    console.log('✅ Dati aggiornati automaticamente da Firebase');
+                    console.log('Dati aggiornati automaticamente da Firebase');
                 }
             });
         }
