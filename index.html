@@ -635,46 +635,51 @@
             const filterContainer = document.getElementById('dynamicFilters');
             const filtersSection = document.getElementById('filtersContainer');
             
-            // Colonne per cui creare filtri
-            const filterableColumns = ['Regione', 'Provincia', 'Comune', 'Tipologia Asset', 'Destinazione d\'uso', 'Tipo'];
-            const foundColumns = filterableColumns.filter(col => 
-                Array.from(allColumns).some(c => c.toLowerCase().includes(col.toLowerCase()))
-            );
-            
-            if (foundColumns.length === 0) {
-                filtersSection.classList.add('hidden');
-                return;
-            }
-            
-            filtersSection.classList.remove('hidden');
             filterContainer.innerHTML = '';
+            filtersSection.classList.remove('hidden');
             
-            foundColumns.forEach(filterName => {
-                // Trova la colonna esatta nel database
-                const actualColumn = Array.from(allColumns).find(c => 
-                    c.toLowerCase().includes(filterName.toLowerCase())
-                );
-                
-                if (!actualColumn) return;
-                
-                // Estrai valori unici per questa colonna
-                const uniqueValues = [...new Set(
-                    allData.map(record => record[actualColumn]).filter(Boolean)
+            // FILTRO REGIONE
+            const regioneColumn = Array.from(allColumns).find(c => /regione/i.test(c));
+            if (regioneColumn) {
+                const uniqueRegioni = [...new Set(
+                    allData.map(record => record[regioneColumn]).filter(Boolean)
                 )].sort();
                 
-                // Crea il filtro
-                const filterDiv = document.createElement('div');
-                filterDiv.innerHTML = `
-                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #666;">${actualColumn}</label>
-                    <select id="filter_${actualColumn.replace(/[^a-zA-Z0-9]/g, '_')}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
-                        <option value="">Tutti</option>
-                        ${uniqueValues.map(val => `<option value="${val}">${val}</option>`).join('')}
+                const regioneDiv = document.createElement('div');
+                regioneDiv.innerHTML = `
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #666;">Regione</label>
+                    <select id="filter_regione" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                        <option value="">Tutte le regioni</option>
+                        ${uniqueRegioni.map(val => `<option value="${val}">${val}</option>`).join('')}
                     </select>
                 `;
-                filterContainer.appendChild(filterDiv);
-            });
+                filterContainer.appendChild(regioneDiv);
+            }
             
-            // Aggiungi anche la casella di ricerca libera se non c'è già
+            // FILTRO COMUNE (estratto dall'indirizzo)
+            const indirizzoColumn = Array.from(allColumns).find(c => /indirizzo/i.test(c));
+            if (indirizzoColumn) {
+                // Estrai tutti i comuni dagli indirizzi
+                const comuni = new Set();
+                allData.forEach(record => {
+                    const comune = extractComuneFromAddress(record[indirizzoColumn]);
+                    if (comune) comuni.add(comune);
+                });
+                
+                const comuniArray = Array.from(comuni).sort();
+                
+                const comuneDiv = document.createElement('div');
+                comuneDiv.innerHTML = `
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #666;">Indirizzo, Comune</label>
+                    <select id="filter_comune" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                        <option value="">Tutti i comuni</option>
+                        ${comuniArray.map(val => `<option value="${val}">${val}</option>`).join('')}
+                    </select>
+                `;
+                filterContainer.appendChild(comuneDiv);
+            }
+            
+            // RICERCA LIBERA
             const searchDiv = document.createElement('div');
             searchDiv.innerHTML = `
                 <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #666;">Ricerca libera</label>
@@ -684,28 +689,32 @@
         }
 
         function applyFilters() {
-            activeFilters = {};
             filteredData = [...allData];
             
-            // Applica ogni filtro select
-            const selects = document.getElementById('dynamicFilters').querySelectorAll('select');
-            selects.forEach(select => {
-                if (select.value) {
-                    const columnName = select.id.replace('filter_', '').replace(/_/g, ' ');
-                    // Trova la colonna esatta
-                    const actualColumn = Array.from(allColumns).find(c => 
-                        c.replace(/[^a-zA-Z0-9]/g, '_') === select.id.replace('filter_', '')
+            // FILTRO REGIONE
+            const regioneSelect = document.getElementById('filter_regione');
+            if (regioneSelect && regioneSelect.value) {
+                const regioneColumn = Array.from(allColumns).find(c => /regione/i.test(c));
+                if (regioneColumn) {
+                    filteredData = filteredData.filter(record => 
+                        record[regioneColumn] === regioneSelect.value
                     );
-                    
-                    if (actualColumn) {
-                        filteredData = filteredData.filter(record => 
-                            record[actualColumn] === select.value
-                        );
-                    }
                 }
-            });
+            }
             
-            // Applica ricerca libera
+            // FILTRO COMUNE (dall'indirizzo)
+            const comuneSelect = document.getElementById('filter_comune');
+            if (comuneSelect && comuneSelect.value) {
+                const indirizzoColumn = Array.from(allColumns).find(c => /indirizzo/i.test(c));
+                if (indirizzoColumn) {
+                    filteredData = filteredData.filter(record => {
+                        const comune = extractComuneFromAddress(record[indirizzoColumn]);
+                        return comune === comuneSelect.value;
+                    });
+                }
+            }
+            
+            // RICERCA LIBERA
             const freeSearch = document.getElementById('freeSearchFilter');
             if (freeSearch && freeSearch.value) {
                 const searchTerm = freeSearch.value.toLowerCase();
@@ -720,9 +729,13 @@
         }
 
         function clearFilters() {
-            // Reset tutti i select
-            const selects = document.getElementById('dynamicFilters').querySelectorAll('select');
-            selects.forEach(select => select.value = '');
+            // Reset regione
+            const regioneSelect = document.getElementById('filter_regione');
+            if (regioneSelect) regioneSelect.value = '';
+            
+            // Reset comune
+            const comuneSelect = document.getElementById('filter_comune');
+            if (comuneSelect) comuneSelect.value = '';
             
             // Reset ricerca libera
             const freeSearch = document.getElementById('freeSearchFilter');
@@ -730,7 +743,6 @@
             
             // Reset dati
             filteredData = [];
-            activeFilters = {};
             renderTable();
         }
 
@@ -860,8 +872,11 @@
                 return;
             }
 
-            // Identifica le colonne prioritarie da mostrare (max 6-8)
+            // Identifica le colonne prioritarie da mostrare
             const priorityColumns = identifyPriorityColumns();
+            
+            // Trova la colonna indirizzo
+            const indirizzoColumn = Array.from(allColumns).find(c => /indirizzo/i.test(c));
             
             // Crea header con colonne prioritarie + Azioni
             thead.innerHTML = '<tr>' + 
@@ -879,7 +894,16 @@
                 // Mostra solo le colonne prioritarie
                 priorityColumns.forEach(col => {
                     const cell = row.insertCell();
-                    const value = record[col];
+                    let value = record[col];
+                    
+                    // Se è la colonna indirizzo, aggiungi anche il comune estratto
+                    if (col === indirizzoColumn) {
+                        const comune = extractComuneFromAddress(value);
+                        if (comune) {
+                            value = `${value || '-'} [${comune}]`;
+                        }
+                    }
+                    
                     cell.textContent = value !== undefined && value !== null && value !== '' ? value : '-';
                 });
                 
@@ -895,34 +919,58 @@
             const columnsArray = Array.from(allColumns);
             const priority = [];
             
-            // Lista di pattern per colonne importanti (in ordine di priorità)
-            const patterns = [
-                /^id/i, /asset/i, /project/i, /pratica/i, /ndg/i,  // ID
-                /tipologia/i, /tipo/i, /destinazione/i,              // Tipo
-                /descrizione/i, /titolo/i,                           // Descrizione
-                /comune/i,                                            // Comune
-                /provincia/i,                                         // Provincia
-                /regione/i,                                           // Regione
-                /superficie/i, /area/i, /mq/i,                       // Superficie
-                /valore/i, /valutazione/i, /perizia/i, /prezzo/i    // Valore
+            // Cerca le colonne esatte richieste (in ordine)
+            const requiredPatterns = [
+                { pattern: /^id$/i, name: 'ID' },
+                { pattern: /(numero.*pratica|ndg|project.*id)/i, name: 'Numero Pratica / NDG' },
+                { pattern: /(tipologia|destinazione)/i, name: 'Tipologia' },
+                { pattern: /(indirizzo)/i, name: 'Indirizzo,Comune' },
+                { pattern: /regione/i, name: 'Regione' }
             ];
             
-            // Trova colonne che matchano i pattern
-            patterns.forEach(pattern => {
-                const match = columnsArray.find(col => 
-                    pattern.test(col) && !priority.includes(col)
-                );
-                if (match) priority.push(match);
-            });
-            
-            // Se abbiamo meno di 6 colonne, aggiungi le prime disponibili
-            columnsArray.forEach(col => {
-                if (priority.length < 8 && !priority.includes(col)) {
-                    priority.push(col);
+            requiredPatterns.forEach(req => {
+                const match = columnsArray.find(col => req.pattern.test(col));
+                if (match) {
+                    priority.push(match);
                 }
             });
             
-            return priority.slice(0, 8); // Max 8 colonne
+            // Se non troviamo tutte le colonne richieste, aggiungi le prime disponibili
+            if (priority.length < 5) {
+                columnsArray.forEach(col => {
+                    if (priority.length < 8 && !priority.includes(col)) {
+                        priority.push(col);
+                    }
+                });
+            }
+            
+            return priority;
+        }
+
+        // Estrae il nome del comune dall'indirizzo
+        function extractComuneFromAddress(address) {
+            if (!address) return null;
+            
+            // Pattern per estrarre il comune: cerca "CAP Comune (PR)" o "Comune"
+            // Esempi: "48018 Faenza (RA)", "Canaro (RO)", "Via X, Comune"
+            
+            // Pattern 1: CAP + Comune (PR)
+            let match = address.match(/\d{5}\s+([A-Z][a-zA-Z\s]+)\s*\(/);
+            if (match) return match[1].trim();
+            
+            // Pattern 2: Comune (PR) senza CAP
+            match = address.match(/([A-Z][a-zA-Z\s]+)\s*\([A-Z]{2}\)/);
+            if (match) return match[1].trim();
+            
+            // Pattern 3: ultima parola in maiuscolo (fallback)
+            const words = address.split(/[,\s]+/);
+            for (let i = words.length - 1; i >= 0; i--) {
+                if (words[i].match(/^[A-Z][a-zA-Z]+$/)) {
+                    return words[i];
+                }
+            }
+            
+            return null;
         }
 
         function searchTable() {
