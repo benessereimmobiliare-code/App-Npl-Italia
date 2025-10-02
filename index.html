@@ -899,8 +899,16 @@
                     console.log(`✅ Letti ${data.length} record dal file Excel`);
                     
                     if (firebaseInitialized) {
+                        const previousTotal = allData.length;
                         await saveToFirebase(data);
-                        showAlert('uploadAlert', `✅ File caricato con successo! ${data.length} immobili aggiornati.`, 'success');
+                        const newTotal = allData.length;
+                        const added = newTotal - previousTotal;
+                        
+                        if (added > 0) {
+                            showAlert('uploadAlert', `✅ File caricato! ${added} nuovi immobili aggiunti. Totale: ${newTotal}`, 'success');
+                        } else {
+                            showAlert('uploadAlert', `ℹ️ File caricato! Nessun nuovo immobile (tutti già presenti). Totale: ${newTotal}`, 'info');
+                        }
                     } else {
                         allData = data;
                         filteredData = [...allData];
@@ -962,14 +970,51 @@
             });
         }
 
-        // SALVA SU FIREBASE
+        // SALVA SU FIREBASE - MERGE DEI DATI
         async function saveToFirebase(data) {
             try {
                 const database = firebase.database();
-                await database.ref('immobili').set(data);
-                console.log('✅ Dati salvati su Firebase');
                 
-                allData = data;
+                // Legge i dati esistenti
+                const snapshot = await database.ref('immobili').once('value');
+                const existingData = snapshot.val();
+                
+                let mergedData = [];
+                
+                if (existingData) {
+                    // Converte i dati esistenti in array e li pulisce
+                    const existingArray = Array.isArray(existingData) ? existingData : Object.values(existingData);
+                    const cleanedExisting = existingArray.map(item => cleanObject(item));
+                    
+                    // Crea una mappa degli ID esistenti per evitare duplicati
+                    const existingIds = new Set(
+                        cleanedExisting.map(item => getValue(item, 'ID Asset (PBE)')).filter(Boolean)
+                    );
+                    
+                    // Filtra i nuovi dati per rimuovere duplicati
+                    const newUniqueData = data.filter(item => {
+                        const id = getValue(item, 'ID Asset (PBE)');
+                        return id && !existingIds.has(id);
+                    });
+                    
+                    // Unisce i dati esistenti con i nuovi
+                    mergedData = [...cleanedExisting, ...newUniqueData];
+                    
+                    console.log(`📊 Dati esistenti: ${cleanedExisting.length}`);
+                    console.log(`📊 Nuovi dati unici: ${newUniqueData.length}`);
+                    console.log(`📊 Totale dopo merge: ${mergedData.length}`);
+                } else {
+                    // Nessun dato esistente, salva tutto
+                    mergedData = data;
+                    console.log(`📊 Primo caricamento: ${data.length} immobili`);
+                }
+                
+                // Salva i dati uniti
+                await database.ref('immobili').set(mergedData);
+                console.log('✅ Dati salvati su Firebase (merge completato)');
+                
+                // Aggiorna i dati locali
+                allData = mergedData;
                 filteredData = [...allData];
                 initDashboard();
             } catch (error) {
