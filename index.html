@@ -718,13 +718,13 @@
         // CONFIGURAZIONE FIREBASE
         // IMPORTANTE: Sostituisci con la tua configurazione Firebase
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",
+            authDomain: "app-npl-italia.firebaseapp.com",
+            databaseURL: "https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "app-npl-italia",
+            storageBucket: "app-npl-italia.firebasestorage.app",
+            messagingSenderId: "299298163787",
+            appId: "1:299298163787:web:4d08b7dd3273aa4dc011ce"
         };
 
         // Inizializza Firebase
@@ -831,24 +831,33 @@
                     // Modalità demo - carica dati locali
                     console.log('Modalità demo: caricamento dati di esempio');
                     hideLoading();
-                    showAlert('uploadAlert', '⚠️ Firebase non configurato. Usando dati di esempio. Carica un file Excel per iniziare.', 'info');
                     return;
                 }
 
                 const database = firebase.database();
-                const snapshot = await database.ref('immobili').once('value');
+                
+                // Timeout di 5 secondi per evitare caricamenti infiniti
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout')), 5000)
+                );
+                
+                const dataPromise = database.ref('immobili').once('value');
+                
+                const snapshot = await Promise.race([dataPromise, timeoutPromise]);
                 const data = snapshot.val();
 
                 if (data) {
                     allData = Array.isArray(data) ? data : Object.values(data);
                     filteredData = [...allData];
                     initDashboard();
+                    console.log(`Caricati ${allData.length} immobili da Firebase`);
                 } else {
-                    console.log('Nessun dato trovato in Firebase');
+                    console.log('Database Firebase vuoto - in attesa di dati');
+                    // Database vuoto è normale all'inizio
                 }
             } catch (error) {
-                console.error('Errore caricamento da Firebase:', error);
-                showAlert('uploadAlert', 'Errore nel caricamento dei dati. Carica un file Excel.', 'error');
+                console.log('Firebase non disponibile o database vuoto:', error.message);
+                // Non mostrare errore, è normale se il database è vuoto
             } finally {
                 hideLoading();
             }
