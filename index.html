@@ -750,15 +750,18 @@
 
         // ==========================================
         // FUNZIONE CRUCIALE: PULISCE I NOMI DELLE COLONNE
+        // Rimuove SOLO i caratteri non validi per Firebase: . # $ / [ ]
+        // NON tocca spazi, parentesi, trattini, underscore
         // ==========================================
         function cleanColumnName(name) {
             if (!name) return name;
-            // Rimuove caratteri non validi per Firebase: . # $ / [ ]
+            // Sostituisce SOLO . # $ / [ ] con underscore
             return String(name).replace(/[.#$\/\[\]]/g, '_');
         }
 
         // ==========================================
         // PULISCE UN INTERO OGGETTO (TUTTI I NOMI DELLE CHIAVI)
+        // Usa cleanColumnName per ogni chiave
         // ==========================================
         function cleanObject(obj) {
             if (!obj || typeof obj !== 'object') return obj;
@@ -773,12 +776,23 @@
 
         // ==========================================
         // OTTIENE IL VALORE DA UN OGGETTO
-        // Cerca sia con la chiave pulita che con quella originale
+        // Prova prima con il nome esatto, poi con quello pulito
         // ==========================================
         function getValue(obj, key) {
             if (!obj) return null;
+            
+            // Prima prova con la chiave esatta
+            if (obj[key] !== undefined && obj[key] !== null) {
+                return obj[key];
+            }
+            
+            // Poi prova con la chiave pulita
             const cleanKey = cleanColumnName(key);
-            return obj[cleanKey] !== undefined ? obj[cleanKey] : obj[key];
+            if (cleanKey !== key && obj[cleanKey] !== undefined && obj[cleanKey] !== null) {
+                return obj[cleanKey];
+            }
+            
+            return null;
         }
 
         // UTILITY FUNCTIONS
@@ -843,7 +857,7 @@
         }
 
         // ==========================================
-        // CARICA DATI DA FIREBASE E PULISCE AUTOMATICAMENTE
+        // CARICA DATI DA FIREBASE
         // ==========================================
         async function loadDataFromFirebase() {
             showLoading('Caricamento dati da Firebase...');
@@ -860,12 +874,11 @@
                 const data = snapshot.val();
 
                 if (data) {
-                    // IMPORTANTE: Pulisce TUTTI gli oggetti letti da Firebase
-                    const rawData = Array.isArray(data) ? data : Object.values(data);
-                    allData = rawData.map(item => cleanObject(item));
+                    // Converti in array senza modificare i nomi delle chiavi
+                    allData = Array.isArray(data) ? data : Object.values(data);
                     filteredData = [...allData];
                     initDashboard();
-                    console.log(`✅ Caricati ${allData.length} immobili da Firebase (colonne pulite)`);
+                    console.log(`✅ Caricati ${allData.length} immobili da Firebase`);
                 } else {
                     console.log('Database Firebase vuoto');
                 }
@@ -982,13 +995,12 @@
                 let mergedData = [];
                 
                 if (existingData) {
-                    // Converte i dati esistenti in array e li pulisce
+                    // Converte i dati esistenti in array (senza modificarli)
                     const existingArray = Array.isArray(existingData) ? existingData : Object.values(existingData);
-                    const cleanedExisting = existingArray.map(item => cleanObject(item));
                     
                     // Crea una mappa degli ID esistenti per evitare duplicati
                     const existingIds = new Set(
-                        cleanedExisting.map(item => getValue(item, 'ID Asset (PBE)')).filter(Boolean)
+                        existingArray.map(item => getValue(item, 'ID Asset (PBE)')).filter(Boolean)
                     );
                     
                     // Filtra i nuovi dati per rimuovere duplicati
@@ -998,9 +1010,9 @@
                     });
                     
                     // Unisce i dati esistenti con i nuovi
-                    mergedData = [...cleanedExisting, ...newUniqueData];
+                    mergedData = [...existingArray, ...newUniqueData];
                     
-                    console.log(`📊 Dati esistenti: ${cleanedExisting.length}`);
+                    console.log(`📊 Dati esistenti: ${existingArray.length}`);
                     console.log(`📊 Nuovi dati unici: ${newUniqueData.length}`);
                     console.log(`📊 Totale dopo merge: ${mergedData.length}`);
                 } else {
@@ -1011,7 +1023,7 @@
                 
                 // Salva i dati uniti
                 await database.ref('immobili').set(mergedData);
-                console.log('✅ Dati salvati su Firebase (merge completato)');
+                console.log('✅ Dati salvati su Firebase');
                 
                 // Aggiorna i dati locali
                 allData = mergedData;
@@ -1277,12 +1289,10 @@
             database.ref('immobili').on('value', (snapshot) => {
                 if (currentUser && snapshot.exists()) {
                     const data = snapshot.val();
-                    const rawData = Array.isArray(data) ? data : Object.values(data);
-                    // IMPORTANTE: Pulisce anche i dati in tempo reale
-                    allData = rawData.map(item => cleanObject(item));
+                    allData = Array.isArray(data) ? data : Object.values(data);
                     filteredData = [...allData];
                     initDashboard();
-                    console.log('✅ Dati aggiornati automaticamente da Firebase (colonne pulite)');
+                    console.log('✅ Dati aggiornati automaticamente da Firebase');
                 }
             });
         }
