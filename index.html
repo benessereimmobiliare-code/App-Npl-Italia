@@ -604,6 +604,16 @@
         <div id="adminPanel" class="admin-panel hidden">
             <h2>⚙️ Pannello Amministratore</h2>
             <div id="uploadAlert"></div>
+            
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-filter" style="background: #f44336;" onclick="resetDatabase()">
+                    🗑️ Cancella Database (usa solo se i dati sono corrotti)
+                </button>
+                <button class="btn-filter" style="background: #2196F3;" onclick="checkDatabaseStatus()">
+                    📊 Controlla Database
+                </button>
+            </div>
+            
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                 <div class="upload-icon">📁</div>
                 <h3>Carica nuovo file Excel</h3>
@@ -1250,6 +1260,98 @@
         // CHIUDI MODAL
         function closeModal() {
             document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // ==========================================
+        // FUNZIONI ADMIN: RESET E CHECK DATABASE
+        // ==========================================
+        async function resetDatabase() {
+            if (currentUser.level !== 3) {
+                alert('Solo gli admin possono cancellare il database');
+                return;
+            }
+
+            if (!confirm('⚠️ ATTENZIONE!\n\nQuesta operazione cancellerà TUTTI i dati dal database Firebase.\n\nSei SICURO di voler procedere?')) {
+                return;
+            }
+
+            if (!confirm('ULTIMA CONFERMA:\n\nCancello definitivamente tutti i dati?\n\nQuesta operazione è IRREVERSIBILE!')) {
+                return;
+            }
+
+            showLoading('Cancellazione database in corso...');
+
+            try {
+                const database = firebase.database();
+                await database.ref('immobili').remove();
+                
+                allData = [];
+                filteredData = [];
+                document.getElementById('tableBody').innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
+                            Database cancellato. Carica un file Excel per iniziare.
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('recordCount').textContent = '0';
+                updateStats();
+                
+                showAlert('uploadAlert', '✅ Database cancellato con successo! Ora puoi caricare un nuovo file Excel.', 'success');
+                console.log('✅ Database resettato');
+            } catch (error) {
+                console.error('❌ Errore reset database:', error);
+                showAlert('uploadAlert', '❌ Errore: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function checkDatabaseStatus() {
+            showLoading('Controllo database...');
+
+            try {
+                const database = firebase.database();
+                const snapshot = await database.ref('immobili').once('value');
+                const data = snapshot.val();
+
+                if (!data) {
+                    showAlert('uploadAlert', '📭 Database vuoto - Pronto per caricare nuovi dati', 'info');
+                    hideLoading();
+                    return;
+                }
+
+                const dataArray = Array.isArray(data) ? data : Object.values(data);
+                
+                if (dataArray.length > 0) {
+                    const firstRecord = dataArray[0];
+                    const keys = Object.keys(firstRecord);
+                    
+                    // Verifica se le chiavi sono corrette
+                    const hasCorrectKeys = keys.includes('ID Asset (PBE)') && keys.includes('Comune') && keys.includes('Superficie mq');
+                    const hasCorruptedKeys = keys.some(k => k.includes('__') || k.match(/[.#$\/\[\]]/));
+                    
+                    let message = `📊 Database contiene ${dataArray.length} record\n\n`;
+                    
+                    if (hasCorruptedKeys) {
+                        message += '⚠️ ATTENZIONE: Database contiene chiavi corrotte!\n';
+                        message += 'Usa il pulsante "Cancella Database" e ricarica il file Excel.\n\n';
+                    } else if (hasCorrectKeys) {
+                        message += '✅ Database OK - Chiavi corrette\n\n';
+                    }
+                    
+                    message += 'Prime 5 chiavi:\n' + keys.slice(0, 5).join(', ');
+                    
+                    alert(message);
+                } else {
+                    showAlert('uploadAlert', '📭 Database vuoto', 'info');
+                }
+            } catch (error) {
+                console.error('❌ Errore controllo database:', error);
+                showAlert('uploadAlert', '❌ Errore: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
         }
 
         // EVENT LISTENERS
