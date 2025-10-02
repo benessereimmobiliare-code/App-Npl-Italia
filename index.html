@@ -432,11 +432,11 @@
             <div id="loginAlert"></div>
             <div class="input-group">
                 <label>Username</label>
-                <input type="text" id="username" placeholder="admin">
+                <input type="text" id="username" placeholder="Inserisci username">
             </div>
             <div class="input-group">
                 <label>Password</label>
-                <input type="password" id="password" placeholder="admin123">
+                <input type="password" id="password" placeholder="Inserisci password">
             </div>
             <button class="btn" onclick="login()">Accedi</button>
         </div>
@@ -468,17 +468,34 @@
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Totale Record</h3>
+            <div class="stat-card" style="border-left: 4px solid #667eea;">
+                <h3>Totale Progetti</h3>
                 <div class="value" id="statTotal">0</div>
             </div>
-            <div class="stat-card">
-                <h3>Colonne Totali</h3>
-                <div class="value" id="statColumns">0</div>
+            <div class="stat-card" style="border-left: 4px solid #f44336;">
+                <h3>Debitoria Totale</h3>
+                <div class="value" id="statDebitoria">€0</div>
+                <div style="font-size: 12px; color: #999; margin-top: 5px;">Media: <span id="statDebitMedia">€0</span></div>
             </div>
-            <div class="stat-card">
-                <h3>File Caricati</h3>
-                <div class="value" id="statFiles">0</div>
+            <div class="stat-card" style="border-left: 4px solid #4CAF50;">
+                <h3>Valutazione Totale</h3>
+                <div class="value" id="statValutazione">€0</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #9c27b0;">
+                <h3>Area Totale</h3>
+                <div class="value" id="statArea">0</div>
+                <div style="font-size: 12px; color: #999; margin-top: 5px;">mq</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                <h3 style="color: #333; margin-bottom: 15px;">Distribuzione per Fascia di Debito</h3>
+                <canvas id="chartDebito"></canvas>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                <h3 style="color: #333; margin-bottom: 15px;">Top 8 Regioni per Numero Progetti</h3>
+                <canvas id="chartRegioni"></canvas>
             </div>
         </div>
 
@@ -525,6 +542,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -545,6 +563,8 @@
         let allColumns = new Set();
         let currentUser = null;
         let activeFilters = {};
+        let chartDebito = null;
+        let chartRegioni = null;
 
         const users = {
             'admin': { password: 'admin123', role: 'Admin', level: 3 },
@@ -1061,12 +1081,143 @@
         }
 
         function updateStats() {
-            document.getElementById('statTotal').textContent = allData.length;
-            document.getElementById('statColumns').textContent = allColumns.size;
+            const dataToUse = filteredData.length > 0 ? filteredData : allData;
             
-            // Conta quanti tipi di strutture diverse ci sono
-            const structures = new Set(allData.map(r => Object.keys(r).sort().join('|')));
-            document.getElementById('statFiles').textContent = structures.size;
+            // Totale progetti
+            document.getElementById('statTotal').textContent = dataToUse.length.toLocaleString('it-IT');
+            
+            // Trova le colonne
+            const debitoriaCol = Array.from(allColumns).find(c => /debitoria.*totale/i.test(c));
+            const valutazioneCol = Array.from(allColumns).find(c => /valutazione.*garanzie/i.test(c));
+            const areaCol = Array.from(allColumns).find(c => /area.*totale|superficie/i.test(c));
+            
+            // Calcola Debitoria Totale
+            let debitoriaTotal = 0;
+            if (debitoriaCol) {
+                debitoriaTotal = dataToUse.reduce((sum, item) => {
+                    const val = parseFloat(item[debitoriaCol]) || 0;
+                    return sum + val;
+                }, 0);
+            }
+            document.getElementById('statDebitoria').textContent = '€' + Math.round(debitoriaTotal).toLocaleString('it-IT');
+            const media = dataToUse.length > 0 ? debitoriaTotal / dataToUse.length : 0;
+            document.getElementById('statDebitMedia').textContent = '€' + Math.round(media).toLocaleString('it-IT');
+            
+            // Calcola Valutazione Totale
+            let valutazioneTotal = 0;
+            if (valutazioneCol) {
+                valutazioneTotal = dataToUse.reduce((sum, item) => {
+                    const val = parseFloat(item[valutazioneCol]) || 0;
+                    return sum + val;
+                }, 0);
+            }
+            document.getElementById('statValutazione').textContent = '€' + Math.round(valutazioneTotal).toLocaleString('it-IT');
+            
+            // Calcola Area Totale
+            let areaTotal = 0;
+            if (areaCol) {
+                areaTotal = dataToUse.reduce((sum, item) => {
+                    const val = parseFloat(item[areaCol]) || 0;
+                    return sum + val;
+                }, 0);
+            }
+            document.getElementById('statArea').textContent = Math.round(areaTotal).toLocaleString('it-IT');
+            
+            // Aggiorna grafici
+            updateCharts(dataToUse, debitoriaCol);
+        }
+
+        function updateCharts(data, debitoriaCol) {
+            // GRAFICO FASCE DI DEBITO
+            if (debitoriaCol) {
+                const fasce = {
+                    '0-50k': 0,
+                    '50k-100k': 0,
+                    '100k-250k': 0,
+                    '250k-500k': 0,
+                    '500k-1M': 0,
+                    '>1M': 0
+                };
+                
+                data.forEach(item => {
+                    const debito = parseFloat(item[debitoriaCol]) || 0;
+                    if (debito < 50000) fasce['0-50k']++;
+                    else if (debito < 100000) fasce['50k-100k']++;
+                    else if (debito < 250000) fasce['100k-250k']++;
+                    else if (debito < 500000) fasce['250k-500k']++;
+                    else if (debito < 1000000) fasce['500k-1M']++;
+                    else fasce['>1M']++;
+                });
+                
+                if (chartDebito) chartDebito.destroy();
+                const ctx1 = document.getElementById('chartDebito').getContext('2d');
+                chartDebito = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(fasce),
+                        datasets: [{
+                            label: 'Numero Progetti',
+                            data: Object.values(fasce),
+                            backgroundColor: '#667eea',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+            
+            // GRAFICO TOP 8 REGIONI
+            const regioneCol = Array.from(allColumns).find(c => /regione/i.test(c));
+            if (regioneCol) {
+                const regioniCount = {};
+                data.forEach(item => {
+                    const regione = item[regioneCol];
+                    if (regione) {
+                        regioniCount[regione] = (regioniCount[regione] || 0) + 1;
+                    }
+                });
+                
+                // Ordina e prendi top 8
+                const sorted = Object.entries(regioniCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 8);
+                
+                const colors = [
+                    '#667eea', '#764ba2', '#f093fb', '#4facfe',
+                    '#43e97b', '#fa709a', '#fee140', '#30cfd0'
+                ];
+                
+                if (chartRegioni) chartRegioni.destroy();
+                const ctx2 = document.getElementById('chartRegioni').getContext('2d');
+                chartRegioni = new Chart(ctx2, {
+                    type: 'pie',
+                    data: {
+                        labels: sorted.map(s => s[0]),
+                        datasets: [{
+                            data: sorted.map(s => s[1]),
+                            backgroundColor: colors
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         document.getElementById('detailModal').addEventListener('click', function(e) {
