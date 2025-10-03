@@ -603,9 +603,6 @@
                 <input type="password" id="password" placeholder="Inserisci password">
             </div>
             <button class="btn-login" onclick="login()">Accedi</button>
-            <div style="margin-top:20px; text-align:center; font-size:12px; color:#999;">
-                <p>Admin: admin / admin123 | Viewer: viewer / view2025</p>
-            </div>
         </div>
     </div>
 
@@ -1346,7 +1343,7 @@
         }
         
         async function geocodeInBackground() {
-            console.log('Inizio geocoding in background...');
+            console.log('Inizio geocoding in background usando CAP...');
             let updated = 0;
             
             for (let i = 0; i < allData.length; i++) {
@@ -1354,34 +1351,47 @@
                 
                 if (item.lat && item.lng) continue;
                 
-                const comuneCol = Object.keys(item).find(k => /comune/i.test(k));
-                const comune = comuneCol && item[comuneCol] ? item[comuneCol] : null;
+                // USA CAP invece di comune (più affidabile)
+                const capCol = Object.keys(item).find(k => /^cap$/i.test(k));
+                const cap = capCol && item[capCol] ? String(item[capCol]).substring(0, 5) : null;
                 
-                if (comune && comune !== 'nan') {
+                if (cap && cap !== 'nan' && cap.match(/^\d{5}$/)) {
                     try {
-                        const response = await fetch(`https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(comune)}&country=Italy&format=json&limit=1`);
+                        // Geocoding per CAP + Italy
+                        const response = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${cap}&country=Italy&format=json&limit=1`);
                         const data = await response.json();
                         if (data && data.length > 0) {
-                            item.lat = parseFloat(data[0].lat);
-                            item.lng = parseFloat(data[0].lon);
+                            // Aggiungi un piccolo offset casuale per evitare sovrapposizione
+                            const lat = parseFloat(data[0].lat) + (Math.random() - 0.5) * 0.01;
+                            const lng = parseFloat(data[0].lon) + (Math.random() - 0.5) * 0.01;
+                            
+                            item.lat = lat;
+                            item.lng = lng;
                             updated++;
                             
-                            // Salva ogni 50 record
-                            if (updated % 50 === 0) {
+                            // Salva ogni 20 record E aggiorna mappa
+                            if (updated % 20 === 0) {
                                 await db.ref(`data/${i}`).update({lat: item.lat, lng: item.lng});
-                                console.log(`Geocoding background: ${updated} coordinate trovate`);
-                                renderMap(applyFilters()); // Aggiorna mappa progressivamente
+                                console.log(`Geocoding background: ${updated} coordinate trovate (CAP ${cap})`);
+                                const filtered = getFilteredData();
+                                renderMap(filtered); // Aggiorna mappa con dati corretti
+                                renderList(filtered);
                             }
                         }
                     } catch (error) {
                         // Ignora errori
                     }
                     
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                    await new Promise(resolve => setTimeout(resolve, 150));
                 }
             }
             
-            console.log(`✅ Geocoding completato: ${updated} coordinate aggiunte`);
+            // Salva gli ultimi
+            await db.ref('data').set(allData);
+            console.log(`✅ Geocoding completato: ${updated} coordinate aggiunte usando CAP`);
+            const filtered = getFilteredData();
+            renderMap(filtered); // Refresh finale
+            renderList(filtered);
         }
 
         async function resetDatabase() {
