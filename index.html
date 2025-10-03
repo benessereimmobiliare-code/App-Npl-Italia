@@ -1141,7 +1141,10 @@
                 });
             }
             
-            // TROVA UN RECORD CON IL MASSIMO NUMERO DI COLONNE (record completo)
+            // Salva i dati ordinati in variabile globale per showDetail
+            window.currentTableData = data;
+            
+            // TROVA UN RECORD CON IL MASSIMO NUMERO DI COLONNE
             let sampleRecord = data[0];
             let maxCols = Object.keys(sampleRecord).length;
             for (let i = 1; i < Math.min(data.length, 50); i++) {
@@ -1152,11 +1155,9 @@
                 }
             }
             
-            // Colonne da mostrare basate sul record più completo
             const colsToShow = ['Tipo', 'Data Asta', 'Project ID', 'Titolo', 'Prezzo base d\'asta', 'Situazione debitoria', 'Indirizzo', 'Comune', 'Provincia', 'CAP', 'Regione'];
             const cols = Object.keys(sampleRecord).filter(k => colsToShow.some(c => c.toLowerCase() === k.toLowerCase()));
             
-            // Cerca colonna link/telefono
             const linkCol = Object.keys(sampleRecord).find(k => k.toLowerCase().includes('clicca') || k.toLowerCase().includes('pre asta'));
             const telCol = Object.keys(sampleRecord).find(k => k.toLowerCase().includes('telefon'));
             
@@ -1172,7 +1173,6 @@
                     return `<td>${val}</td>`;
                 }).join('');
                 
-                // Colonna contatti (link o telefono)
                 let contatti = '';
                 if (linkCol && item[linkCol]) {
                     contatti = `<a href="${item[linkCol]}" target="_blank" style="
@@ -1229,17 +1229,22 @@
         }
 
         function showDetail(idx) {
-            const filtered = getFilteredData();
-            const item = filtered[idx];
+            // Usa i dati ordinati della tabella invece dei dati filtrati
+            const data = window.currentTableData || getFilteredData();
+            const item = data[idx];
+            
+            if (!item) {
+                alert('Errore: record non trovato');
+                return;
+            }
+            
             const content = document.getElementById('detailContent');
             
-            // Genera HTML per ogni campo
             const fields = Object.keys(item)
                 .filter(k => k !== 'idx')
                 .map(key => {
                     const value = item[key] || '-';
                     
-                    // Campo telefono speciale con icona
                     if (key.toLowerCase().includes('telefon')) {
                         return `
                             <div class="detail-item" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
@@ -1255,7 +1260,6 @@
                         `;
                     }
                     
-                    // Campo link pre-asta con icona email
                     if (key.toLowerCase().includes('pre asta') || key.toLowerCase().includes('clicca')) {
                         return `
                             <div class="detail-item" style="background: #fff3e0; border-left: 4px solid #FF9800;">
@@ -1280,7 +1284,6 @@
                         `;
                     }
                     
-                    // Campi normali
                     return `
                         <div class="detail-item">
                             <label>${key}</label>
@@ -1331,14 +1334,13 @@
                         const workbook = XLSX.read(data, { type: 'array' });
                         const sheet = workbook.Sheets[workbook.SheetNames[0]];
                         
-                        // FIX: Includi celle vuote come stringa vuota invece di skipparle
+                        // Includi celle vuote come stringa vuota
                         const jsonData = XLSX.utils.sheet_to_json(sheet, { 
-                            defval: '',
-                            raw: false
+                            defval: null
                         });
                         
                         console.log('Excel letto:', jsonData.length, 'record');
-                        console.log('Colonne:', jsonData.length > 0 ? Object.keys(jsonData[0]) : 'NESSUNA');
+                        console.log('Colonne:', jsonData.length > 0 ? Object.keys(jsonData[0]).length : 'NESSUNA');
                         
                         const cleaned = jsonData.map(row => {
                             const newRow = {};
