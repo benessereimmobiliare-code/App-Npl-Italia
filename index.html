@@ -1156,7 +1156,11 @@
             const colsToShow = ['Tipo', 'Data Asta', 'Project ID', 'Titolo', 'Prezzo base d\'asta', 'Situazione debitoria', 'Indirizzo', 'Comune', 'Provincia', 'CAP', 'Regione'];
             const cols = Object.keys(sampleRecord).filter(k => colsToShow.some(c => c.toLowerCase() === k.toLowerCase()));
             
-            thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '<th>Azioni</th></tr>';
+            // Cerca colonna link/telefono
+            const linkCol = Object.keys(sampleRecord).find(k => k.toLowerCase().includes('clicca') || k.toLowerCase().includes('pre asta'));
+            const telCol = Object.keys(sampleRecord).find(k => k.toLowerCase().includes('telefon'));
+            
+            thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '<th>Contatti</th><th>Dettagli</th></tr>';
             
             tbody.innerHTML = data.map((item, idx) => {
                 const icona = item.tipo === 'asta' ? '🔨' : '📋';
@@ -1167,7 +1171,36 @@
                     }
                     return `<td>${val}</td>`;
                 }).join('');
-                return `<tr>${row}<td><button class="btn btn-upload" style="padding:6px 12px; font-size:12px;" onclick="showDetail(${idx})">Dettagli</button></td></tr>`;
+                
+                // Colonna contatti (link o telefono)
+                let contatti = '';
+                if (linkCol && item[linkCol]) {
+                    contatti = `<a href="${item[linkCol]}" target="_blank" style="
+                        display: inline-block;
+                        background: #FF9800;
+                        color: white;
+                        padding: 6px 12px;
+                        border-radius: 4px;
+                        text-decoration: none;
+                        font-size: 12px;
+                        font-weight: bold;
+                    ">✉️ Pre-Asta</a>`;
+                } else if (telCol && item[telCol]) {
+                    contatti = `<a href="tel:${item[telCol]}" style="
+                        display: inline-block;
+                        background: #2196F3;
+                        color: white;
+                        padding: 6px 12px;
+                        border-radius: 4px;
+                        text-decoration: none;
+                        font-size: 12px;
+                        font-weight: bold;
+                    ">📞 ${item[telCol]}</a>`;
+                } else {
+                    contatti = '-';
+                }
+                
+                return `<tr>${row}<td>${contatti}</td><td><button class="btn btn-upload" style="padding:6px 12px; font-size:12px;" onclick="showDetail(${idx})">Dettagli</button></td></tr>`;
             }).join('');
             
             document.getElementById('recordCount').textContent = data.length;
@@ -1216,6 +1249,31 @@
                                 <div class="value" style="font-size: 18px; font-weight: bold; color: #1976D2;">
                                     <a href="tel:${value}" style="color: #1976D2; text-decoration: none;">
                                         ${value}
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Campo link pre-asta con icona email
+                    if (key.toLowerCase().includes('pre asta') || key.toLowerCase().includes('clicca')) {
+                        return `
+                            <div class="detail-item" style="background: #fff3e0; border-left: 4px solid #FF9800;">
+                                <label style="color: #F57C00; font-weight: bold;">
+                                    ✉️ ${key}
+                                </label>
+                                <div class="value">
+                                    <a href="${value}" target="_blank" style="
+                                        display: inline-block;
+                                        background: #FF9800;
+                                        color: white;
+                                        padding: 10px 20px;
+                                        border-radius: 5px;
+                                        text-decoration: none;
+                                        font-weight: bold;
+                                        font-size: 14px;
+                                    ">
+                                        🔗 Contattaci per Pre-Asta
                                     </a>
                                 </div>
                             </div>
