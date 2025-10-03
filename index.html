@@ -688,6 +688,11 @@
                     <button class="btn btn-upload" onclick="applyFilters()">Applica Filtri</button>
                     <button class="btn btn-danger" onclick="clearFilters()">Azzera Filtri</button>
                 </div>
+                <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-left: 4px solid #2196F3; border-radius: 5px;">
+                    <small style="color: #1976d2;">
+                        <strong>📅 Ordinamento:</strong> I risultati sono ordinati per <strong>Data Asta decrescente</strong> (dalla più lontana alla più vicina)
+                    </small>
+                </div>
             </div>
 
             <!-- MAPPA E LISTA -->
@@ -942,15 +947,23 @@
             if (regione) {
                 const regioneCol = Object.keys(allData[0] || {}).find(k => /regione/i.test(k));
                 if (regioneCol) {
-                    filtered = filtered.filter(d => d[regioneCol] === regione);
+                    // FIX: Confronto case-insensitive e trim spazi
+                    filtered = filtered.filter(d => {
+                        const valRegione = d[regioneCol] ? String(d[regioneCol]).trim().toLowerCase() : '';
+                        return valRegione === regione.trim().toLowerCase();
+                    });
                 }
             }
             
             const citta = document.getElementById('filterCitta').value;
             if (citta) {
-                const indirizzoCol = Object.keys(allData[0] || {}).find(k => /indirizzo/i.test(k));
-                if (indirizzoCol) {
-                    filtered = filtered.filter(d => extractComuneFromAddress(d[indirizzoCol]) === citta);
+                const comuneCol = Object.keys(allData[0] || {}).find(k => /^comune$/i.test(k));
+                if (comuneCol) {
+                    // FIX: Usa colonna Comune diretta invece di estrarre da indirizzo
+                    filtered = filtered.filter(d => {
+                        const valComune = d[comuneCol] ? String(d[comuneCol]).trim().toLowerCase() : '';
+                        return valComune === citta.trim().toLowerCase();
+                    });
                 }
             }
             
@@ -961,7 +974,27 @@
                 );
             }
             
+            // NUOVO: Ordinamento per Data Asta (decrescente - dalla più lontana)
+            const dataCol = Object.keys(allData[0] || {}).find(k => /data.*asta/i.test(k));
+            if (dataCol) {
+                filtered.sort((a, b) => {
+                    const dateA = parseDate(a[dataCol]);
+                    const dateB = parseDate(b[dataCol]);
+                    return dateB - dateA; // Decrescente (più lontana prima)
+                });
+            }
+            
             return filtered;
+        }
+        
+        // Helper per parsare date italiane (DD/MM/YYYY)
+        function parseDate(dateStr) {
+            if (!dateStr) return new Date(0);
+            const parts = String(dateStr).split('/');
+            if (parts.length === 3) {
+                return new Date(parts[2], parts[1] - 1, parts[0]);
+            }
+            return new Date(0);
         }
 
         function renderAll() {
@@ -1185,9 +1218,30 @@
                 return;
             }
             
-            // Colonne da mostrare (con Prezzo base d'asta e Situazione debitoria)
-            const colsToShow = ['Tipo', 'Project ID', 'Numero Pratica / NDG', 'Titolo', 'Prezzo base d\'asta', 'Situazione debitoria', 'Indirizzo', 'Comune', 'Provincia', 'CAP', 'Regione'];
-            const cols = Object.keys(data[0]).filter(k => colsToShow.some(c => c.toLowerCase() === k.toLowerCase()));
+            // ORDINA per Data Asta DECRESCENTE
+            const dataAstaCol = Object.keys(data[0] || {}).find(k => /data.*asta/i.test(k));
+            if (dataAstaCol) {
+                data = [...data].sort((a, b) => {
+                    const dateA = parseDateItalian(a[dataAstaCol]);
+                    const dateB = parseDateItalian(b[dataAstaCol]);
+                    return dateB - dateA;
+                });
+            }
+            
+            // TROVA UN RECORD CON IL MASSIMO NUMERO DI COLONNE (record completo)
+            let sampleRecord = data[0];
+            let maxCols = Object.keys(sampleRecord).length;
+            for (let i = 1; i < Math.min(data.length, 50); i++) {
+                const colCount = Object.keys(data[i]).length;
+                if (colCount > maxCols) {
+                    maxCols = colCount;
+                    sampleRecord = data[i];
+                }
+            }
+            
+            // Colonne da mostrare basate sul record più completo
+            const colsToShow = ['Tipo', 'Data Asta', 'Project ID', 'Titolo', 'Prezzo base d\'asta', 'Situazione debitoria', 'Indirizzo', 'Comune', 'Provincia', 'CAP', 'Regione'];
+            const cols = Object.keys(sampleRecord).filter(k => colsToShow.some(c => c.toLowerCase() === k.toLowerCase()));
             
             thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '<th>Azioni</th></tr>';
             
@@ -1204,6 +1258,20 @@
             }).join('');
             
             document.getElementById('recordCount').textContent = data.length;
+        }
+        
+        // Helper per parsare date italiane DD/MM/YYYY
+        function parseDateItalian(dateStr) {
+            if (!dateStr) return new Date(0);
+            const str = String(dateStr).trim();
+            const parts = str.split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1;
+                const year = parseInt(parts[2]);
+                return new Date(year, month, day);
+            }
+            return new Date(0);
         }
 
         function searchTable() {
@@ -1333,65 +1401,17 @@
                 await db.ref('data').update(updates);
             }
             
-            console.log('✅ Salvataggio completato! (geocoding sarà fatto in background)');
+            console.log('✅ Salvataggio completato!');
             allData = allRecords;
             populateFilters();
             renderAll();
             
-            // Avvia geocoding in background DOPO aver mostrato i dati
-            setTimeout(() => geocodeInBackground(), 2000);
+            // GEOCODING DISABILITATO - causava reset automatico filtri
         }
         
         async function geocodeInBackground() {
-            console.log('Inizio geocoding in background usando CAP...');
-            let updated = 0;
-            
-            for (let i = 0; i < allData.length; i++) {
-                const item = allData[i];
-                
-                if (item.lat && item.lng) continue;
-                
-                // USA CAP invece di comune (più affidabile)
-                const capCol = Object.keys(item).find(k => /^cap$/i.test(k));
-                const cap = capCol && item[capCol] ? String(item[capCol]).substring(0, 5) : null;
-                
-                if (cap && cap !== 'nan' && cap.match(/^\d{5}$/)) {
-                    try {
-                        // Geocoding per CAP + Italy
-                        const response = await fetch(`https://nominatim.openstreetmap.org/search?postalcode=${cap}&country=Italy&format=json&limit=1`);
-                        const data = await response.json();
-                        if (data && data.length > 0) {
-                            // Aggiungi un piccolo offset casuale per evitare sovrapposizione
-                            const lat = parseFloat(data[0].lat) + (Math.random() - 0.5) * 0.01;
-                            const lng = parseFloat(data[0].lon) + (Math.random() - 0.5) * 0.01;
-                            
-                            item.lat = lat;
-                            item.lng = lng;
-                            updated++;
-                            
-                            // Salva ogni 20 record E aggiorna mappa
-                            if (updated % 20 === 0) {
-                                await db.ref(`data/${i}`).update({lat: item.lat, lng: item.lng});
-                                console.log(`Geocoding background: ${updated} coordinate trovate (CAP ${cap})`);
-                                const filtered = getFilteredData();
-                                renderMap(filtered); // Aggiorna mappa con dati corretti
-                                renderList(filtered);
-                            }
-                        }
-                    } catch (error) {
-                        // Ignora errori
-                    }
-                    
-                    await new Promise(resolve => setTimeout(resolve, 150));
-                }
-            }
-            
-            // Salva gli ultimi
-            await db.ref('data').set(allData);
-            console.log(`✅ Geocoding completato: ${updated} coordinate aggiunte usando CAP`);
-            const filtered = getFilteredData();
-            renderMap(filtered); // Refresh finale
-            renderList(filtered);
+            // FUNZIONE DISABILITATA - causava reload automatico dei dati
+            console.log('Geocoding disabilitato per evitare reset filtri');
         }
 
         async function resetDatabase() {
