@@ -1200,13 +1200,39 @@
             const item = filtered[idx];
             const content = document.getElementById('detailContent');
             
-            content.innerHTML = Object.keys(item).filter(k => k !== 'idx').map(key => `
-                <div class="detail-item">
-                    <label>${key}</label>
-                    <div class="value">${item[key] || '-'}</div>
-                </div>
-            `).join('');
+            // Genera HTML per ogni campo
+            const fields = Object.keys(item)
+                .filter(k => k !== 'idx')
+                .map(key => {
+                    const value = item[key] || '-';
+                    
+                    // Campo telefono speciale con icona
+                    if (key.toLowerCase().includes('telefon')) {
+                        return `
+                            <div class="detail-item" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
+                                <label style="color: #1976D2; font-weight: bold;">
+                                    📞 ${key}
+                                </label>
+                                <div class="value" style="font-size: 18px; font-weight: bold; color: #1976D2;">
+                                    <a href="tel:${value}" style="color: #1976D2; text-decoration: none;">
+                                        ${value}
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Campi normali
+                    return `
+                        <div class="detail-item">
+                            <label>${key}</label>
+                            <div class="value">${value}</div>
+                        </div>
+                    `;
+                })
+                .join('');
             
+            content.innerHTML = fields;
             document.getElementById('detailModal').classList.add('active');
         }
 
