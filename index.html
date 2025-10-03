@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard NPL & Aste Italia</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * {
             margin: 0;
@@ -271,116 +270,7 @@
             gap: 10px;
         }
 
-        /* MAPPA E LISTA */
-        .content {
-            display: flex;
-            height: 500px;
-            position: relative;
-        }
-
-        #map {
-            flex: 1;
-            min-width: 300px;
-        }
-
-        /* LEGENDA MAPPA */
-        .map-legend {
-            position: absolute;
-            top: 20px;
-            right: 420px;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 1000;
-        }
-
-        .map-legend h4 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
-            border: 2px solid white;
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
-        }
-
-        .sidebar {
-            width: 400px;
-            overflow-y: auto;
-            border-left: 1px solid #ddd;
-            background: #fafafa;
-        }
-
-        .property-card {
-            background: white;
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .property-card:hover {
-            background: #f0f4ff;
-            transform: translateX(-5px);
-        }
-
-        .property-card.selected {
-            background: #e6ecff;
-            border-left: 4px solid #667eea;
-        }
-
-        .property-type {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .type-asta {
-            background: #ffc107;
-            color: #000;
-        }
-
-        .type-npl {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .property-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .property-price {
-            font-size: 20px;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-
-        .property-details {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.6;
-        }
-
-        /* TABLE */
+        /* TABELLA DATI */
         .table-container {
             padding: 25px;
         }
@@ -669,7 +559,7 @@
                     </div>
                     <div class="filter-item">
                         <label>Regione</label>
-                        <select id="filterRegione">
+                        <select id="filterRegione" onchange="updateCittaFilter()">
                             <option value="">Tutte le regioni</option>
                         </select>
                     </div>
@@ -695,24 +585,9 @@
                 </div>
             </div>
 
-            <!-- MAPPA E LISTA -->
-            <div class="content">
-                <div id="map"></div>
-                
-                <!-- LEGENDA MAPPA -->
-                <div class="map-legend">
-                    <h4>Legenda</h4>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #ffc107;"></div>
-                        <span>Aste</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #e74c3c;"></div>
-                        <span>NPL</span>
-                    </div>
-                </div>
-                
-                <div class="sidebar" id="propertyList"></div>
+            <!-- MAPPA E LISTA RIMOSSA - Solo tabella con filtri -->
+            <div style="padding: 20px; background: #f8f9fa; text-align: center;">
+                <p style="color: #666; font-size: 14px;">Usa i filtri sopra per cercare immobili per regione e città</p>
             </div>
 
             <!-- TABELLA DATI -->
@@ -750,7 +625,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
         // FIREBASE
@@ -769,8 +643,6 @@
 
         let allData = [];
         let currentUser = null;
-        let map = null;
-        let markers = [];
 
         const users = {
             'admin': { password: 'admin123', role: 'Admin', level: 3 },
@@ -880,8 +752,13 @@
         }
 
         function populateFilters() {
+            if (!allData || allData.length === 0) {
+                console.log('populateFilters: allData vuoto');
+                return;
+            }
+            
             // Regioni
-            const regioneCol = Object.keys(allData[0] || {}).find(k => /regione/i.test(k));
+            const regioneCol = Object.keys(allData[0]).find(k => k.toLowerCase() === 'regione');
             if (regioneCol) {
                 const regioni = [...new Set(allData.map(d => d[regioneCol]).filter(Boolean))].sort();
                 const select = document.getElementById('filterRegione');
@@ -889,19 +766,60 @@
                     regioni.map(r => `<option value="${r}">${r}</option>`).join('');
             }
             
-            // Città (estratte dall'indirizzo)
-            const indirizzoCol = Object.keys(allData[0] || {}).find(k => /indirizzo/i.test(k));
-            if (indirizzoCol) {
-                const citta = new Set();
-                allData.forEach(d => {
-                    const comune = extractComuneFromAddress(d[indirizzoCol]);
-                    if (comune) citta.add(comune);
-                });
-                const cittaArr = [...citta].sort();
-                const select = document.getElementById('filterCitta');
-                select.innerHTML = '<option value="">Tutte le città</option>' +
-                    cittaArr.map(c => `<option value="${c}">${c}</option>`).join('');
+            // Città (iniziale - tutte)
+            updateCittaFilter();
+        }
+        
+        function updateCittaFilter() {
+            if (!allData || allData.length === 0) {
+                console.log('updateCittaFilter: allData vuoto, skip');
+                return;
             }
+            
+            const regioneSelezionata = document.getElementById('filterRegione').value;
+            const comuneCol = Object.keys(allData[0]).find(k => k.toLowerCase() === 'comune');
+            const regioneCol = Object.keys(allData[0]).find(k => k.toLowerCase() === 'regione');
+            
+            console.log('updateCittaFilter chiamata');
+            console.log('Regione selezionata:', regioneSelezionata);
+            console.log('Colonna comune trovata:', comuneCol);
+            console.log('Totale record:', allData.length);
+            
+            if (!comuneCol) {
+                console.error('ERRORE: Colonna Comune non trovata!');
+                console.log('Colonne disponibili:', Object.keys(allData[0]));
+                return;
+            }
+            
+            const citta = new Set();
+            allData.forEach(d => {
+                // Filtra per regione se selezionata
+                if (regioneSelezionata && regioneCol && d[regioneCol] !== regioneSelezionata) {
+                    return;
+                }
+                let comune = d[comuneCol];
+                if (comune && comune !== 'nan' && String(comune).trim() !== '') {
+                    // Pulisci newline e prendi solo la prima riga
+                    comune = String(comune).split('\n')[0].trim();
+                    if (comune.length > 0 && comune !== '-') {
+                        citta.add(comune);
+                    }
+                }
+            });
+            
+            console.log('Città trovate:', citta.size);
+            
+            const cittaArr = [...citta].sort();
+            const select = document.getElementById('filterCitta');
+            const valoreCorrente = select.value;
+            select.innerHTML = '<option value="">Tutte le città</option>' +
+                cittaArr.map(c => `<option value="${c}">${c}</option>`).join('');
+            
+            if (cittaArr.includes(valoreCorrente)) {
+                select.value = valoreCorrente;
+            }
+            
+            console.log('Dropdown aggiornato con', cittaArr.length, 'città');
         }
 
         function extractComuneFromAddress(address) {
@@ -959,9 +877,10 @@
             if (citta) {
                 const comuneCol = Object.keys(allData[0] || {}).find(k => /^comune$/i.test(k));
                 if (comuneCol) {
-                    // FIX: Usa colonna Comune diretta invece di estrarre da indirizzo
                     filtered = filtered.filter(d => {
-                        const valComune = d[comuneCol] ? String(d[comuneCol]).trim().toLowerCase() : '';
+                        let valComune = d[comuneCol] ? String(d[comuneCol]) : '';
+                        // FIX: Pulisci newline e prendi solo prima riga
+                        valComune = valComune.split('\n')[0].trim().toLowerCase();
                         return valComune === citta.trim().toLowerCase();
                     });
                 }
@@ -1000,8 +919,6 @@
         function renderAll() {
             const filtered = getFilteredData();
             updateStats();
-            renderMap(filtered);
-            renderList(filtered);
             renderTable(filtered);
         }
 
@@ -1052,44 +969,40 @@
             markers.forEach(m => map.removeLayer(m));
             markers = [];
             
-            // Raggruppa per coordinate già salvate
+            // Raggruppa per coordinate
             const groups = {};
             
             data.forEach((item, idx) => {
+                let lat, lng;
+                
                 if (item.lat && item.lng) {
                     // Usa coordinate salvate
-                    const key = `${item.lat.toFixed(3)}_${item.lng.toFixed(3)}`;
-                    if (!groups[key]) {
-                        groups[key] = {
-                            coords: [item.lat, item.lng],
-                            items: []
-                        };
-                    }
-                    groups[key].items.push({...item, idx});
+                    lat = item.lat;
+                    lng = item.lng;
                 } else {
-                    // Fallback: se non ha coordinate, usa comune dalla cache statica
-                    const comuneCol = Object.keys(item).find(k => /comune/i.test(k));
-                    const comune = comuneCol ? item[comuneCol] : null;
+                    // FALLBACK: Usa coordinate regione
+                    const regioneCol = Object.keys(item).find(k => /regione/i.test(k));
+                    const regione = regioneCol ? item[regioneCol] : null;
                     
-                    // Coordinate statiche principali città italiane
-                    const cittaCoords = {
-                        'Roma': [41.9028, 12.4964], 'Milano': [45.4642, 9.1900],
-                        'Napoli': [40.8518, 14.2681], 'Torino': [45.0703, 7.6869],
-                        'Genova': [44.4056, 8.9463], 'Bologna': [44.4949, 11.3426],
-                        'Firenze': [43.7696, 11.2558], 'Palermo': [38.1157, 13.3615]
-                    };
-                    
-                    if (comune && cittaCoords[comune]) {
-                        const key = comune;
-                        if (!groups[key]) {
-                            groups[key] = {
-                                coords: cittaCoords[comune],
-                                items: []
-                            };
-                        }
-                        groups[key].items.push({...item, idx});
+                    if (regione && regioniCoords[regione]) {
+                        const coords = regioniCoords[regione];
+                        // Aggiungi offset casuale per evitare sovrapposizione
+                        lat = coords[0] + (Math.random() - 0.5) * 0.5;
+                        lng = coords[1] + (Math.random() - 0.5) * 0.5;
+                    } else {
+                        // Skip se non ha né coordinate né regione valida
+                        return;
                     }
                 }
+                
+                const key = `${lat.toFixed(2)}_${lng.toFixed(2)}`;
+                if (!groups[key]) {
+                    groups[key] = {
+                        coords: [lat, lng],
+                        items: []
+                    };
+                }
+                groups[key].items.push({...item, idx});
             });
             
             // Crea marker per ogni gruppo
@@ -1107,26 +1020,26 @@
                         background: ${color};
                         color: white;
                         border-radius: 50%;
-                        width: ${Math.min(50, 25 + items.length * 2)}px;
-                        height: ${Math.min(50, 25 + items.length * 2)}px;
+                        width: ${Math.min(60, 30 + items.length * 2)}px;
+                        height: ${Math.min(60, 30 + items.length * 2)}px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         font-weight: bold;
                         border: 3px solid white;
                         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                        font-size: 12px;
+                        font-size: 14px;
                     ">${items.length}</div>`
                 });
                 
                 const marker = L.marker(coords, {icon}).addTo(map);
                 
-                // Popup con info
-                const comuneCol = Object.keys(items[0]).find(k => /comune/i.test(k));
-                const comuneNome = comuneCol && items[0][comuneCol] ? items[0][comuneCol] : 'Zona';
+                // Popup
+                const regioneCol = Object.keys(items[0]).find(k => /regione/i.test(k));
+                const regioneNome = regioneCol && items[0][regioneCol] ? items[0][regioneCol] : 'Zona';
                 
                 let popup = `<div style="max-width: 300px; max-height: 400px; overflow-y: auto;">`;
-                popup += `<h3 style="color: #667eea;">${comuneNome}</h3>`;
+                popup += `<h3 style="color: #667eea;">${regioneNome}</h3>`;
                 popup += `<p><strong>Aste:</strong> ${aste} | <strong>NPL:</strong> ${npl}</p><hr>`;
                 
                 items.slice(0, 10).forEach(item => {
@@ -1333,7 +1246,15 @@
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array' });
                         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const jsonData = XLSX.utils.sheet_to_json(sheet);
+                        
+                        // FIX: Includi celle vuote come stringa vuota invece di skipparle
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, { 
+                            defval: '',
+                            raw: false
+                        });
+                        
+                        console.log('Excel letto:', jsonData.length, 'record');
+                        console.log('Colonne:', jsonData.length > 0 ? Object.keys(jsonData[0]) : 'NESSUNA');
                         
                         const cleaned = jsonData.map(row => {
                             const newRow = {};
@@ -1401,17 +1322,16 @@
                 await db.ref('data').update(updates);
             }
             
-            console.log('✅ Salvataggio completato!');
+            console.log('Salvataggio completato!');
             allData = allRecords;
             populateFilters();
             renderAll();
             
-            // GEOCODING DISABILITATO - causava reset automatico filtri
+            // GEOCODING DISABILITATO - Mappa rimossa, non più necessario
         }
         
-        async function geocodeInBackground() {
-            // FUNZIONE DISABILITATA - causava reload automatico dei dati
-            console.log('Geocoding disabilitato per evitare reset filtri');
+        async function geocodeInBackgroundSafe() {
+            // Disabilitato - mappa rimossa
         }
 
         async function resetDatabase() {
@@ -1431,33 +1351,15 @@
         document.getElementById('password').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') login();
         });
-
-        db.ref('data').on('value', (snapshot) => {
-            if (currentUser && snapshot.exists()) {
-                const data = snapshot.val();
-                allData = Array.isArray(data) ? data : Object.values(data);
-                allData = allData.map(item => {
-                    // Prima cerca la colonna "Tipo"
-                    const tipoCol = Object.keys(item).find(k => /^tipo$/i.test(k));
-                    if (tipoCol && item[tipoCol]) {
-                        const tipoValue = String(item[tipoCol]).toLowerCase();
-                        item.tipo = tipoValue.includes('asta') ? 'asta' : 'npl';
-                    } else {
-                        // Fallback su Destinazione d'uso
-                        const destCol = Object.keys(item).find(k => /destinazione.*uso|tipologia/i.test(k));
-                        if (destCol) {
-                            const dest = String(item[destCol]).toLowerCase();
-                            item.tipo = (dest.includes('asta') || dest.includes('aste')) ? 'asta' : 'npl';
-                        } else {
-                            item.tipo = 'npl';
-                        }
-                    }
-                    return item;
-                });
-                populateFilters();
-                renderAll();
-            }
+        
+        // ASSICURA che cambio regione aggiorni città
+        document.getElementById('filterRegione').addEventListener('change', function() {
+            updateCittaFilter();
         });
+
+        // LISTENER FIREBASE RIMOSSO - causava reset automatico dei filtri
+        // quando geocoding salvava coordinate. I dati vengono caricati
+        // solo al login e dopo upload, NON ad ogni cambiamento Firebase.
     </script>
 </body>
 </html>
