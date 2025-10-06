@@ -112,6 +112,12 @@
             <div class="input-group"><label>Username</label><input type="text" id="username" placeholder="Inserisci username"></div>
             <div class="input-group"><label>Password</label><input type="password" id="password" placeholder="Inserisci password"></div>
             <button class="btn-login" onclick="login()">Accedi</button>
+            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+                <p style="color: #666; font-size: 13px; margin-bottom: 10px;">Sei un socio del Progetto 100?</p>
+                <button onclick="window.location.href='https://benessereimmobiliare-code.github.io/progetto-100-soci/'" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                    ⭐ Accedi a Progetto 100 Soci
+                </button>
+            </div>
         </div>
     </div>
 
@@ -389,7 +395,7 @@
                 // FIX: Mostra link SOLO per ASTE, telefono SOLO per NPL
                 let contatti = '-';
                 if (item.tipo === 'asta') {
-                    const linkCol = Object.keys(item).find(k => /clicca|pre.*asta/i.test(k));
+                    const linkCol = Object.keys(item).find(k => /vuoi.*prenderlo.*pre.*asta.*clicca/i.test(k) || /link.*pre.*asta/i.test(k));
                     if (linkCol && item[linkCol]) {
                         contatti = `<a href="${item[linkCol]}" target="_blank" style="display:inline-block;background:#FF9800;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold;">✉️ Pre-Asta</a>`;
                     }
@@ -428,7 +434,7 @@
             const fields = Object.keys(item).map(key => {
                 const value = item[key] || '-';
                 if (/telefon/i.test(key)) return `<div class="detail-item" style="background:#e3f2fd;border-left:4px solid #2196F3;"><label style="color:#1976D2;font-weight:bold;">${key}</label><div class="value"><a href="tel:${value}" style="color:#1976D2;text-decoration:none;">${value}</a></div></div>`;
-                if (/clicca|pre.*asta/i.test(key)) return `<div class="detail-item" style="background:#fff3e0;border-left:4px solid #FF9800;"><label style="color:#F57C00;font-weight:bold;">${key}</label><div class="value"><a href="${value}" target="_blank" style="display:inline-block;background:#FF9800;color:white;padding:10px 20px;border-radius:5px;text-decoration:none;font-weight:bold;">Contattaci</a></div></div>`;
+                if (/vuoi.*prenderlo.*pre.*asta.*clicca/i.test(key) || /link.*pre.*asta/i.test(key)) return `<div class="detail-item" style="background:#fff3e0;border-left:4px solid #FF9800;"><label style="color:#F57C00;font-weight:bold;">${key}</label><div class="value"><a href="${value}" target="_blank" style="display:inline-block;background:#FF9800;color:white;padding:10px 20px;border-radius:5px;text-decoration:none;font-weight:bold;">Contattaci</a></div></div>`;
                 return `<div class="detail-item"><label>${key}</label><div class="value">${value}</div></div>`;
             }).join('');
             content.innerHTML = fields;
