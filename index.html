@@ -5,518 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard NPL & Aste Italia</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        /* LOGIN */
-        .login-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 400px;
-            width: 100%;
-        }
-
-        .login-box h1 {
-            color: #667eea;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* DASHBOARD */
-        .dashboard {
-            display: none;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        .dashboard.active {
-            display: block;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .header-right {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .user-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-logout {
-            background: #f44336;
-            color: white;
-        }
-
-        .btn-upload {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .btn-danger {
-            background: #f44336;
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        /* ADMIN PANEL */
-        .admin-panel {
-            padding: 25px;
-            background: #f8f9fa;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .admin-panel h2 {
-            color: #667eea;
-            margin-bottom: 15px;
-        }
-
-        .admin-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            background: white;
-            transition: all 0.3s;
-        }
-
-        .upload-area:hover {
-            background: #f5f5ff;
-            transform: translateY(-2px);
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        /* STATISTICHE */
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            padding: 25px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .stat-item {
-            text-align: center;
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .stat-number {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        /* FILTRI AVANZATI */
-        .filters-section {
-            padding: 25px;
-            background: #f8f9fa;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .filters-section h3 {
-            color: #667eea;
-            margin-bottom: 20px;
-        }
-
-        .filters-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .filter-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .filter-item label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .filter-item select,
-        .filter-item input {
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .filter-item select:focus,
-        .filter-item input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* TABELLA DATI */
-        .table-container {
-            padding: 25px;
-        }
-
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .table-search {
-            padding: 10px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            width: 300px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        thead {
-            background: #f5f5f5;
-        }
-
-        th {
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid #667eea;
-        }
-
-        td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        tbody tr:hover {
-            background: #f9f9f9;
-        }
-
-        /* MODAL */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 1000;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .btn-close {
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .detail-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .detail-item {
-            padding: 12px;
-            background: #f9f9f9;
-            border-radius: 8px;
-        }
-
-        .detail-item label {
-            display: block;
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .detail-item .value {
-            font-size: 14px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        /* LOADING */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-
-        .loading-content {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .login-box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 400px; width: 100%; }
+        .login-box h1 { color: #667eea; margin-bottom: 30px; text-align: center; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; }
+        .input-group input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; }
+        .input-group input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .btn-login { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .dashboard { display: none; max-width: 1600px; margin: 0 auto; }
+        .dashboard.active { display: block; }
+        .container { background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .header h1 { font-size: 1.8em; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         @media (max-width: 768px) {
-            .content {
-                flex-direction: column;
-                height: auto;
-            }
-            .sidebar {
-                width: 100%;
-                max-height: 400px;
-            }
-            #map {
-                height: 400px;
-            }
-            .map-legend {
-                right: 20px;
-            }
+            .header { padding: 15px; }
+            .header h1 { font-size: 1.3em; width: 100%; margin-bottom: 10px; }
+            .header-right { width: 100%; justify-content: space-between; }
+            .user-badge { font-size: 12px; padding: 6px 12px; }
+            .btn { padding: 8px 12px; font-size: 12px; }
         }
+        .user-badge { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-weight: 600; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-logout { background: #f44336; color: white; }
+        .btn-upload { background: #4CAF50; color: white; }
+        .btn-danger { background: #f44336; color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .admin-panel { padding: 25px; background: #f8f9fa; border-bottom: 3px solid #667eea; }
+        .admin-panel h2 { color: #667eea; margin-bottom: 15px; }
+        .upload-area { border: 3px dashed #667eea; border-radius: 15px; padding: 40px; text-align: center; cursor: pointer; background: white; transition: all 0.3s; }
+        .upload-area:hover { background: #f5f5ff; transform: translateY(-2px); }
+        #fileInput { display: none; }
+        .stats { display: flex; justify-content: space-around; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex-wrap: wrap; gap: 20px; }
+        .stat-item { text-align: center; flex: 1; min-width: 150px; }
+        .stat-number { font-size: 36px; font-weight: 700; margin-bottom: 5px; }
+        .stat-label { font-size: 14px; opacity: 0.9; }
+        .filters-section { padding: 25px; background: #f8f9fa; border-bottom: 3px solid #667eea; }
+        .filters-section h3 { color: #667eea; margin-bottom: 20px; }
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .filter-item { display: flex; flex-direction: column; }
+        .filter-item label { font-weight: 600; margin-bottom: 8px; color: #333; }
+        .filter-item select, .filter-item input { padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; }
+        .filter-item select:focus, .filter-item input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .filter-buttons { display: flex; gap: 10px; }
+        .table-container { padding: 25px; }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        @media (max-width: 768px) {
+            .table-container { padding: 15px; }
+            .table-wrapper { 
+                overflow-x: auto; 
+                border: 1px solid #ddd; 
+                border-radius: 8px;
+                box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+            }
+            table { min-width: 800px; }
+            .table-search { width: 100%; max-width: 300px; }
+        }
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .table-search { padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; width: 300px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead { background: #f5f5f5; }
+        th { padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #667eea; }
+        td { padding: 10px 12px; border-bottom: 1px solid #e0e0e0; }
+        tbody tr:hover { background: #f9f9f9; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; padding: 20px; overflow-y: auto; }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e0e0e0; }
+        .btn-close { background: #f44336; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .detail-item { padding: 12px; background: #f9f9f9; border-radius: 8px; }
+        .detail-item label { display: block; font-size: 11px; color: #666; margin-bottom: 5px; text-transform: uppercase; font-weight: 600; }
+        .detail-item .value { font-size: 14px; color: #333; font-weight: 500; }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
+        .loading-overlay.active { display: flex; }
+        .loading-content { background: white; padding: 40px; border-radius: 15px; text-align: center; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-error { background: #f8d7da; color: #721c24; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <!-- LOADING -->
     <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-content">
-            <div class="spinner"></div>
-            <p id="loadingText">Caricamento...</p>
-        </div>
+        <div class="loading-content"><div class="spinner"></div><p id="loadingText">Caricamento...</p></div>
     </div>
 
-    <!-- LOGIN -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
             <h1>Dashboard NPL & Aste</h1>
             <div id="loginAlert"></div>
-            <div class="input-group">
-                <label>Username</label>
-                <input type="text" id="username" placeholder="Inserisci username">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="password" placeholder="Inserisci password">
-            </div>
+            <div class="input-group"><label>Username</label><input type="text" id="username" placeholder="Inserisci username"></div>
+            <div class="input-group"><label>Password</label><input type="password" id="password" placeholder="Inserisci password"></div>
             <button class="btn-login" onclick="login()">Accedi</button>
         </div>
     </div>
 
-    <!-- DASHBOARD -->
     <div id="dashboard" class="dashboard">
         <div class="container">
-            <!-- HEADER -->
             <div class="header">
                 <h1>Dashboard Immobili</h1>
                 <div class="header-right">
                     <span class="user-badge" id="userBadge"></span>
-                    <button class="btn btn-danger hidden" id="deleteBtn" onclick="resetDatabase()">🗑️ Svuota Dati</button>
+                    <button class="btn btn-danger hidden" id="deleteBtn" onclick="resetDatabase()">Svuota Dati</button>
                     <button class="btn btn-upload hidden" id="uploadBtn" onclick="showUploadPanel()">Carica Excel</button>
                     <button class="btn btn-logout" onclick="logout()">Esci</button>
                 </div>
             </div>
 
-            <!-- ADMIN PANEL -->
             <div id="adminPanel" class="admin-panel hidden">
                 <h2>Pannello Admin</h2>
                 <div id="uploadAlert"></div>
-                <div class="admin-buttons">
-                    <button class="btn btn-danger" onclick="resetDatabase()" style="font-size: 16px;">🗑️ CANCELLA TUTTI I DATI</button>
-                </div>
                 <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                     <div style="font-size: 48px; margin-bottom: 10px;">📊</div>
                     <h3>Carica file Excel</h3>
@@ -525,178 +129,76 @@
                 <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
             </div>
 
-            <!-- STATISTICHE -->
             <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-number" id="statTotal">0</div>
-                    <div class="stat-label">Immobili Totali</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="statAste">0</div>
-                    <div class="stat-label">Aste</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="statNpl">0</div>
-                    <div class="stat-label">NPL</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="statValutazione">€0</div>
-                    <div class="stat-label">Valutazione Totale</div>
-                </div>
+                <div class="stat-item"><div class="stat-number" id="statTotal">0</div><div class="stat-label">Immobili Totali</div></div>
+                <div class="stat-item"><div class="stat-number" id="statAste">0</div><div class="stat-label">Aste</div></div>
+                <div class="stat-item"><div class="stat-number" id="statNpl">0</div><div class="stat-label">NPL</div></div>
+                <div class="stat-item"><div class="stat-number" id="statValutazione">€0</div><div class="stat-label">Valutazione Totale</div></div>
             </div>
 
-            <!-- FILTRI AVANZATI -->
             <div class="filters-section">
                 <h3>Filtri di Ricerca</h3>
                 <div class="filters-grid">
-                    <div class="filter-item">
-                        <label>Tipo</label>
-                        <select id="filterTipo">
-                            <option value="">Tutti</option>
-                            <option value="asta">Aste</option>
-                            <option value="npl">NPL</option>
-                        </select>
-                    </div>
-                    <div class="filter-item">
-                        <label>Regione</label>
-                        <select id="filterRegione" onchange="updateCittaFilter()">
-                            <option value="">Tutte le regioni</option>
-                        </select>
-                    </div>
-                    <div class="filter-item">
-                        <label>Città</label>
-                        <select id="filterCitta">
-                            <option value="">Tutte le città</option>
-                        </select>
-                    </div>
-                    <div class="filter-item">
-                        <label>Ricerca libera</label>
-                        <input type="text" id="filterSearch" placeholder="Cerca...">
-                    </div>
+                    <div class="filter-item"><label>Tipo</label><select id="filterTipo"><option value="">Tutti</option><option value="asta">Aste</option><option value="npl">NPL</option></select></div>
+                    <div class="filter-item"><label>Regione</label><select id="filterRegione" onchange="updateCittaFilter()"><option value="">Tutte le regioni</option></select></div>
+                    <div class="filter-item"><label>Città</label><select id="filterCitta"><option value="">Tutte le città</option></select></div>
+                    <div class="filter-item"><label>Ricerca libera</label><input type="text" id="filterSearch" placeholder="Cerca..."></div>
                 </div>
                 <div class="filter-buttons">
                     <button class="btn btn-upload" onclick="applyFilters()">Applica Filtri</button>
                     <button class="btn btn-danger" onclick="clearFilters()">Azzera Filtri</button>
                 </div>
-                <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-left: 4px solid #2196F3; border-radius: 5px;">
-                    <small style="color: #1976d2;">
-                        <strong>📅 Ordinamento:</strong> I risultati sono ordinati per <strong>Data Asta decrescente</strong> (dalla più lontana alla più vicina)
-                    </small>
-                </div>
             </div>
 
-            <!-- MAPPA E LISTA RIMOSSA - Solo tabella con filtri -->
-            <div style="padding: 20px; background: #f8f9fa; text-align: center;">
-                <p style="color: #666; font-size: 14px;">Usa i filtri sopra per cercare immobili per regione e città</p>
-            </div>
-
-            <!-- TABELLA DATI -->
             <div class="table-container">
                 <div class="table-header">
                     <h2>Elenco Dati (<span id="recordCount">0</span>)</h2>
                     <input type="text" id="tableSearch" class="table-search" placeholder="Cerca..." onkeyup="searchTable()">
                 </div>
-                <div style="overflow-x: auto;">
+                <div class="table-wrapper">
                     <table id="dataTable">
-                        <thead id="tableHead">
-                            <tr><th>Nessun dato</th></tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            <tr><td style="text-align: center; padding: 40px;">Carica un file Excel</td></tr>
-                        </tbody>
+                        <thead id="tableHead"><tr><th>Nessun dato</th></tr></thead>
+                        <tbody id="tableBody"><tr><td style="text-align: center; padding: 40px;">Carica un file Excel</td></tr></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DETTAGLI -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Dettaglio Record</h2>
-                <button class="btn-close" onclick="closeModal()">Chiudi</button>
-            </div>
+            <div class="modal-header"><h2>Dettaglio Record</h2><button class="btn-close" onclick="closeModal()">Chiudi</button></div>
             <div id="detailContent" class="detail-grid"></div>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
     <script>
-        // FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",
-            authDomain: "app-npl-italia.firebaseapp.com",
-            databaseURL: "https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "app-npl-italia",
-            storageBucket: "app-npl-italia.firebasestorage.app",
-            messagingSenderId: "299298163787",
-            appId: "1:299298163787:web:4d08b7dd3273aa4dc011ce"
-        };
-
+        const firebaseConfig = {apiKey:"AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",authDomain:"app-npl-italia.firebaseapp.com",databaseURL:"https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",projectId:"app-npl-italia",storageBucket:"app-npl-italia.firebasestorage.app",messagingSenderId:"299298163787",appId:"1:299298163787:web:4d08b7dd3273aa4dc011ce"};
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-
         let allData = [];
         let currentUser = null;
+        const users = {'admin': {password: 'admin123', role: 'Admin', level: 3},'viewer': {password: 'view2025', role: 'Viewer', level: 2}};
 
-        const users = {
-            'admin': { password: 'admin123', role: 'Admin', level: 3 },
-            'viewer': { password: 'view2025', role: 'Viewer', level: 2 }
-        };
-
-        const regioniCoords = {
-            'Abruzzo': [42.3511, 13.3995], 'Basilicata': [40.6389, 15.8056],
-            'Calabria': [38.9100, 16.5987], 'Campania': [40.8333, 14.2500],
-            'Emilia-Romagna': [44.4949, 11.3426], 'Friuli-Venezia Giulia': [45.6361, 13.8042],
-            'Lazio': [41.9028, 12.4964], 'Liguria': [44.4056, 8.9463],
-            'Lombardia': [45.4642, 9.1900], 'Marche': [43.6167, 13.5167],
-            'Molise': [41.5611, 14.6681], 'Piemonte': [45.0703, 7.6869],
-            'Puglia': [41.1171, 16.8719], 'Sardegna': [40.1209, 9.0129],
-            'Sicilia': [38.1157, 13.3615], 'Toscana': [43.7711, 11.2486],
-            'Trentino-Alto Adige': [46.0664, 11.1257], 'Umbria': [42.9388, 12.6137],
-            'Valle d\'Aosta': [45.7372, 7.3206], 'Veneto': [45.4408, 12.3155]
-        };
-
-        function showLoading(text = 'Caricamento...') {
-            document.getElementById('loadingText').textContent = text;
-            document.getElementById('loadingOverlay').classList.add('active');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('active');
-        }
-
-        function showAlert(id, message, type = 'info') {
-            const el = document.getElementById(id);
-            el.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-            setTimeout(() => el.innerHTML = '', 5000);
-        }
+        function showLoading(text = 'Caricamento...') {document.getElementById('loadingText').textContent = text;document.getElementById('loadingOverlay').classList.add('active');}
+        function hideLoading() {document.getElementById('loadingOverlay').classList.remove('active');}
+        function showAlert(id, message, type = 'info') {const el = document.getElementById(id);el.innerHTML = `<div class="alert alert-${type}">${message}</div>`;setTimeout(() => el.innerHTML = '', 5000);}
 
         function login() {
             const username = document.getElementById('username').value.toLowerCase().trim();
             const password = document.getElementById('password').value;
-
             if (users[username] && users[username].password === password) {
-                currentUser = {
-                    username: username,
-                    role: users[username].role,
-                    level: users[username].level
-                };
-                
+                currentUser = {username,role: users[username].role,level: users[username].level};
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').classList.add('active');
                 document.getElementById('userBadge').textContent = `${currentUser.role}: ${username}`;
-                
                 if (currentUser.level === 3) {
                     document.getElementById('uploadBtn').classList.remove('hidden');
                     document.getElementById('deleteBtn').classList.remove('hidden');
                 }
-                
                 loadData();
             } else {
                 showAlert('loginAlert', 'Credenziali errate', 'error');
@@ -704,8 +206,7 @@
         }
 
         function logout() {
-            currentUser = null;
-            allData = [];
+            currentUser = null;allData = [];
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('dashboard').classList.remove('active');
             document.getElementById('username').value = '';
@@ -717,30 +218,19 @@
             try {
                 const snapshot = await db.ref('data').once('value');
                 const data = snapshot.val();
-
                 if (data) {
                     allData = Array.isArray(data) ? data : Object.values(data);
-                    
-                    // Determina tipo dalla colonna "Tipo" se esiste, altrimenti da "Destinazione d'uso"
                     allData = allData.map(item => {
-                        // Prima cerca la colonna "Tipo"
                         const tipoCol = Object.keys(item).find(k => /^tipo$/i.test(k));
                         if (tipoCol && item[tipoCol]) {
-                            const tipoValue = String(item[tipoCol]).toLowerCase();
-                            item.tipo = tipoValue.includes('asta') ? 'asta' : 'npl';
+                            item.tipo = String(item[tipoCol]).toLowerCase().includes('asta') ? 'asta' : 'npl';
                         } else {
-                            // Se non c'è "Tipo", cerca in "Destinazione d'uso"
-                            const destCol = Object.keys(item).find(k => /destinazione.*uso|tipologia/i.test(k));
-                            if (destCol) {
-                                const dest = String(item[destCol]).toLowerCase();
-                                item.tipo = (dest.includes('asta') || dest.includes('aste')) ? 'asta' : 'npl';
-                            } else {
-                                item.tipo = 'npl';
-                            }
+                            const destCol = Object.keys(item).find(k => /destinazione.*uso/i.test(k));
+                            item.tipo = (destCol && String(item[destCol]).toLowerCase().includes('asta')) ? 'asta' : 'npl';
                         }
                         return item;
                     });
-                    
+                    console.log('Dati caricati:', allData.length);
                     populateFilters();
                     renderAll();
                 }
@@ -752,99 +242,53 @@
         }
 
         function populateFilters() {
-            if (!allData || allData.length === 0) {
-                console.log('populateFilters: allData vuoto');
-                return;
-            }
+            if (!allData || allData.length === 0) return;
             
-            // Regioni
-            const regioneCol = Object.keys(allData[0]).find(k => k.toLowerCase() === 'regione');
-            if (regioneCol) {
-                const regioni = [...new Set(allData.map(d => d[regioneCol]).filter(Boolean))].sort();
-                const select = document.getElementById('filterRegione');
-                select.innerHTML = '<option value="">Tutte le regioni</option>' +
-                    regioni.map(r => `<option value="${r}">${r}</option>`).join('');
-            }
-            
-            // Città (iniziale - tutte)
-            updateCittaFilter();
-        }
-        
-        function updateCittaFilter() {
-            if (!allData || allData.length === 0) {
-                console.log('updateCittaFilter: allData vuoto, skip');
-                return;
-            }
-            
-            const regioneSelezionata = document.getElementById('filterRegione').value;
-            const comuneCol = Object.keys(allData[0]).find(k => k.toLowerCase() === 'comune');
-            const regioneCol = Object.keys(allData[0]).find(k => k.toLowerCase() === 'regione');
-            
-            console.log('updateCittaFilter chiamata');
-            console.log('Regione selezionata:', regioneSelezionata);
-            console.log('Colonna comune trovata:', comuneCol);
-            console.log('Totale record:', allData.length);
-            
-            if (!comuneCol) {
-                console.error('ERRORE: Colonna Comune non trovata!');
-                console.log('Colonne disponibili:', Object.keys(allData[0]));
-                return;
-            }
-            
-            const citta = new Set();
-            allData.forEach(d => {
-                // Filtra per regione se selezionata
-                if (regioneSelezionata && regioneCol && d[regioneCol] !== regioneSelezionata) {
-                    return;
-                }
-                let comune = d[comuneCol];
-                if (comune && comune !== 'nan' && String(comune).trim() !== '') {
-                    // Pulisci newline e prendi solo la prima riga
-                    comune = String(comune).split('\n')[0].trim();
-                    if (comune.length > 0 && comune !== '-') {
-                        citta.add(comune);
+            // FIX CRITICO: Cerca colonna Regione in modo flessibile
+            const regioni = new Set();
+            allData.forEach(item => {
+                const regioneKey = Object.keys(item).find(k => /regione/i.test(k));
+                if (regioneKey && item[regioneKey]) {
+                    const reg = String(item[regioneKey]).trim();
+                    if (reg && reg !== '-' && reg.toLowerCase() !== 'nan') {
+                        regioni.add(reg);
                     }
                 }
             });
             
-            console.log('Città trovate:', citta.size);
+            const regioniArr = [...regioni].sort();
+            console.log('Regioni trovate:', regioniArr);
+            
+            const select = document.getElementById('filterRegione');
+            select.innerHTML = '<option value="">Tutte le regioni</option>' +
+                regioniArr.map(r => `<option value="${r}">${r}</option>`).join('');
+            
+            updateCittaFilter();
+        }
+        
+        function updateCittaFilter() {
+            if (!allData || allData.length === 0) return;
+            const regioneSelezionata = document.getElementById('filterRegione').value;
+            const citta = new Set();
+            
+            allData.forEach(d => {
+                const regioneKey = Object.keys(d).find(k => /regione/i.test(k));
+                if (regioneSelezionata && regioneKey && d[regioneKey] !== regioneSelezionata) return;
+                
+                const comuneKey = Object.keys(d).find(k => /comune/i.test(k));
+                if (comuneKey && d[comuneKey]) {
+                    const com = String(d[comuneKey]).split('\n')[0].trim();
+                    if (com && com !== '-' && com.toLowerCase() !== 'nan') citta.add(com);
+                }
+            });
             
             const cittaArr = [...citta].sort();
             const select = document.getElementById('filterCitta');
-            const valoreCorrente = select.value;
             select.innerHTML = '<option value="">Tutte le città</option>' +
                 cittaArr.map(c => `<option value="${c}">${c}</option>`).join('');
-            
-            if (cittaArr.includes(valoreCorrente)) {
-                select.value = valoreCorrente;
-            }
-            
-            console.log('Dropdown aggiornato con', cittaArr.length, 'città');
         }
 
-        function extractComuneFromAddress(address) {
-            if (!address) return null;
-            
-            let match = address.match(/\d{5}\s+([A-Za-z\s]+)\s*\(/);
-            if (match) return match[1].trim();
-            
-            match = address.match(/([A-Za-z\s]+)\s*\([A-Z]{2}\)/);
-            if (match) return match[1].trim();
-            
-            const words = address.split(/[,\s]+/);
-            for (let i = words.length - 1; i >= 0; i--) {
-                if (words[i].match(/^[A-Z][a-z]+$/)) {
-                    return words[i];
-                }
-            }
-            
-            return null;
-        }
-
-        function applyFilters() {
-            renderAll();
-        }
-
+        function applyFilters() {renderAll();}
         function clearFilters() {
             document.getElementById('filterTipo').value = '';
             document.getElementById('filterRegione').value = '';
@@ -855,65 +299,29 @@
 
         function getFilteredData() {
             let filtered = [...allData];
-            
             const tipo = document.getElementById('filterTipo').value;
-            if (tipo) {
-                filtered = filtered.filter(d => d.tipo === tipo);
-            }
+            if (tipo) filtered = filtered.filter(d => d.tipo === tipo);
             
             const regione = document.getElementById('filterRegione').value;
             if (regione) {
-                const regioneCol = Object.keys(allData[0] || {}).find(k => /regione/i.test(k));
-                if (regioneCol) {
-                    // FIX: Confronto case-insensitive e trim spazi
-                    filtered = filtered.filter(d => {
-                        const valRegione = d[regioneCol] ? String(d[regioneCol]).trim().toLowerCase() : '';
-                        return valRegione === regione.trim().toLowerCase();
-                    });
-                }
+                filtered = filtered.filter(d => {
+                    const regioneKey = Object.keys(d).find(k => /regione/i.test(k));
+                    return regioneKey && String(d[regioneKey]).trim() === regione;
+                });
             }
             
             const citta = document.getElementById('filterCitta').value;
             if (citta) {
-                const comuneCol = Object.keys(allData[0] || {}).find(k => /^comune$/i.test(k));
-                if (comuneCol) {
-                    filtered = filtered.filter(d => {
-                        let valComune = d[comuneCol] ? String(d[comuneCol]) : '';
-                        // FIX: Pulisci newline e prendi solo prima riga
-                        valComune = valComune.split('\n')[0].trim().toLowerCase();
-                        return valComune === citta.trim().toLowerCase();
-                    });
-                }
-            }
-            
-            const search = document.getElementById('filterSearch').value.toLowerCase();
-            if (search) {
-                filtered = filtered.filter(d =>
-                    Object.values(d).some(v => String(v).toLowerCase().includes(search))
-                );
-            }
-            
-            // NUOVO: Ordinamento per Data Asta (decrescente - dalla più lontana)
-            const dataCol = Object.keys(allData[0] || {}).find(k => /data.*asta/i.test(k));
-            if (dataCol) {
-                filtered.sort((a, b) => {
-                    const dateA = parseDate(a[dataCol]);
-                    const dateB = parseDate(b[dataCol]);
-                    return dateB - dateA; // Decrescente (più lontana prima)
+                filtered = filtered.filter(d => {
+                    const comuneKey = Object.keys(d).find(k => /comune/i.test(k));
+                    return comuneKey && String(d[comuneKey]).split('\n')[0].trim() === citta;
                 });
             }
             
+            const search = document.getElementById('filterSearch').value.toLowerCase();
+            if (search) filtered = filtered.filter(d => Object.values(d).some(v => String(v).toLowerCase().includes(search)));
+            
             return filtered;
-        }
-        
-        // Helper per parsare date italiane (DD/MM/YYYY)
-        function parseDate(dateStr) {
-            if (!dateStr) return new Date(0);
-            const parts = String(dateStr).split('/');
-            if (parts.length === 3) {
-                return new Date(parts[2], parts[1] - 1, parts[0]);
-            }
-            return new Date(0);
         }
 
         function renderAll() {
@@ -925,205 +333,14 @@
         function updateStats() {
             const asteCount = allData.filter(d => d.tipo === 'asta').length;
             const nplCount = allData.filter(d => d.tipo === 'npl').length;
-            
             document.getElementById('statTotal').textContent = allData.length;
             document.getElementById('statAste').textContent = asteCount;
             document.getElementById('statNpl').textContent = nplCount;
-            
-            // Calcola valore totale
-            let valTotal = 0;
-            allData.forEach(item => {
-                let prezzo = null;
-                
-                if (item.tipo === 'asta') {
-                    // ASTE: Prezzo base d'asta
-                    const col = Object.keys(item).find(k => /prezzo.*base.*asta/i.test(k));
-                    if (col) prezzo = item[col];
-                } else {
-                    // NPL: Situazione debitoria
-                    const col = Object.keys(item).find(k => /situazione.*debitoria/i.test(k));
-                    if (col) prezzo = item[col];
-                }
-                
-                if (prezzo) {
-                    // Estrai numero da "€ 80.000,00"
-                    let val = String(prezzo).replace(/[€.\s]/g, '').replace(',', '.');
-                    const numVal = parseFloat(val);
-                    if (!isNaN(numVal)) {
-                        valTotal += numVal;
-                    }
-                }
-            });
-            
-            document.getElementById('statValutazione').textContent = '€' + Math.round(valTotal).toLocaleString('it-IT');
-        }
-
-        function renderMap(data) {
-            if (!map) {
-                map = L.map('map').setView([42.5, 12.5], 6);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap'
-                }).addTo(map);
-            }
-            
-            markers.forEach(m => map.removeLayer(m));
-            markers = [];
-            
-            // Raggruppa per coordinate
-            const groups = {};
-            
-            data.forEach((item, idx) => {
-                let lat, lng;
-                
-                if (item.lat && item.lng) {
-                    // Usa coordinate salvate
-                    lat = item.lat;
-                    lng = item.lng;
-                } else {
-                    // FALLBACK: Usa coordinate regione
-                    const regioneCol = Object.keys(item).find(k => /regione/i.test(k));
-                    const regione = regioneCol ? item[regioneCol] : null;
-                    
-                    if (regione && regioniCoords[regione]) {
-                        const coords = regioniCoords[regione];
-                        // Aggiungi offset casuale per evitare sovrapposizione
-                        lat = coords[0] + (Math.random() - 0.5) * 0.5;
-                        lng = coords[1] + (Math.random() - 0.5) * 0.5;
-                    } else {
-                        // Skip se non ha né coordinate né regione valida
-                        return;
-                    }
-                }
-                
-                const key = `${lat.toFixed(2)}_${lng.toFixed(2)}`;
-                if (!groups[key]) {
-                    groups[key] = {
-                        coords: [lat, lng],
-                        items: []
-                    };
-                }
-                groups[key].items.push({...item, idx});
-            });
-            
-            // Crea marker per ogni gruppo
-            for (const [key, group] of Object.entries(groups)) {
-                const items = group.items;
-                const coords = group.coords;
-                
-                const aste = items.filter(i => i.tipo === 'asta').length;
-                const npl = items.filter(i => i.tipo === 'npl').length;
-                const color = aste > npl ? '#ffc107' : '#e74c3c';
-                
-                const icon = L.divIcon({
-                    className: 'custom-marker',
-                    html: `<div style="
-                        background: ${color};
-                        color: white;
-                        border-radius: 50%;
-                        width: ${Math.min(60, 30 + items.length * 2)}px;
-                        height: ${Math.min(60, 30 + items.length * 2)}px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-weight: bold;
-                        border: 3px solid white;
-                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                        font-size: 14px;
-                    ">${items.length}</div>`
-                });
-                
-                const marker = L.marker(coords, {icon}).addTo(map);
-                
-                // Popup
-                const regioneCol = Object.keys(items[0]).find(k => /regione/i.test(k));
-                const regioneNome = regioneCol && items[0][regioneCol] ? items[0][regioneCol] : 'Zona';
-                
-                let popup = `<div style="max-width: 300px; max-height: 400px; overflow-y: auto;">`;
-                popup += `<h3 style="color: #667eea;">${regioneNome}</h3>`;
-                popup += `<p><strong>Aste:</strong> ${aste} | <strong>NPL:</strong> ${npl}</p><hr>`;
-                
-                items.slice(0, 10).forEach(item => {
-                    const idCol = Object.keys(item).find(c => /project.*id/i.test(c));
-                    const id = idCol ? item[idCol] : '-';
-                    const icona = item.tipo === 'asta' ? '🔨' : '📋';
-                    
-                    let prezzo = 'N/D';
-                    if (item.tipo === 'asta') {
-                        const pCol = Object.keys(item).find(c => /prezzo.*base/i.test(c));
-                        if (pCol && item[pCol]) prezzo = item[pCol];
-                    } else {
-                        const dCol = Object.keys(item).find(c => /situazione.*debitoria/i.test(c));
-                        if (dCol && item[dCol]) prezzo = item[dCol];
-                    }
-                    
-                    popup += `<div style="cursor:pointer; padding:8px; background:#f5f5f5; margin:5px 0; border-radius:5px; border-left: 3px solid ${item.tipo === 'asta' ? '#ffc107' : '#e74c3c'};" onclick="showDetail(${item.idx})">${icona} ${id}<br><small>${prezzo}</small></div>`;
-                });
-                
-                if (items.length > 10) {
-                    popup += `<div style="text-align:center; color:#999; margin-top:10px;">...altri ${items.length - 10}</div>`;
-                }
-                
-                popup += `</div>`;
-                marker.bindPopup(popup);
-                markers.push(marker);
-            }
-            
-            // Auto-zoom
-            if (markers.length > 0) {
-                const group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.1));
-            }
-        }
-
-        function renderList(data) {
-            const list = document.getElementById('propertyList');
-            if (data.length === 0) {
-                list.innerHTML = '<div style="padding:20px; text-align:center; color:#999;">Nessun risultato</div>';
-                return;
-            }
-            
-            list.innerHTML = data.map((item, idx) => {
-                const idCol = Object.keys(item).find(c => /project.*id/i.test(c));
-                const indirizzoCol = Object.keys(item).find(c => /indirizzo/i.test(c));
-                
-                const id = idCol ? item[idCol] : '-';
-                const indirizzo = indirizzoCol ? item[indirizzoCol] : '-';
-                
-                // Leggi il prezzo dalla colonna corretta
-                let prezzoValore = 'N/D';
-                if (item.tipo === 'asta') {
-                    // Per ASTE: Prezzo base d'asta
-                    const prezzoCol = Object.keys(item).find(c => /prezzo.*base.*asta/i.test(c));
-                    if (prezzoCol && item[prezzoCol]) {
-                        prezzoValore = item[prezzoCol];
-                    }
-                } else {
-                    // Per NPL: Situazione debitoria
-                    const debCol = Object.keys(item).find(c => /situazione.*debitoria/i.test(c));
-                    if (debCol && item[debCol]) {
-                        prezzoValore = item[debCol];
-                    }
-                }
-                
-                const icona = item.tipo === 'asta' ? '🔨' : '📋';
-                
-                return `
-                    <div class="property-card" onclick="showDetail(${idx})">
-                        <div class="property-type type-${item.tipo}">
-                            ${icona} ${item.tipo === 'asta' ? 'ASTA' : 'NPL'}
-                        </div>
-                        <div class="property-title">ID: ${id}</div>
-                        <div class="property-price">${prezzoValore}</div>
-                        <div class="property-details">${indirizzo}</div>
-                    </div>
-                `;
-            }).join('');
         }
 
         function renderTable(data) {
             const thead = document.getElementById('tableHead');
             const tbody = document.getElementById('tableBody');
-            
             if (data.length === 0) {
                 thead.innerHTML = '<tr><th>Nessun dato</th></tr>';
                 tbody.innerHTML = '<tr><td style="text-align:center; padding:40px;">Nessun risultato</td></tr>';
@@ -1131,184 +348,68 @@
                 return;
             }
             
-            // ORDINA per Data Asta DECRESCENTE
-            const dataAstaCol = Object.keys(data[0] || {}).find(k => /data.*asta/i.test(k));
-            if (dataAstaCol) {
+            // ORDINAMENTO DECRESCENTE per Data Asta
+            const dataCol = Object.keys(data[0]).find(k => /data.*asta/i.test(k));
+            if (dataCol) {
                 data = [...data].sort((a, b) => {
-                    const dateA = parseDateItalian(a[dataAstaCol]);
-                    const dateB = parseDateItalian(b[dataAstaCol]);
-                    return dateB - dateA;
+                    const dateA = parseItalianDate(a[dataCol]);
+                    const dateB = parseItalianDate(b[dataCol]);
+                    return dateB - dateA; // Più lontana prima
                 });
             }
             
-            // Salva i dati ordinati in variabile globale per showDetail
             window.currentTableData = data;
-            
-            // TROVA UN RECORD CON IL MASSIMO NUMERO DI COLONNE
-            let sampleRecord = data[0];
-            let maxCols = Object.keys(sampleRecord).length;
-            for (let i = 1; i < Math.min(data.length, 50); i++) {
-                const colCount = Object.keys(data[i]).length;
-                if (colCount > maxCols) {
-                    maxCols = colCount;
-                    sampleRecord = data[i];
-                }
-            }
-            
-            const colsToShow = ['Tipo', 'Data Asta', 'Project ID', 'Titolo', 'Prezzo base d\'asta', 'Situazione debitoria', 'Indirizzo', 'Comune', 'Provincia', 'CAP', 'Regione'];
+            const sampleRecord = data[0];
+            const colsToShow = ['Tipo', 'Data Asta', 'Project ID', 'Titolo', 'Prezzo base d\'asta', 'Situazione debitoria', 'Indirizzo', 'Comune', 'Regione'];
             const cols = Object.keys(sampleRecord).filter(k => colsToShow.some(c => c.toLowerCase() === k.toLowerCase()));
-            
-            const linkCol = Object.keys(sampleRecord).find(k => k.toLowerCase().includes('clicca') || k.toLowerCase().includes('pre asta'));
-            const telCol = Object.keys(sampleRecord).find(k => k.toLowerCase().includes('telefon'));
-            
+            const linkCol = Object.keys(sampleRecord).find(k => /clicca|pre.*asta/i.test(k));
+            const telCol = Object.keys(sampleRecord).find(k => /telefon/i.test(k));
             thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '<th>Contatti</th><th>Dettagli</th></tr>';
-            
             tbody.innerHTML = data.map((item, idx) => {
-                const icona = item.tipo === 'asta' ? '🔨' : '📋';
-                const row = cols.map(col => {
-                    let val = item[col] || '-';
-                    if (col.toLowerCase().includes('tipo')) {
-                        return `<td><span class="property-type type-${item.tipo}">${icona} ${val.toUpperCase()}</span></td>`;
-                    }
-                    return `<td>${val}</td>`;
-                }).join('');
-                
-                let contatti = '';
-                if (linkCol && item[linkCol]) {
-                    contatti = `<a href="${item[linkCol]}" target="_blank" style="
-                        display: inline-block;
-                        background: #FF9800;
-                        color: white;
-                        padding: 6px 12px;
-                        border-radius: 4px;
-                        text-decoration: none;
-                        font-size: 12px;
-                        font-weight: bold;
-                    ">✉️ Pre-Asta</a>`;
-                } else if (telCol && item[telCol]) {
-                    contatti = `<a href="tel:${item[telCol]}" style="
-                        display: inline-block;
-                        background: #2196F3;
-                        color: white;
-                        padding: 6px 12px;
-                        border-radius: 4px;
-                        text-decoration: none;
-                        font-size: 12px;
-                        font-weight: bold;
-                    ">📞 ${item[telCol]}</a>`;
-                } else {
-                    contatti = '-';
-                }
-                
+                const row = cols.map(col => `<td>${item[col] || '-'}</td>`).join('');
+                let contatti = '-';
+                if (linkCol && item[linkCol]) contatti = `<a href="${item[linkCol]}" target="_blank" style="display:inline-block;background:#FF9800;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold;">Pre-Asta</a>`;
+                else if (telCol && item[telCol]) contatti = `<a href="tel:${item[telCol]}" style="display:inline-block;background:#2196F3;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold;">${item[telCol]}</a>`;
                 return `<tr>${row}<td>${contatti}</td><td><button class="btn btn-upload" style="padding:6px 12px; font-size:12px;" onclick="showDetail(${idx})">Dettagli</button></td></tr>`;
             }).join('');
-            
             document.getElementById('recordCount').textContent = data.length;
         }
         
-        // Helper per parsare date italiane DD/MM/YYYY
-        function parseDateItalian(dateStr) {
+        function parseItalianDate(dateStr) {
             if (!dateStr) return new Date(0);
-            const str = String(dateStr).trim();
-            const parts = str.split('/');
-            if (parts.length === 3) {
-                const day = parseInt(parts[0]);
-                const month = parseInt(parts[1]) - 1;
-                const year = parseInt(parts[2]);
-                return new Date(year, month, day);
-            }
+            const parts = String(dateStr).split('/');
+            if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
             return new Date(0);
         }
 
         function searchTable() {
             const term = document.getElementById('tableSearch').value.toLowerCase();
-            const rows = document.querySelectorAll('#tableBody tr');
-            rows.forEach(row => {
+            document.querySelectorAll('#tableBody tr').forEach(row => {
                 row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
             });
         }
 
         function showDetail(idx) {
-            // Usa i dati ordinati della tabella invece dei dati filtrati
             const data = window.currentTableData || getFilteredData();
             const item = data[idx];
-            
-            if (!item) {
-                alert('Errore: record non trovato');
-                return;
-            }
-            
+            if (!item) {alert('Errore');return;}
             const content = document.getElementById('detailContent');
-            
-            const fields = Object.keys(item)
-                .filter(k => k !== 'idx')
-                .map(key => {
-                    const value = item[key] || '-';
-                    
-                    if (key.toLowerCase().includes('telefon')) {
-                        return `
-                            <div class="detail-item" style="background: #e3f2fd; border-left: 4px solid #2196F3;">
-                                <label style="color: #1976D2; font-weight: bold;">
-                                    📞 ${key}
-                                </label>
-                                <div class="value" style="font-size: 18px; font-weight: bold; color: #1976D2;">
-                                    <a href="tel:${value}" style="color: #1976D2; text-decoration: none;">
-                                        ${value}
-                                    </a>
-                                </div>
-                            </div>
-                        `;
-                    }
-                    
-                    if (key.toLowerCase().includes('pre asta') || key.toLowerCase().includes('clicca')) {
-                        return `
-                            <div class="detail-item" style="background: #fff3e0; border-left: 4px solid #FF9800;">
-                                <label style="color: #F57C00; font-weight: bold;">
-                                    ✉️ ${key}
-                                </label>
-                                <div class="value">
-                                    <a href="${value}" target="_blank" style="
-                                        display: inline-block;
-                                        background: #FF9800;
-                                        color: white;
-                                        padding: 10px 20px;
-                                        border-radius: 5px;
-                                        text-decoration: none;
-                                        font-weight: bold;
-                                        font-size: 14px;
-                                    ">
-                                        🔗 Contattaci per Pre-Asta
-                                    </a>
-                                </div>
-                            </div>
-                        `;
-                    }
-                    
-                    return `
-                        <div class="detail-item">
-                            <label>${key}</label>
-                            <div class="value">${value}</div>
-                        </div>
-                    `;
-                })
-                .join('');
-            
+            const fields = Object.keys(item).map(key => {
+                const value = item[key] || '-';
+                if (/telefon/i.test(key)) return `<div class="detail-item" style="background:#e3f2fd;border-left:4px solid #2196F3;"><label style="color:#1976D2;font-weight:bold;">${key}</label><div class="value"><a href="tel:${value}" style="color:#1976D2;text-decoration:none;">${value}</a></div></div>`;
+                if (/clicca|pre.*asta/i.test(key)) return `<div class="detail-item" style="background:#fff3e0;border-left:4px solid #FF9800;"><label style="color:#F57C00;font-weight:bold;">${key}</label><div class="value"><a href="${value}" target="_blank" style="display:inline-block;background:#FF9800;color:white;padding:10px 20px;border-radius:5px;text-decoration:none;font-weight:bold;">Contattaci</a></div></div>`;
+                return `<div class="detail-item"><label>${key}</label><div class="value">${value}</div></div>`;
+            }).join('');
             content.innerHTML = fields;
             document.getElementById('detailModal').classList.add('active');
         }
 
-        function closeModal() {
-            document.getElementById('detailModal').classList.remove('active');
-        }
-
-        function showUploadPanel() {
-            document.getElementById('adminPanel').classList.toggle('hidden');
-        }
+        function closeModal() {document.getElementById('detailModal').classList.remove('active');}
+        function showUploadPanel() {document.getElementById('adminPanel').classList.toggle('hidden');}
 
         async function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             showLoading('Lettura Excel...');
             try {
                 const data = await readExcel(file);
@@ -1331,47 +432,18 @@
                 reader.onload = (e) => {
                     try {
                         const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
+                        const workbook = XLSX.read(data, {type: 'array'});
                         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        
-                        // Includi celle vuote come stringa vuota
-                        const jsonData = XLSX.utils.sheet_to_json(sheet, { 
-                            defval: null
-                        });
-                        
-                        console.log('Excel letto:', jsonData.length, 'record');
-                        console.log('Colonne:', jsonData.length > 0 ? Object.keys(jsonData[0]).length : 'NESSUNA');
-                        
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, {defval: null});
                         const cleaned = jsonData.map(row => {
                             const newRow = {};
-                            for (let key in row) {
-                                const cleanKey = String(key).replace(/[.#$\/\[\]]/g, '_');
-                                newRow[cleanKey] = row[key];
-                            }
-                            
-                            // Determina tipo dalla colonna "Tipo" se esiste
+                            for (let key in row) newRow[String(key).replace(/[.#$\/\[\]]/g, '_')] = row[key];
                             const tipoCol = Object.keys(newRow).find(k => /^tipo$/i.test(k));
-                            if (tipoCol && newRow[tipoCol]) {
-                                const tipoValue = String(newRow[tipoCol]).toLowerCase();
-                                newRow.tipo = tipoValue.includes('asta') ? 'asta' : 'npl';
-                            } else {
-                                // Fallback su Destinazione d'uso
-                                const destCol = Object.keys(newRow).find(k => /destinazione.*uso|tipologia/i.test(k));
-                                if (destCol) {
-                                    const dest = String(newRow[destCol]).toLowerCase();
-                                    newRow.tipo = (dest.includes('asta') || dest.includes('aste')) ? 'asta' : 'npl';
-                                } else {
-                                    newRow.tipo = 'npl';
-                                }
-                            }
-                            
+                            newRow.tipo = (tipoCol && String(newRow[tipoCol]).toLowerCase().includes('asta')) ? 'asta' : 'npl';
                             return newRow;
                         });
-                        
                         resolve(cleaned);
-                    } catch (err) {
-                        reject(new Error('File non valido'));
-                    }
+                    } catch (err) {reject(new Error('File non valido'));}
                 };
                 reader.onerror = () => reject(new Error('Errore lettura'));
                 reader.readAsArrayBuffer(file);
@@ -1379,49 +451,25 @@
         }
 
         async function saveToFirebase(newData) {
-            console.log(`Salvataggio ${newData.length} record senza geocoding (sarà fatto dopo)...`);
-            
-            // SALTA GEOCODING PER ORA - troppo lento
-            // Lo faremo in background dopo il caricamento
-            
-            // Salva in blocchi di 500 per evitare blocchi
             const snapshot = await db.ref('data').once('value');
             const existing = snapshot.val();
             let allRecords = existing ? Object.values(existing) : [];
-            
-            // Aggiungi nuovi dati
             allRecords = [...allRecords, ...newData];
-            
-            // Salva in blocchi
+            await db.ref('data').remove();
             const CHUNK_SIZE = 500;
-            await db.ref('data').remove(); // Pulisci prima
-            
             for (let i = 0; i < allRecords.length; i += CHUNK_SIZE) {
                 const chunk = allRecords.slice(i, i + CHUNK_SIZE);
-                console.log(`Salvataggio blocco ${Math.floor(i/CHUNK_SIZE) + 1}/${Math.ceil(allRecords.length/CHUNK_SIZE)}...`);
-                
-                // Salva questo blocco
                 const updates = {};
-                chunk.forEach((item, idx) => {
-                    updates[i + idx] = item;
-                });
+                chunk.forEach((item, idx) => {updates[i + idx] = item;});
                 await db.ref('data').update(updates);
             }
-            
-            console.log('Salvataggio completato!');
             allData = allRecords;
             populateFilters();
             renderAll();
-            
-            // GEOCODING DISABILITATO - Mappa rimossa, non più necessario
-        }
-        
-        async function geocodeInBackgroundSafe() {
-            // Disabilitato - mappa rimossa
         }
 
         async function resetDatabase() {
-            if (currentUser.level !== 3 || !confirm('Sei sicuro di voler cancellare TUTTI i dati?')) return;
+            if (currentUser.level !== 3 || !confirm('Cancellare TUTTI i dati?')) return;
             showLoading('Cancellazione...');
             await db.ref('data').remove();
             allData = [];
@@ -1430,22 +478,9 @@
             hideLoading();
         }
 
-        document.getElementById('detailModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
-
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') login();
-        });
-        
-        // ASSICURA che cambio regione aggiorni città
-        document.getElementById('filterRegione').addEventListener('change', function() {
-            updateCittaFilter();
-        });
-
-        // LISTENER FIREBASE RIMOSSO - causava reset automatico dei filtri
-        // quando geocoding salvava coordinate. I dati vengono caricati
-        // solo al login e dopo upload, NON ad ogni cambiamento Firebase.
+        document.getElementById('detailModal').addEventListener('click', function(e) {if (e.target === this) closeModal();});
+        document.getElementById('password').addEventListener('keypress', function(e) {if (e.key === 'Enter') login();});
+        document.getElementById('filterRegione').addEventListener('change', updateCittaFilter);
     </script>
 </body>
 </html>
