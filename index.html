@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard NPL & Aste Italia</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NPL Dashboard">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
@@ -354,24 +363,46 @@
                 data = [...data].sort((a, b) => {
                     const dateA = parseItalianDate(a[dataCol]);
                     const dateB = parseItalianDate(b[dataCol]);
-                    return dateB - dateA; // Più lontana prima
+                    return dateB - dateA;
                 });
             }
             
             window.currentTableData = data;
             const sampleRecord = data[0];
-            const colsToShow = ['Tipo', 'Data Asta', 'Project ID', 'Titolo', 'Prezzo base d\'asta', 'Situazione debitoria', 'Indirizzo', 'Comune', 'Regione'];
+            
+            // Colonne da mostrare
+            const colsToShow = ['Tipo', 'Data Asta', 'Project ID', 'Titolo', 'Prezzo base d\'asta', 'Situazione debitoria', 'Indirizzo', 'Comune', 'Provincia', 'Regione'];
             const cols = Object.keys(sampleRecord).filter(k => colsToShow.some(c => c.toLowerCase() === k.toLowerCase()));
-            const linkCol = Object.keys(sampleRecord).find(k => /clicca|pre.*asta/i.test(k));
-            const telCol = Object.keys(sampleRecord).find(k => /telefon/i.test(k));
+            
             thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '<th>Contatti</th><th>Dettagli</th></tr>';
+            
             tbody.innerHTML = data.map((item, idx) => {
-                const row = cols.map(col => `<td>${item[col] || '-'}</td>`).join('');
+                const icona = item.tipo === 'asta' ? '🔨' : '📋';
+                const row = cols.map(col => {
+                    let val = item[col] || '-';
+                    if (col.toLowerCase().includes('tipo')) {
+                        return `<td><span style="background:${item.tipo === 'asta' ? '#FF9800' : '#2196F3'};color:white;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:bold;">${icona} ${val.toUpperCase()}</span></td>`;
+                    }
+                    return `<td>${val}</td>`;
+                }).join('');
+                
+                // FIX: Mostra link SOLO per ASTE, telefono SOLO per NPL
                 let contatti = '-';
-                if (linkCol && item[linkCol]) contatti = `<a href="${item[linkCol]}" target="_blank" style="display:inline-block;background:#FF9800;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold;">Pre-Asta</a>`;
-                else if (telCol && item[telCol]) contatti = `<a href="tel:${item[telCol]}" style="display:inline-block;background:#2196F3;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold;">${item[telCol]}</a>`;
-                return `<tr>${row}<td>${contatti}</td><td><button class="btn btn-upload" style="padding:6px 12px; font-size:12px;" onclick="showDetail(${idx})">Dettagli</button></td></tr>`;
+                if (item.tipo === 'asta') {
+                    const linkCol = Object.keys(item).find(k => /clicca|pre.*asta/i.test(k));
+                    if (linkCol && item[linkCol]) {
+                        contatti = `<a href="${item[linkCol]}" target="_blank" style="display:inline-block;background:#FF9800;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold;">✉️ Pre-Asta</a>`;
+                    }
+                } else {
+                    const telCol = Object.keys(item).find(k => /telefon/i.test(k));
+                    if (telCol && item[telCol]) {
+                        contatti = `<a href="tel:${item[telCol]}" style="display:inline-block;background:#2196F3;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold;">📞 Chiama</a>`;
+                    }
+                }
+                
+                return `<tr>${row}<td>${contatti}</td><td><button class="btn btn-upload" style="padding:6px 12px;font-size:12px;" onclick="showDetail(${idx})">Dettagli</button></td></tr>`;
             }).join('');
+            
             document.getElementById('recordCount').textContent = data.length;
         }
         
@@ -481,6 +512,37 @@
         document.getElementById('detailModal').addEventListener('click', function(e) {if (e.target === this) closeModal();});
         document.getElementById('password').addEventListener('keypress', function(e) {if (e.key === 'Enter') login();});
         document.getElementById('filterRegione').addEventListener('change', updateCittaFilter);
+
+        // PWA SERVICE WORKER REGISTRATION
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registrato'))
+                    .catch(err => console.log('Service Worker errore:', err));
+            });
+        }
+
+        // PWA INSTALL PROMPT
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Mostra pulsante install (opzionale)
+            const installBtn = document.createElement('button');
+            installBtn.textContent = '📱 Installa App';
+            installBtn.className = 'btn btn-upload';
+            installBtn.style.position = 'fixed';
+            installBtn.style.bottom = '20px';
+            installBtn.style.right = '20px';
+            installBtn.style.zIndex = '9999';
+            installBtn.onclick = async () => {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') installBtn.remove();
+                deferredPrompt = null;
+            };
+            document.body.appendChild(installBtn);
+        });
     </script>
 </body>
 </html>
