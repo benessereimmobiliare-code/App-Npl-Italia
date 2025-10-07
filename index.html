@@ -3,552 +3,823 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard NPL & Aste Italia</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#667eea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="NPL Dashboard">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    
+    <title>Acceleratore Immobiliare - FREE</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
-        .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        .login-box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 400px; width: 100%; }
-        .login-box h1 { color: #667eea; margin-bottom: 30px; text-align: center; }
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; }
-        .input-group input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; }
-        .input-group input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .btn-login { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .dashboard { display: none; max-width: 1600px; margin: 0 auto; }
-        .dashboard.active { display: block; }
-        .container { background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .header h1 { font-size: 1.8em; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
-        .header-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        @media (max-width: 768px) {
-            .header { padding: 15px; }
-            .header h1 { font-size: 1.3em; width: 100%; margin-bottom: 10px; }
-            .header-right { width: 100%; justify-content: space-between; }
-            .user-badge { font-size: 12px; padding: 6px 12px; }
-            .btn { padding: 8px 12px; font-size: 12px; }
+        body { 
+            font-family: 'Inter', 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        .user-badge { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-weight: 600; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-        .btn-logout { background: #f44336; color: white; }
-        .btn-upload { background: #4CAF50; color: white; }
-        .btn-danger { background: #f44336; color: white; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .admin-panel { padding: 25px; background: #f8f9fa; border-bottom: 3px solid #667eea; }
-        .admin-panel h2 { color: #667eea; margin-bottom: 15px; }
-        .upload-area { border: 3px dashed #667eea; border-radius: 15px; padding: 40px; text-align: center; cursor: pointer; background: white; transition: all 0.3s; }
-        .upload-area:hover { background: #f5f5ff; transform: translateY(-2px); }
-        #fileInput { display: none; }
-        .stats { display: flex; justify-content: space-around; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex-wrap: wrap; gap: 20px; }
-        .stat-item { text-align: center; flex: 1; min-width: 150px; }
-        .stat-number { font-size: 36px; font-weight: 700; margin-bottom: 5px; }
-        .stat-label { font-size: 14px; opacity: 0.9; }
-        .filters-section { padding: 25px; background: #f8f9fa; border-bottom: 3px solid #667eea; }
-        .filters-section h3 { color: #667eea; margin-bottom: 20px; }
-        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .filter-item { display: flex; flex-direction: column; }
-        .filter-item label { font-weight: 600; margin-bottom: 8px; color: #333; }
-        .filter-item select, .filter-item input { padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; }
-        .filter-item select:focus, .filter-item input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .filter-buttons { display: flex; gap: 10px; }
-        .table-container { padding: 25px; }
-        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        @media (max-width: 768px) {
-            .table-container { padding: 15px; }
-            .table-wrapper { 
-                overflow-x: auto; 
-                border: 1px solid #ddd; 
-                border-radius: 8px;
-                box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
-            }
-            table { min-width: 800px; }
-            .table-search { width: 100%; max-width: 300px; }
+        .nav-levels {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-bottom: 3px solid #667eea;
         }
-        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .table-search { padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; width: 300px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        thead { background: #f5f5f5; }
-        th { padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #667eea; }
-        td { padding: 10px 12px; border-bottom: 1px solid #e0e0e0; }
-        tbody tr:hover { background: #f9f9f9; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; padding: 20px; overflow-y: auto; }
-        .modal.active { display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #e0e0e0; }
-        .btn-close { background: #f44336; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-        .detail-item { padding: 12px; background: #f9f9f9; border-radius: 8px; }
-        .detail-item label { display: block; font-size: 11px; color: #666; margin-bottom: 5px; text-transform: uppercase; font-weight: 600; }
-        .detail-item .value { font-size: 14px; color: #333; font-weight: 500; }
-        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
-        .loading-overlay.active { display: flex; }
-        .loading-content { background: white; padding: 40px; border-radius: 15px; text-align: center; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; }
-        .alert-success { background: #d4edda; color: #155724; }
-        .alert-error { background: #f8d7da; color: #721c24; }
-        .hidden { display: none !important; }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        .logo {
+            font-size: 1.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+        .levels-menu { display: flex; gap: 15px; flex-wrap: wrap; }
+        .level-btn {
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            padding: 12px 20px; border: 2px solid #e0e0e0; border-radius: 12px;
+            background: #f8f9fa; cursor: pointer; transition: all 0.3s; position: relative;
+        }
+        .level-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+        .level-btn.active { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border-color: #4CAF50; }
+        .level-btn.locked:hover { animation: shake 0.5s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .level-icon { font-size: 1.3em; }
+        .level-name { font-weight: 700; font-size: 0.9em; }
+        .level-status { font-size: 0.75em; padding: 3px 8px; background: rgba(255,255,255,0.3); border-radius: 10px; }
+        .level-badge { font-size: 0.75em; font-weight: 700; padding: 3px 8px; background: rgba(255,255,255,0.9); border-radius: 10px; color: #000; }
+        .container { max-width: 1400px; margin: 20px auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 30px; background: #f8f9fa; border-bottom: 3px solid #667eea; }
+        .stat-card { text-align: center; padding: 20px; background: white; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 3em; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { color: #666; margin-top: 10px; font-weight: 600; }
+        .affari-section { padding: 50px 30px; background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: white; }
+        .affari-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr; gap: 40px; align-items: center; }
+        @media (max-width: 768px) { .affari-content { grid-template-columns: 1fr; } }
+        .affari-text h2 { font-size: 2.5em; margin-bottom: 20px; }
+        .affari-benefits { list-style: none; margin: 25px 0; }
+        .affari-benefits li { padding: 12px 0; font-size: 1.1em; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .btn-affari { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; padding: 18px 40px; border: none; border-radius: 50px; font-size: 1.3em; font-weight: 700; cursor: pointer; box-shadow: 0 8px 20px rgba(255,215,0,0.4); transition: all 0.3s; margin-top: 20px; }
+        .btn-affari:hover { transform: scale(1.1); box-shadow: 0 12px 30px rgba(255,215,0,0.6); }
+        /* filters */
+        .filter-wrap { padding:40px 30px;background:white;border-bottom:3px solid #667eea; }
+        .courses-section { padding: 40px 30px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+        .courses-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .course-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.15); transition: all 0.3s; cursor: pointer; }
+        .course-card:hover { transform: translateY(-10px); box-shadow: 0 12px 30px rgba(0,0,0,0.25); }
+        .course-thumb { background: linear-gradient(135deg, #667eea, #764ba2); height: 180px; display: flex; align-items: center; justify-content: center; font-size: 4em; }
+        .badge-free { display:inline-block;background:#4CAF50;color:#fff;padding:5px 15px;border-radius:20px;font-size:12px;font-weight:700;margin-top:10px; }
+        .table-section { padding: 40px 30px; }
+        table { width:100%; border-collapse: collapse; background:white; border-radius:10px; overflow:hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        thead { background: linear-gradient(135deg, #667eea, #764ba2); color:white; }
+        th,td { padding:15px; text-align:left; }
+        tbody tr:hover { background:#f8f9fa; }
+        .blur-overlay { position:absolute; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.7); display:flex; align-items:center; justify-content:center; backdrop-filter: blur(5px); }
+        .unlock-btn { background: linear-gradient(135deg, #FFD700, #FFA500); color:#000; padding:12px 30px; border:none; border-radius:25px; font-weight:700; cursor:pointer; font-size:14px; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:all 0.3s; }
+        .cta-section { padding: 60px 30px; background: linear-gradient(135deg, #667eea, #764ba2); color:white; text-align:center; }
+        .cta-btn-big { background:#FFD700; color:#000; padding:20px 50px; border:none; border-radius:50px; font-size:1.5em; font-weight:700; cursor:pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.3); transition: all 0.3s; }
+        .footer { padding: 30px; background: #2c3e50; color: white; text-align: center; }
+        /* Modali & Login */
+        .upgrade-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:200; align-items:center; justify-content:center; padding:20px; }
+        .upgrade-modal.active { display:flex; }
+        .modal-box { background:white; padding:40px; border-radius:20px; max-width:600px; width:100%; text-align:center; }
+        #loginScreen { display:flex; position:fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index:10000; align-items:center; justify-content:center; padding:20px; }
+        #loginScreen.hidden { display:none; }
+        .login-box { background:white; padding:40px; border-radius:20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 400px; width:100%; }
+        .login-box h1 { color:#667eea; margin-bottom: 30px; text-align:center; font-size:1.8em; }
+        .login-input-group { margin-bottom: 20px; }
+        .login-input-group input { width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px; font-size:16px; }
+        .btn-login { width:100%; padding:14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; }
+        #mainApp { display:none; }
+        #mainApp.active { display:block; }
     </style>
 </head>
 <body>
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-content"><div class="spinner"></div><p id="loadingText">Caricamento...</p></div>
-    </div>
-
-    <div id="loginScreen" class="login-container">
+    <!-- LOGIN -->
+    <div id="loginScreen">
         <div class="login-box">
-            <h1>Dashboard NPL & Aste</h1>
+            <h1>🚀 Acceleratore Immobiliare</h1>
             <div id="loginAlert"></div>
-            <div class="input-group"><label>Username</label><input type="text" id="username" placeholder="Inserisci username"></div>
-            <div class="input-group"><label>Password</label><input type="password" id="password" placeholder="Inserisci password"></div>
-            <button class="btn-login" onclick="login()">Accedi</button>
-            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
-                <p style="color: #666; font-size: 13px; margin-bottom: 10px;">Sei un socio del Progetto 100?</p>
-                <button onclick="window.location.href='https://benessereimmobiliare-code.github.io/progetto-100-soci/'" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">
-                    ⭐ Accedi a Progetto 100 Soci
-                </button>
+            <div class="login-input-group">
+                <label>Username</label>
+                <input type="text" id="usernameLogin" placeholder="Inserisci username" autocomplete="username">
             </div>
+            <div class="login-input-group">
+                <label>Password</label>
+                <input type="password" id="passwordLogin" placeholder="Inserisci password" autocomplete="current-password">
+            </div>
+            <button class="btn-login" onclick="performLogin()">Accedi</button>
         </div>
     </div>
 
-    <div id="dashboard" class="dashboard">
-        <div class="container">
-            <div class="header">
-                <h1>Dashboard Immobili</h1>
-                <div class="header-right">
-                    <span class="user-badge" id="userBadge"></span>
-                    <button class="btn btn-danger hidden" id="deleteBtn" onclick="resetDatabase()">Svuota Dati</button>
-                    <button class="btn btn-upload hidden" id="uploadBtn" onclick="showUploadPanel()">Carica Excel</button>
-                    <button class="btn btn-logout" onclick="logout()">Esci</button>
+    <!-- APP -->
+    <div id="mainApp">
+        <div class="nav-levels">
+            <div class="nav-container">
+                <div class="logo">🚀 Acceleratore Immobiliare</div>
+                <button onclick="openAdminPanel()" style="position:absolute;right:20px;top:15px;padding:8px 16px;background:#FF5722;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px;">🔑 ADMIN</button>
+                <div class="levels-menu">
+                    <button class="level-btn active"><span class="level-icon">✓</span><span class="level-name">Area FREE</span><span class="level-status">Attivo</span></button>
+                    <button class="level-btn locked" onclick="showUpgradeModal('premium')"><span class="level-icon">🔒</span><span class="level-name">Area Premium</span><span class="level-badge">UPGRADE</span></button>
+                    <button class="level-btn locked" onclick="showUpgradeModal('soci')"><span class="level-icon">🔒</span><span class="level-name">Progetto 100 Soci</span><span class="level-badge">VIP</span></button>
+                    <button class="level-btn locked" onclick="showUpgradeModal('esperti')"><span class="level-icon">💰</span><span class="level-name">Area Esperti</span><span class="level-badge">PRO</span></button>
                 </div>
             </div>
+        </div>
 
-            <div id="adminPanel" class="admin-panel hidden">
-                <h2>Pannello Admin</h2>
-                <div id="uploadAlert"></div>
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <div style="font-size: 48px; margin-bottom: 10px;">📊</div>
-                    <h3>Carica file Excel</h3>
-                    <p>Formati supportati: .xlsx, .xls</p>
-                </div>
-                <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
+        <div class="container">
+            <div class="header">
+                <h1>🚀 Acceleratore Immobiliare</h1>
+                <p>Accelera i tuoi risultati in Aste e NPL - Da zero a PRO</p>
             </div>
 
             <div class="stats">
-                <div class="stat-item"><div class="stat-number" id="statTotal">0</div><div class="stat-label">Immobili Totali</div></div>
-                <div class="stat-item"><div class="stat-number" id="statAste">0</div><div class="stat-label">Aste</div></div>
-                <div class="stat-item"><div class="stat-number" id="statNpl">0</div><div class="stat-label">NPL</div></div>
-                <div class="stat-item"><div class="stat-number" id="statValutazione">€0</div><div class="stat-label">Valutazione Totale</div></div>
+                <div class="stat-card"><div class="stat-number" id="statAste">0</div><div class="stat-label">🔨 Aste Attive</div></div>
+                <div class="stat-card"><div class="stat-number" id="statNpl">0</div><div class="stat-label">📋 NPL Disponibili</div></div>
+                <div class="stat-card"><div class="stat-number" id="statPremium">247</div><div class="stat-label">⭐ Utenti Premium</div></div>
+                <div class="stat-card"><div class="stat-number" id="statEsperti">38</div><div class="stat-label">💼 Esperti Attivi</div></div>
+                <div class="stat-card"><div class="stat-number" id="statCapitale">€4.2M</div><div class="stat-label">💰 Capitale Disponibile</div></div>
             </div>
 
-            <div class="filters-section">
-                <h3>Filtri di Ricerca</h3>
-                <div class="filters-grid">
-                    <div class="filter-item"><label>Tipo</label><select id="filterTipo"><option value="">Tutti</option><option value="asta">Aste</option><option value="npl">NPL</option></select></div>
-                    <div class="filter-item"><label>Regione</label><select id="filterRegione" onchange="updateCittaFilter()"><option value="">Tutte le regioni</option></select></div>
-                    <div class="filter-item"><label>Città</label><select id="filterCitta"><option value="">Tutte le città</option></select></div>
-                    <div class="filter-item"><label>Ricerca libera</label><input type="text" id="filterSearch" placeholder="Cerca..."></div>
-                </div>
-                <div class="filter-buttons">
-                    <button class="btn btn-upload" onclick="applyFilters()">Applica Filtri</button>
-                    <button class="btn btn-danger" onclick="clearFilters()">Azzera Filtri</button>
+            <div class="affari-section">
+                <div class="affari-content">
+                    <div class="affari-text">
+                        <h2>💼 Affari Pronti</h2>
+                        <p style="font-size:1.15em;line-height:1.7;margin-bottom:25px;">
+                            <strong>Sei un investitore super impegnato dalla mattina alla sera</strong> ma vuoi sfruttare le capacità degli iscritti all'<strong>Area Esperti</strong> del nostro Acceleratore?
+                        </p>
+                        <p style="font-size:1.1em;line-height:1.7;margin-bottom:25px;">
+                            Usufruirai a <strong>costo zero</strong> del <strong>"Servizio Selezione Esperti Investitori Immobiliari"</strong> con:
+                        </p>
+                        <ul class="affari-benefits">
+                            <li>✓ <strong>Analisi accurata del titolare esperto</strong></li>
+                            <li>✓ <strong>Rating verificato</strong></li>
+                            <li>✓ <strong>Analisi regole di ingaggio</strong></li>
+                            <li>✓ <strong>Messa in contatto diretto investitore-esperto</strong></li>
+                        </ul>
+                        <button class="btn-affari" onclick="showFormInvestitori()">📋 COMPILA IL QUESTIONARIO</button>
+                        <div style="background:rgba(255,255,255,0.15);padding:15px;border-radius:10px;margin-top:25px;font-size:0.95em;line-height:1.6;border-left:4px solid rgba(255,255,255,0.5);">
+                            <strong>ℹ️ IMPORTANTE:</strong> Questo <strong>NON è un servizio di investimento</strong>, ma esclusivamente un <strong>servizio di messa in contatto diretto</strong> tra investitori ed esperti del settore immobiliare. <strong>Non viene richiesto nessun compenso</strong> né all'investitore né all'utente esperto.
+                        </div>
+                    </div>
+                    <div class="affari-visual" style="text-align:center;">
+                        <div style="font-size:8em;margin-bottom:20px;animation: float 3s ease-in-out infinite;">🤝</div>
+                        <p class="affari-label" style="font-weight:700;">Investitori ↔️ Esperti</p>
+                        <p style="font-size:0.9em;opacity:0.8;margin-top:10px;">Servizio gratuito di matching</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="table-container">
-                <div class="table-header">
-                    <h2>Elenco Dati (<span id="recordCount">0</span>)</h2>
-                    <input type="text" id="tableSearch" class="table-search" placeholder="Cerca..." onkeyup="searchTable()">
+            <!-- Filtri -->
+            <div class="filter-wrap">
+                <div style="max-width:1200px;margin:0 auto;">
+                    <h3 style="color:#667eea;margin-bottom:25px;font-size:1.8em;text-align:center;">🔍 Filtri di Ricerca</h3>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;margin-bottom:20px;">
+                        <div>
+                            <label style="display:block;font-weight:600;margin-bottom:8px;color:#333;font-size:14px;">Tipo</label>
+                            <select id="filterTipo" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;background:white;">
+                                <option value="">Tutti</option>
+                                <option value="asta">Aste</option>
+                                <option value="npl">NPL</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;margin-bottom:8px;color:#333;font-size:14px;">Regione</label>
+                            <select id="filterRegione" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;background:white;">
+                                <option value="">Tutte le regioni</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;margin-bottom:8px;color:#333;font-size:14px;">Città</label>
+                            <select id="filterCitta" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;background:white;">
+                                <option value="">Tutte le città</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block;font-weight:600;margin-bottom:8px;color:#333;font-size:14px;">Ricerca libera</label>
+                            <input type="text" id="filterSearch" placeholder="Cerca..." style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                        <button onclick="applyFilters()" style="padding:12px 30px;background:#4CAF50;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;transition:all 0.3s;">🔍 Applica Filtri</button>
+                        <button onclick="clearFilters()" style="padding:12px 30px;background:#f44336;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;transition:all 0.3s;">❌ Azzera Filtri</button>
+                    </div>
                 </div>
-                <div class="table-wrapper">
-                    <table id="dataTable">
-                        <thead id="tableHead"><tr><th>Nessun dato</th></tr></thead>
-                        <tbody id="tableBody"><tr><td style="text-align: center; padding: 40px;">Carica un file Excel</td></tr></tbody>
-                    </table>
+            </div>
+
+            <!-- Corsi -->
+            <div class="courses-section">
+                <h2 style="text-align:center;font-size:2em;margin-bottom:30px;color:#333;">📚 Corsi Gratuiti per Iniziare</h2>
+                <div class="courses-grid">
+                    <div class="course-card"><div class="course-thumb">🎓</div><div class="course-info" style="padding:20px;"><h3>Come Funzionano le Aste Immobiliari</h3><p>Impara le basi delle aste giudiziarie.</p><span class="badge-free">GRATIS</span></div></div>
+                    <div class="course-card"><div class="course-thumb">💰</div><div class="course-info" style="padding:20px;"><h3>Valutare un NPL in 10 Minuti</h3><p>Metodo rapido per capire se un credito è opportunità o trappola.</p><span class="badge-free">GRATIS</span></div></div>
+                    <div class="course-card"><div class="course-thumb">🔍</div><div class="course-info" style="padding:20px;"><h3>5 Errori da Evitare</h3><p>Gli sbagli più comuni dei principianti.</p><span class="badge-free">GRATIS</span></div></div>
                 </div>
+            </div>
+
+            <!-- Tabella -->
+            <div class="table-section">
+                <div class="table-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;">
+                    <h2>🔨 Aste Disponibili (Anteprima)</h2>
+                </div>
+                <table>
+                    <thead><tr><th>Tipo</th><th>Regione</th><th>Città</th><th>Prezzo Indicativo</th><th>Data Asta</th><th>Azioni</th></tr></thead>
+                    <tbody>
+                        <!-- renderTable() inietterà qui -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="cta-section">
+                <h2>🚀 Passa a Premium e Sblocca TUTTO</h2>
+                <p>Accedi a aste complete, indirizzi, contatti, documenti e corsi avanzati</p>
+                <button class="cta-btn-big" onclick="showUpgradeModal('premium')">PROVA 7 GIORNI GRATIS</button>
+                <p style="margin-top:20px;font-size:0.9em;">Poi solo €97/mese - Cancella quando vuoi</p>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2025 Acceleratore Immobiliare | Privacy | Termini</p>
             </div>
         </div>
     </div>
 
-    <div id="detailModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header"><h2>Dettaglio Record</h2><button class="btn-close" onclick="closeModal()">Chiudi</button></div>
-            <div id="detailContent" class="detail-grid"></div>
+    <!-- Modali -->
+    <div id="upgradeModal" class="upgrade-modal">
+        <div class="modal-box">
+            <h2 id="modalTitle">🔒 Area Bloccata</h2>
+            <p id="modalDescription">Descrizione area</p>
+            <ul class="features-list" id="modalFeatures" style="text-align:left;"></ul>
+            <div class="modal-buttons" style="display:flex;gap:15px;justify-content:center;margin-top:30px;">
+                <button class="unlock-btn" onclick="alert('Redirect a pagina checkout')">SBLOCCA ORA</button>
+                <button class="unlock-btn" style="background:#e0e0e0;color:#333;" onclick="closeUpgradeModal()">Forse più tardi</button>
+            </div>
         </div>
     </div>
 
+    <div id="formInvestitoriModal" class="upgrade-modal">
+        <div class="modal-box" style="max-width:700px;">
+            <h2>📋 Questionario Servizio Matching Gratuito</h2>
+            <form id="investitoreForm" style="text-align:left;">
+                <div style="margin-bottom:20px;"><label>Nome e Cognome *</label><input type="text" required style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;"></div>
+                <div style="margin-bottom:20px;"><label>Email *</label><input type="email" required style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;"></div>
+                <div style="margin-bottom:20px;"><label>Telefono *</label><input type="tel" required style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:14px;"></div>
+                <div class="modal-buttons" style="margin-top:30px;">
+                    <button type="submit" class="unlock-btn" onclick="event.preventDefault(); alert('Form inviato!'); closeFormInvestitori();">INVIA RICHIESTA</button>
+                    <button type="button" class="unlock-btn" style="background:#e0e0e0;color:#333;" onclick="closeFormInvestitori()">Annulla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin -->
+    <div id="adminSection" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;overflow-y:auto;">
+        <div style="max-width:800px;margin:50px auto;padding:30px;background:white;border-radius:15px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;">
+                <h2 style="color:#667eea;margin:0;">🔒 Area Admin</h2>
+                <button onclick="closeAdminPanel()" style="padding:8px 16px;background:#e0e0e0;border:none;border-radius:6px;cursor:pointer;font-weight:700;">✕ Chiudi</button>
+            </div>
+            <div style="background:#f8f9ff;padding:25px;border-radius:12px;margin-bottom:25px;border:2px solid #2196F3;">
+                <h3 style="color:#2196F3;margin:0 0 15px 0;">📊 Carica Aste/NPL</h3>
+                <input type="file" id="fileAsteNPL" accept=".xlsx,.xls" style="display:none;">
+                <label for="fileAsteNPL" style="display:inline-block;padding:12px 25px;background:#2196F3;color:white;border-radius:8px;cursor:pointer;font-weight:700;">📁 Seleziona File Excel</label>
+                <div id="statusAste" style="margin-top:15px;font-size:14px;"></div>
+                <p style="color:#666;font-size:13px;margin:10px 0 0 0;">Ultimo aggiornamento: <span id="lastUpdateAste">Mai</span></p>
+            </div>
+            <div style="background:#ffe3e3;padding:25px;border-radius:12px;margin-top:25px;border:2px solid #f44336;">
+                <h3 style="color:#f44336;margin:0 0 15px 0;">🗑️ Svuota Database</h3>
+                <p style="color:#666;font-size:14px;margin-bottom:15px;">⚠️ ATTENZIONE: Questa operazione cancellerà TUTTI i dati caricati.</p>
+                <button onclick="resetDatabase()" style="padding:12px 25px;background:#f44336;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700;">🗑️ SVUOTA TUTTI I DATI</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login logic -->
+    <script>
+        const AUTH_USERS = { 'user': { password: 'user2025', role: 'User', level: 1 }, 'admin': { password: 'admin2025', role: 'Admin', level: 3 } };
+        let loggedUser = null;
+
+        function performLogin() {
+            const username = document.getElementById('usernameLogin').value.toLowerCase().trim();
+            const password = document.getElementById('passwordLogin').value;
+            const alertEl = document.getElementById('loginAlert');
+            if (AUTH_USERS[username] && AUTH_USERS[username].password === password) {
+                loggedUser = { username, role: AUTH_USERS[username].role, level: AUTH_USERS[username].level };
+                sessionStorage.setItem('acceleratoreUser', JSON.stringify(loggedUser));
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.add('active');
+                // dopo login carico i dati
+                if (window.db) { loadDataFromFirebase(); }
+            } else {
+                alertEl.innerHTML = '<div class="login-alert login-alert-error" style="background:#f8d7da;color:#721c24;padding:12px;border-radius:8px;">❌ Credenziali errate!</div>';
+                setTimeout(()=> alertEl.innerHTML = '', 3000);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const stored = sessionStorage.getItem('acceleratoreUser');
+            if (stored) {
+                loggedUser = JSON.parse(stored);
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.add('active');
+            }
+            const passInput = document.getElementById('passwordLogin');
+            if (passInput) passInput.addEventListener('keypress', e => { if (e.key === 'Enter') performLogin(); });
+        });
+
+        function openAdminPanel() {
+            const password = prompt('Inserisci password admin:');
+            if (password === 'admin2025') document.getElementById('adminSection').style.display = 'block';
+            else if (password !== null) alert('❌ Password errata!');
+        }
+        function closeAdminPanel() { document.getElementById('adminSection').style.display = 'none'; }
+        function showFormInvestitori(){ document.getElementById('formInvestitoriModal').classList.add('active'); }
+        function closeFormInvestitori(){ document.getElementById('formInvestitoriModal').classList.remove('active'); }
+        function showUpgradeModal(){ document.getElementById('upgradeModal').classList.add('active'); }
+        function closeUpgradeModal(){ document.getElementById('upgradeModal').classList.remove('active'); }
+
+        // Triplo click sul logo → admin
+        (function(){
+          let clickCount=0, timer=null;
+          const logo=document.querySelector('.logo');
+          if(!logo) return;
+          logo.addEventListener('click', ()=>{
+            clickCount++; if(clickCount===3){ openAdminPanel(); clickCount=0; }
+            clearTimeout(timer); timer=setTimeout(()=> clickCount=0, 1000);
+          });
+        })();
+    </script>
+
+    <!-- Firebase + XLSX -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- DATA ENGINE (fix counters, filters, search, reset) -->
     <script>
-        const firebaseConfig = {apiKey:"AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",authDomain:"app-npl-italia.firebaseapp.com",databaseURL:"https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",projectId:"app-npl-italia",storageBucket:"app-npl-italia.firebasestorage.app",messagingSenderId:"299298163787",appId:"1:299298163787:web:4d08b7dd3273aa4dc011ce"};
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        let allData = [];
-        let currentUser = null;
-        const users = {'admin': {password: 'admin123', role: 'Admin', level: 3},'viewer': {password: 'view2025', role: 'Viewer', level: 2}};
+    /* ===== GLOBAL ===== */
+    const STATS_STATIC = { premium: 247, esperti: 38, capitale: 4200000 };
+    const DATA_PATH = 'dataset/items';
+    let db = null;
+    let allDataGlobal = [];
+    let regioniSet = new Set();
+    let cittaPerRegione = new Map();
 
-        function showLoading(text = 'Caricamento...') {document.getElementById('loadingText').textContent = text;document.getElementById('loadingOverlay').classList.add('active');}
-        function hideLoading() {document.getElementById('loadingOverlay').classList.remove('active');}
-        function showAlert(id, message, type = 'info') {const el = document.getElementById(id);el.innerHTML = `<div class="alert alert-${type}">${message}</div>`;setTimeout(() => el.innerHTML = '', 5000);}
+    function formatCurrency(amount){ return amount>=1000000 ? '€'+(amount/1000000).toFixed(1)+'M' : '€'+amount.toLocaleString('it-IT'); }
 
-        function login() {
-            const username = document.getElementById('username').value.toLowerCase().trim();
-            const password = document.getElementById('password').value;
-            if (users[username] && users[username].password === password) {
-                currentUser = {username,role: users[username].role,level: users[username].level};
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboard').classList.add('active');
-                document.getElementById('userBadge').textContent = `${currentUser.role}: ${username}`;
-                if (currentUser.level === 3) {
-                    document.getElementById('uploadBtn').classList.remove('hidden');
-                    document.getElementById('deleteBtn').classList.remove('hidden');
-                }
-                loadData();
-            } else {
-                showAlert('loginAlert', 'Credenziali errate', 'error');
-            }
+    // Init Firebase
+    window.addEventListener('load', () => { setTimeout(initializeFirebase, 300); });
+    function initializeFirebase(){
+      if (typeof firebase === 'undefined') return setTimeout(initializeFirebase,300);
+      const firebaseConfig = {
+        apiKey:"AIzaSyCrdoY0gxuzPdSp955NhnQBRkjRIUpdPKI",
+        authDomain:"app-npl-italia.firebaseapp.com",
+        databaseURL:"https://app-npl-italia-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId:"app-npl-italia",
+        storageBucket:"app-npl-italia.firebasestorage.app",
+        messagingSenderId:"299298163787",
+        appId:"1:299298163787:web:4d08b7dd3273aa4dc011ce"
+      };
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+      // Se già loggato → carica dataset
+      if (document.getElementById('mainApp').classList.contains('active')) loadDataFromFirebase();
+      // Stats fisse
+      document.getElementById('statPremium').textContent = STATS_STATIC.premium;
+      document.getElementById('statEsperti').textContent = STATS_STATIC.esperti;
+      document.getElementById('statCapitale').textContent = formatCurrency(STATS_STATIC.capitale);
+      // Bind input file per usare handleFileUpload nuovo
+      const fileAste = document.getElementById('fileAsteNPL');
+      if (fileAste) fileAste.addEventListener('change', e => handleFileUpload('aste', e.target.files[0]));
+    }
+
+    /* ===== Upload Excel → Firebase ===== */
+    async function handleFileUpload(type, file){
+      if (!file) return;
+      const statusEl = document.getElementById('statusAste');
+      const lastUpdateEl = document.getElementById('lastUpdateAste');
+      statusEl.innerHTML = '<span style="color:#2196F3;">⏳ Lettura file...</span>';
+      try {
+        const rows = await parseExcel(file);
+        const normalized = rows.map(normalizeRow).filter(Boolean);
+        await db.ref(DATA_PATH).set(normalized);
+        const now = new Date().toLocaleString('it-IT');
+        statusEl.innerHTML = `<span style="color:#4CAF50;">✅ Caricato ${normalized.length} record</span>`;
+        lastUpdateEl.textContent = now;
+        localStorage.setItem('lastUpdate_aste', now);
+        await loadDataFromFirebase();
+        alert('✅ Dataset aggiornato. Filtri e contatori ricalcolati.');
+      } catch(err){
+        console.error(err); statusEl.innerHTML = `<span style="color:#f44336;">❌ Errore: ${err.message}</span>`;
+      } finally {
+        document.getElementById('fileAsteNPL').value='';
+      }
+    }
+
+    function parseExcel(file){
+      return new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=e=>{
+          try{
+            const data=new Uint8Array(e.target.result);
+            const wb=XLSX.read(data,{type:'array'});
+            const ws=wb.Sheets[wb.SheetNames[0]];
+            const json=XLSX.utils.sheet_to_json(ws,{defval:''});
+            resolve(json);
+          }catch(err){ reject(err); }
+        };
+        reader.onerror=reject;
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    function normalizeRow(r){
+      const tipoRaw=(r.Tipo||r.tipo||'').toString().trim().toLowerCase();
+      const tipo= tipoRaw.includes('npl') ? 'npl' : 'asta';
+      const regione=(r.Regione||r.Reg||r.regione||'').toString().trim();
+      const citta=(r['Città']||r.Citta||r.citta||'').toString().trim();
+      const pm=(r.PrezzoMin||r.prezzoMin||r.Min||'').toString().replace(/[^\d]/g,'');
+      const px=(r.PrezzoMax||r.prezzoMax||r.Max||'').toString().replace(/[^\d]/g,'');
+      const prezzoMin=pm?Number(pm):null;
+      const prezzoMax=px?Number(px):null;
+      let dataAsta=(r.DataAsta||r['Data Asta']||r.data||'').toString().trim();
+      if (tipo==='npl') dataAsta='';
+      if (!regione||!citta) return null;
+      return { tipo, regione, citta, prezzoMin, prezzoMax, dataAsta };
+    }
+
+    /* ===== Load + Filters ===== */
+    async function loadDataFromFirebase(){
+      const snap=await db.ref(DATA_PATH).once('value');
+      allDataGlobal=snap.val()||[];
+      // regioni & città
+      regioniSet=new Set(); cittaPerRegione=new Map();
+      allDataGlobal.forEach(d=>{
+        regioniSet.add(d.regione);
+        if(!cittaPerRegione.has(d.regione)) cittaPerRegione.set(d.regione,new Set());
+        cittaPerRegione.get(d.regione).add(d.citta);
+      });
+      populateFilters();
+      renderStats();
+      renderTable(getFiltered());
+      const lastAste = localStorage.getItem('lastUpdate_aste');
+      if (lastAste) document.getElementById('lastUpdateAste').textContent = lastAste;
+    }
+
+    function populateFilters(){
+      const selReg=document.getElementById('filterRegione');
+      const selCit=document.getElementById('filterCitta');
+      if (!selReg||!selCit) return;
+      selReg.innerHTML = `<option value="">Tutte le regioni</option>` + Array.from(regioniSet).sort().map(r=>`<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+      selReg.onchange = ()=>{
+        const reg=selReg.value;
+        const cities= reg? Array.from(cittaPerRegione.get(reg)||[]) : [];
+        selCit.innerHTML = `<option value="">Tutte le città</option>` + cities.sort().map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+      };
+      const q=document.getElementById('filterSearch');
+      if (q) q.onkeydown = e=>{ if (e.key==='Enter') applyFilters(); };
+    }
+    function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+    /* ===== Stats ===== */
+    function renderStats(){
+      const aste=allDataGlobal.filter(d=>d.tipo==='asta').length;
+      const npl =allDataGlobal.filter(d=>d.tipo==='npl').length;
+      document.getElementById('statAste').textContent = aste.toLocaleString('it-IT');
+      document.getElementById('statNpl').textContent  = npl.toLocaleString('it-IT');
+    }
+
+    /* ===== Filters + Table ===== */
+    function getFiltered(){
+      const tipoSel=(document.getElementById('filterTipo')?.value||'').toLowerCase();
+      const regSel =document.getElementById('filterRegione')?.value||'';
+      const citSel =document.getElementById('filterCitta')?.value||'';
+      const q=(document.getElementById('filterSearch')?.value||'').toLowerCase().trim();
+      return allDataGlobal.filter(d=>{
+        if (tipoSel && d.tipo!==tipoSel) return false;
+        if (regSel && d.regione!==regSel) return false;
+        if (citSel && d.citta!==citSel) return false;
+        if (q) {
+          const hay=(d.tipo+' '+d.regione+' '+d.citta).toLowerCase();
+          if (!hay.includes(q)) return false;
         }
+        return true;
+      });
+    }
+    function applyFilters(){ renderTable(getFiltered()); }
+    function clearFilters(){
+      if (document.getElementById('filterTipo')) document.getElementById('filterTipo').value='';
+      if (document.getElementById('filterRegione')) document.getElementById('filterRegione').value='';
+      if (document.getElementById('filterCitta')) document.getElementById('filterCitta').innerHTML='<option value="">Tutte le città</option>';
+      if (document.getElementById('filterSearch')) document.getElementById('filterSearch').value='';
+      renderTable(allDataGlobal);
+    }
 
-        function logout() {
-            currentUser = null;allData = [];
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('dashboard').classList.remove('active');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-        }
+    function renderTable(data){
+      const tbody=document.querySelector('.table-section table tbody');
+      if (!tbody) return;
+      const top=data.slice(0,3);
+      const rows=top.map(d=>{
+        const badge = d.tipo==='npl' ? `<span style="background:#2196F3;color:white;padding:5px 10px;border-radius:5px;font-weight:700;">📋 NPL</span>` : `<span style="background:#FF9800;color:white;padding:5px 10px;border-radius:5px;font-weight:700;">🔨 ASTA</span>`;
+        const prezzo = (d.prezzoMin||d.prezzoMax) ? `€${(d.prezzoMin||0).toLocaleString('it-IT')} - €${(d.prezzoMax||0).toLocaleString('it-IT')}` : '—';
+        const dataAsta = d.dataAsta || '—';
+        return `<tr><td>${badge}</td><td>${escapeHtml(d.regione)}</td><td>${escapeHtml(d.citta)}</td><td>${prezzo}</td><td>${escapeHtml(dataAsta)}</td><td><button class="unlock-btn" onclick="showUpgradeModal('premium')" style="padding:8px 20px;">🔓 Dettagli Premium</button></td></tr>`;
+      }).join('');
+      const locked=`
+        <tr style="position:relative;">
+          <td colspan="6" style="padding:0;position:relative;height:300px;">
+            <div style="filter:blur(8px);padding:15px;">
+              <table style="width:100%;border:none;box-shadow:none;">
+                ${(new Array(4)).fill(0).map(()=>'<tr><td>🔒</td><td>█████</td><td>█████</td><td>█████</td><td>██/██/████</td><td>█████</td></tr>').join('')}
+              </table>
+            </div>
+            <div class="blur-overlay">
+              <div style="text-align:center;">
+                <h3 style="color:#000;margin-bottom:20px;font-size:1.5em;">🔒 Altre ${Math.max(0, data.length-3).toLocaleString('it-IT')} Aste Bloccate</h3>
+                <button class="unlock-btn" style="font-size:16px;padding:15px 40px;" onclick="showUpgradeModal('premium')">Sblocca TUTTO con Premium</button>
+              </div>
+            </div>
+          </td>
+        </tr>`;
+      tbody.innerHTML = rows + locked;
+    }
 
-        async function loadData() {
-            showLoading('Caricamento dati...');
-            try {
-                const snapshot = await db.ref('data').once('value');
-                const data = snapshot.val();
-                if (data) {
-                    allData = Array.isArray(data) ? data : Object.values(data);
-                    allData = allData.map(item => {
-                        const tipoCol = Object.keys(item).find(k => /^tipo$/i.test(k));
-                        if (tipoCol && item[tipoCol]) {
-                            item.tipo = String(item[tipoCol]).toLowerCase().includes('asta') ? 'asta' : 'npl';
-                        } else {
-                            const destCol = Object.keys(item).find(k => /destinazione.*uso/i.test(k));
-                            item.tipo = (destCol && String(item[destCol]).toLowerCase().includes('asta')) ? 'asta' : 'npl';
-                        }
-                        return item;
-                    });
-                    console.log('Dati caricati:', allData.length);
-                    populateFilters();
-                    renderAll();
-                }
-            } catch (error) {
-                console.error('Errore:', error);
-            } finally {
-                hideLoading();
-            }
-        }
-
-        function populateFilters() {
-            if (!allData || allData.length === 0) return;
-            
-            // FIX CRITICO: Cerca colonna Regione in modo flessibile
-            const regioni = new Set();
-            allData.forEach(item => {
-                const regioneKey = Object.keys(item).find(k => /regione/i.test(k));
-                if (regioneKey && item[regioneKey]) {
-                    const reg = String(item[regioneKey]).trim();
-                    if (reg && reg !== '-' && reg.toLowerCase() !== 'nan') {
-                        regioni.add(reg);
-                    }
-                }
-            });
-            
-            const regioniArr = [...regioni].sort();
-            console.log('Regioni trovate:', regioniArr);
-            
-            const select = document.getElementById('filterRegione');
-            select.innerHTML = '<option value="">Tutte le regioni</option>' +
-                regioniArr.map(r => `<option value="${r}">${r}</option>`).join('');
-            
-            updateCittaFilter();
-        }
-        
-        function updateCittaFilter() {
-            if (!allData || allData.length === 0) return;
-            const regioneSelezionata = document.getElementById('filterRegione').value;
-            const citta = new Set();
-            
-            allData.forEach(d => {
-                const regioneKey = Object.keys(d).find(k => /regione/i.test(k));
-                if (regioneSelezionata && regioneKey && d[regioneKey] !== regioneSelezionata) return;
-                
-                const comuneKey = Object.keys(d).find(k => /comune/i.test(k));
-                if (comuneKey && d[comuneKey]) {
-                    const com = String(d[comuneKey]).split('\n')[0].trim();
-                    if (com && com !== '-' && com.toLowerCase() !== 'nan') citta.add(com);
-                }
-            });
-            
-            const cittaArr = [...citta].sort();
-            const select = document.getElementById('filterCitta');
-            select.innerHTML = '<option value="">Tutte le città</option>' +
-                cittaArr.map(c => `<option value="${c}">${c}</option>`).join('');
-        }
-
-        function applyFilters() {renderAll();}
-        function clearFilters() {
-            document.getElementById('filterTipo').value = '';
-            document.getElementById('filterRegione').value = '';
-            document.getElementById('filterCitta').value = '';
-            document.getElementById('filterSearch').value = '';
-            renderAll();
-        }
-
-        function getFilteredData() {
-            let filtered = [...allData];
-            const tipo = document.getElementById('filterTipo').value;
-            if (tipo) filtered = filtered.filter(d => d.tipo === tipo);
-            
-            const regione = document.getElementById('filterRegione').value;
-            if (regione) {
-                filtered = filtered.filter(d => {
-                    const regioneKey = Object.keys(d).find(k => /regione/i.test(k));
-                    return regioneKey && String(d[regioneKey]).trim() === regione;
-                });
-            }
-            
-            const citta = document.getElementById('filterCitta').value;
-            if (citta) {
-                filtered = filtered.filter(d => {
-                    const comuneKey = Object.keys(d).find(k => /comune/i.test(k));
-                    return comuneKey && String(d[comuneKey]).split('\n')[0].trim() === citta;
-                });
-            }
-            
-            const search = document.getElementById('filterSearch').value.toLowerCase();
-            if (search) filtered = filtered.filter(d => Object.values(d).some(v => String(v).toLowerCase().includes(search)));
-            
-            return filtered;
-        }
-
-        function renderAll() {
-            const filtered = getFilteredData();
-            updateStats();
-            renderTable(filtered);
-        }
-
-        function updateStats() {
-            const asteCount = allData.filter(d => d.tipo === 'asta').length;
-            const nplCount = allData.filter(d => d.tipo === 'npl').length;
-            document.getElementById('statTotal').textContent = allData.length;
-            document.getElementById('statAste').textContent = asteCount;
-            document.getElementById('statNpl').textContent = nplCount;
-        }
-
-        function renderTable(data) {
-            const thead = document.getElementById('tableHead');
-            const tbody = document.getElementById('tableBody');
-            if (data.length === 0) {
-                thead.innerHTML = '<tr><th>Nessun dato</th></tr>';
-                tbody.innerHTML = '<tr><td style="text-align:center; padding:40px;">Nessun risultato</td></tr>';
-                document.getElementById('recordCount').textContent = '0';
-                return;
-            }
-            
-            // ORDINAMENTO DECRESCENTE per Data Asta
-            const dataCol = Object.keys(data[0]).find(k => /data.*asta/i.test(k));
-            if (dataCol) {
-                data = [...data].sort((a, b) => {
-                    const dateA = parseItalianDate(a[dataCol]);
-                    const dateB = parseItalianDate(b[dataCol]);
-                    return dateB - dateA;
-                });
-            }
-            
-            window.currentTableData = data;
-            const sampleRecord = data[0];
-            
-            // Colonne da mostrare
-            const colsToShow = ['Tipo', 'Data Asta', 'Project ID', 'Titolo', 'Prezzo base d\'asta', 'Situazione debitoria', 'Indirizzo', 'Comune', 'Provincia', 'Regione'];
-            const cols = Object.keys(sampleRecord).filter(k => colsToShow.some(c => c.toLowerCase() === k.toLowerCase()));
-            
-            thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '<th>Contatti</th><th>Dettagli</th></tr>';
-            
-            tbody.innerHTML = data.map((item, idx) => {
-                const icona = item.tipo === 'asta' ? '🔨' : '📋';
-                const row = cols.map(col => {
-                    let val = item[col] || '-';
-                    if (col.toLowerCase().includes('tipo')) {
-                        return `<td><span style="background:${item.tipo === 'asta' ? '#FF9800' : '#2196F3'};color:white;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:bold;">${icona} ${val.toUpperCase()}</span></td>`;
-                    }
-                    return `<td>${val}</td>`;
-                }).join('');
-                
-                // FIX: Mostra link SOLO per ASTE, telefono SOLO per NPL
-                let contatti = '-';
-                if (item.tipo === 'asta') {
-                    const linkCol = Object.keys(item).find(k => /vuoi.*prenderlo.*pre.*asta.*clicca/i.test(k) || /link.*pre.*asta/i.test(k));
-                    if (linkCol && item[linkCol]) {
-                        contatti = `<a href="${item[linkCol]}" target="_blank" style="display:inline-block;background:#FF9800;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold;">✉️ Pre-Asta</a>`;
-                    }
-                } else {
-                    const telCol = Object.keys(item).find(k => /telefon/i.test(k));
-                    if (telCol && item[telCol]) {
-                        contatti = `<a href="tel:${item[telCol]}" style="display:inline-block;background:#2196F3;color:white;padding:6px 12px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:bold;">📞 Chiama</a>`;
-                    }
-                }
-                
-                return `<tr>${row}<td>${contatti}</td><td><button class="btn btn-upload" style="padding:6px 12px;font-size:12px;" onclick="showDetail(${idx})">Dettagli</button></td></tr>`;
-            }).join('');
-            
-            document.getElementById('recordCount').textContent = data.length;
-        }
-        
-        function parseItalianDate(dateStr) {
-            if (!dateStr) return new Date(0);
-            const parts = String(dateStr).split('/');
-            if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
-            return new Date(0);
-        }
-
-        function searchTable() {
-            const term = document.getElementById('tableSearch').value.toLowerCase();
-            document.querySelectorAll('#tableBody tr').forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
-            });
-        }
-
-        function showDetail(idx) {
-            const data = window.currentTableData || getFilteredData();
-            const item = data[idx];
-            if (!item) {alert('Errore');return;}
-            const content = document.getElementById('detailContent');
-            const fields = Object.keys(item).map(key => {
-                const value = item[key] || '-';
-                if (/telefon/i.test(key)) return `<div class="detail-item" style="background:#e3f2fd;border-left:4px solid #2196F3;"><label style="color:#1976D2;font-weight:bold;">${key}</label><div class="value"><a href="tel:${value}" style="color:#1976D2;text-decoration:none;">${value}</a></div></div>`;
-                if (/vuoi.*prenderlo.*pre.*asta.*clicca/i.test(key) || /link.*pre.*asta/i.test(key)) return `<div class="detail-item" style="background:#fff3e0;border-left:4px solid #FF9800;"><label style="color:#F57C00;font-weight:bold;">${key}</label><div class="value"><a href="${value}" target="_blank" style="display:inline-block;background:#FF9800;color:white;padding:10px 20px;border-radius:5px;text-decoration:none;font-weight:bold;">Contattaci</a></div></div>`;
-                return `<div class="detail-item"><label>${key}</label><div class="value">${value}</div></div>`;
-            }).join('');
-            content.innerHTML = fields;
-            document.getElementById('detailModal').classList.add('active');
-        }
-
-        function closeModal() {document.getElementById('detailModal').classList.remove('active');}
-        function showUploadPanel() {document.getElementById('adminPanel').classList.toggle('hidden');}
-
-        async function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            showLoading('Lettura Excel...');
-            try {
-                const data = await readExcel(file);
-                if (data && data.length > 0) {
-                    showLoading('Salvataggio...');
-                    await saveToFirebase(data);
-                    showAlert('uploadAlert', `Caricati ${data.length} record`, 'success');
-                }
-            } catch (error) {
-                showAlert('uploadAlert', 'Errore: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-                event.target.value = '';
-            }
-        }
-
-        function readExcel(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {type: 'array'});
-                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const jsonData = XLSX.utils.sheet_to_json(sheet, {defval: null});
-                        const cleaned = jsonData.map(row => {
-                            const newRow = {};
-                            for (let key in row) newRow[String(key).replace(/[.#$\/\[\]]/g, '_')] = row[key];
-                            const tipoCol = Object.keys(newRow).find(k => /^tipo$/i.test(k));
-                            newRow.tipo = (tipoCol && String(newRow[tipoCol]).toLowerCase().includes('asta')) ? 'asta' : 'npl';
-                            return newRow;
-                        });
-                        resolve(cleaned);
-                    } catch (err) {reject(new Error('File non valido'));}
-                };
-                reader.onerror = () => reject(new Error('Errore lettura'));
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        async function saveToFirebase(newData) {
-            const snapshot = await db.ref('data').once('value');
-            const existing = snapshot.val();
-            let allRecords = existing ? Object.values(existing) : [];
-            allRecords = [...allRecords, ...newData];
-            await db.ref('data').remove();
-            const CHUNK_SIZE = 500;
-            for (let i = 0; i < allRecords.length; i += CHUNK_SIZE) {
-                const chunk = allRecords.slice(i, i + CHUNK_SIZE);
-                const updates = {};
-                chunk.forEach((item, idx) => {updates[i + idx] = item;});
-                await db.ref('data').update(updates);
-            }
-            allData = allRecords;
-            populateFilters();
-            renderAll();
-        }
-
-        async function resetDatabase() {
-            if (currentUser.level !== 3 || !confirm('Cancellare TUTTI i dati?')) return;
-            showLoading('Cancellazione...');
-            await db.ref('data').remove();
-            allData = [];
-            renderAll();
-            showAlert('uploadAlert', 'Database cancellato', 'success');
-            hideLoading();
-        }
-
-        document.getElementById('detailModal').addEventListener('click', function(e) {if (e.target === this) closeModal();});
-        document.getElementById('password').addEventListener('keypress', function(e) {if (e.key === 'Enter') login();});
-        document.getElementById('filterRegione').addEventListener('change', updateCittaFilter);
-
-        // PWA SERVICE WORKER REGISTRATION
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registrato'))
-                    .catch(err => console.log('Service Worker errore:', err));
-            });
-        }
-
-        // PWA INSTALL PROMPT
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Mostra pulsante install (opzionale)
-            const installBtn = document.createElement('button');
-            installBtn.textContent = '📱 Installa App';
-            installBtn.className = 'btn btn-upload';
-            installBtn.style.position = 'fixed';
-            installBtn.style.bottom = '20px';
-            installBtn.style.right = '20px';
-            installBtn.style.zIndex = '9999';
-            installBtn.onclick = async () => {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') installBtn.remove();
-                deferredPrompt = null;
-            };
-            document.body.appendChild(installBtn);
-        });
+    /* ===== Reset DB ===== */
+    async function resetDatabase(){
+      if (!confirm('⚠️ Cancellerai TUTTI i dati. Confermi?')) return;
+      await db.ref(DATA_PATH).remove();
+      allDataGlobal=[]; regioniSet.clear(); cittaPerRegione.clear();
+      renderStats(); clearFilters(); renderTable([]);
+      document.getElementById('lastUpdateAste').textContent='Mai';
+      document.getElementById('statusAste').innerHTML='<span style="color:#999;">Nessun file caricato</span>';
+      alert('🗑️ Database svuotato.');
+    }
     </script>
+
+<!-- ==== DROP-IN PATCH: filtri & risultati reali senza cambiare l'HTML/CSS ==== -->
+<script>
+window.allDataGlobal = window.allDataGlobal || [];
+let __regioniSet = new Set();
+let __cittaPerRegione = new Map();
+
+function __escapeHtml(s){ return (s??'').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+function populateFiltersFromData(){
+  if (!Array.isArray(allDataGlobal) || allDataGlobal.length===0) return;
+  __regioniSet = new Set();
+  __cittaPerRegione = new Map();
+  allDataGlobal.forEach(d=>{
+    __regioniSet.add(d.regione);
+    if(!__cittaPerRegione.has(d.regione)) __cittaPerRegione.set(d.regione,new Set());
+    __cittaPerRegione.get(d.regione).add(d.citta);
+  });
+  const selReg = document.getElementById('filterRegione');
+  const selCit = document.getElementById('filterCitta');
+  if (!selReg || !selCit) return;
+  selReg.innerHTML = ['<option value=\"\">Tutte le regioni</option>']
+    .concat([...__regioniSet].sort().map(r=>`<option value=\"${__escapeHtml(r)}\">${__escapeHtml(r)}</option>`)).join('');
+  selReg.onchange = () => {
+    const r = selReg.value;
+    const cities = r ? [...(__cittaPerRegione.get(r)||[])].sort() : [];
+    selCit.innerHTML = '<option value=\"\">Tutte le città</option>' + cities.map(c=>`<option value=\"${__escapeHtml(c)}\">${__escapeHtml(c)}</option>`).join('');
+  };
+}
+
+function getFiltered(){
+  const tipoSel = (document.getElementById('filterTipo')?.value || '').toLowerCase();
+  const regSel  = document.getElementById('filterRegione')?.value || '';
+  const citSel  = document.getElementById('filterCitta')?.value || '';
+  const q       = (document.getElementById('filterSearch')?.value || '').toLowerCase().trim();
+  return (allDataGlobal||[]).filter(d=>{
+    if (tipoSel && d.tipo !== tipoSel) return false;
+    if (regSel  && d.regione !== regSel) return false;
+    if (citSel  && d.citta !== citSel) return false;
+    if (q){
+      const hay = `${d.tipo} ${d.regione} ${d.citta}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderTableReal(data){
+  const tbody = document.querySelector('.table-section table tbody');
+  if (!tbody) return;
+  const top = data.slice(0,3);
+  const rowsHtml = top.map(d=>{
+    const badge = d.tipo==='npl'
+      ? `<span style=\"background:#2196F3;color:#fff;padding:5px 10px;border-radius:5px;font-weight:700;\">📋 NPL</span>`
+      : `<span style=\"background:#FF9800;color:#fff;padding:5px 10px;border-radius:5px;font-weight:700;\">🔨 ASTA</span>`;
+    const prezzo = (d.prezzoMin||d.prezzoMax)
+      ? `€${((d.prezzoMin||d.prezzoMax)||0).toLocaleString('it-IT')}`
+      : '—';
+    const dataA = d.dataAsta || '—';
+    return `<tr>
+      <td>${badge}</td>
+      <td>${__escapeHtml(d.regione)}</td>
+      <td>${__escapeHtml(d.citta)}</td>
+      <td>${prezzo}</td>
+      <td>${__escapeHtml(dataA)}</td>
+      <td><button class=\"unlock-btn\" style=\"padding:8px 20px;\" onclick=\"showUpgradeModal && showUpgradeModal('premium')\">🔓 Dettagli Premium</button></td>
+    </tr>`;
+  }).join('');
+
+  const lockedBlock = `
+    <tr style=\"position:relative;\">
+      <td colspan=\"6\" style=\"padding:0;position:relative;height:260px;\">
+        <div style=\"filter:blur(8px);padding:15px;\">
+          <table style=\"width:100%;border:none;box-shadow:none;\">
+            ${(new Array(4)).fill(0).map(()=>`<tr><td>🔒</td><td>█████</td><td>█████</td><td>█████</td><td>██/██/████</td><td>█████</td></tr>`).join('')}
+          </table>
+        </div>
+        <div class=\"blur-overlay\">
+          <div style=\"text-align:center;\">
+            <h3 style=\"color:#000;margin-bottom:20px;font-size:1.3em;\">🔒 Altre ${Math.max(0,data.length-3).toLocaleString('it-IT')} Aste Bloccate</h3>
+            <button class=\"unlock-btn\" style=\"font-size:16px;padding:12px 28px;\" onclick=\"showUpgradeModal && showUpgradeModal('premium')\">Sblocca TUTTO con Premium</button>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  tbody.innerHTML = rowsHtml + lockedBlock;
+}
+
+function wireFilterButtons(){
+  const buttons = Array.from(document.querySelectorAll('button'));
+  const applyBtn = buttons.find(b => /applica/i.test(b.textContent) && /filtr/i.test(b.textContent));
+  const clearBtn = buttons.find(b => /azzera/i.test(b.textContent)  && /filtr/i.test(b.textContent));
+
+  if (applyBtn) applyBtn.addEventListener('click', () => {
+    const res = getFiltered();
+    renderTableReal(res);
+  });
+
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    if (document.getElementById('filterTipo'))    document.getElementById('filterTipo').value = '';
+    if (document.getElementById('filterRegione')) document.getElementById('filterRegione').value = '';
+    if (document.getElementById('filterCitta'))   document.getElementById('filterCitta').innerHTML = '<option value=\"\">Tutte le città</option>';
+    if (document.getElementById('filterSearch'))  document.getElementById('filterSearch').value = '';
+    renderTableReal(allDataGlobal);
+  });
+
+  const q = document.getElementById('filterSearch');
+  if (q) q.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); const res=getFiltered(); renderTableReal(res); }});
+}
+
+(function initPatch(){
+  try{
+    if (Array.isArray(allDataGlobal) && allDataGlobal.length) {
+      populateFiltersFromData();
+      renderTableReal(allDataGlobal);
+    }
+    // Riwire anche dopo upload (se il codice cambia allDataGlobal)
+    const oldSet = Object.getOwnPropertyDescriptor(window,'allDataGlobal')?.set;
+    Object.defineProperty(window,'allDataGlobal',{
+      configurable:true,
+      get(){ return this.__ad || []; },
+      set(v){
+        this.__ad = Array.isArray(v)?v:[];
+        populateFiltersFromData();
+        renderTableReal(this.__ad);
+        if (typeof oldSet==='function') oldSet(v);
+      }
+    });
+    wireFilterButtons();
+    console.log('🔧 Patch filtri/risultati attivata');
+  }catch(e){ console.warn('Patch non applicata:', e); }
+})();
+</script>
+
+
+<script>
+// ======= ROBUST IMPORT PATCH (intoccabile UI) =======
+// Sostituisce parseExcel + handleFileUpload + normalizer con versioni più tolleranti.
+// - Trova automaticamente la riga header (anche se ci sono righe vuote sopra)
+// - Accetta intestazioni: Regione/Reg, Comune/Città/Località, Provincia/Prov, Tipo, Prezzo base d'asta, Debitoria totale, Data Asta
+// - Mostra conteggi letti/importati/scartati
+
+async function handleFileUpload(type, file){
+  if (!file) return;
+  const statusEl = document.getElementById('statusAste') || document.getElementById('statusStats') || {innerHTML: ''};
+  const lastUpdateEl = document.getElementById('lastUpdateAste') || document.getElementById('lastUpdateStats') || {textContent: ''};
+  statusEl.innerHTML = '<span style="color:#2196F3;">⏳ Lettura file...</span>';
+  try {
+    const rows = await parseExcelRobust(file); // array di oggetti
+    const total = rows.length;
+    const normalized = rows.map(normalizeRowFlexible).filter(Boolean);
+    const valid = normalized.length;
+    const discarded = total - valid;
+
+    // Accoda al dataset esistente
+    const snap = await db.ref(DATA_PATH).once('value');
+    const current = snap.val() || [];
+    const merged = current.concat(normalized);
+    await db.ref(DATA_PATH).set(merged);
+
+    const now = new Date().toLocaleString('it-IT');
+    statusEl.innerHTML = `<span style="color:#4CAF50;">✅ Letti ${total}, importati ${valid}, scartati ${discarded} — Totale in DB: ${merged.length}</span>`;
+    lastUpdateEl.textContent = now;
+    localStorage.setItem('lastUpdate_aste', now);
+
+    // Aggiorna runtime
+    if (Array.isArray(window.allDataGlobal)) {
+      window.allDataGlobal = merged;
+    }
+    if (typeof loadDataFromFirebase === 'function') {
+      try { await loadDataFromFirebase(); } catch(e){ /* se non esiste, ignoriamo */ }
+    }
+    alert('✅ Import completato. Filtri e contatori ricalcolati.');
+  } catch(err){
+    console.error(err);
+    statusEl.innerHTML = `<span style="color:#f44336;">❌ Errore: ${err.message}</span>`;
+  } finally {
+    const input = document.getElementById('fileAsteNPL') || document.getElementById('fileExcel');
+    if (input) input.value='';
+  }
+}
+
+// Trova header in modo robusto e produce array di oggetti
+function parseExcelRobust(file){
+  return new Promise((resolve,reject)=>{
+    const fr=new FileReader();
+    fr.onload=e=>{
+      try{
+        const wb = XLSX.read(new Uint8Array(e.target.result), { type:'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        // Primo tentativo: JSON diretto
+        let json = XLSX.utils.sheet_to_json(ws, { defval:'', raw:false });
+        if (json && json.length) { resolve(json); return; }
+        // Secondo tentativo: leggi come array e trova riga header
+        const rows = XLSX.utils.sheet_to_json(ws, { header:1, raw:false, defval:'' });
+        let headerIdx = -1;
+        const wanted = ['regione','comune','città','citta','località','localita','provincia','prov','tipo','prezzo','debitoria','data'];
+        for (let i=0;i<rows.length;i++){
+          const r = (rows[i]||[]).map(x=> (x||'').toString().toLowerCase().trim());
+          const score = wanted.reduce((acc,w)=> acc + (r.some(c=>c.includes(w)) ? 1 : 0), 0);
+          if (score >= 2) { headerIdx = i; break; }
+        }
+        if (headerIdx === -1) { resolve([]); return; }
+        const headers = (rows[headerIdx] || []).map(h => (h||'').toString().trim() || ('col_'+Math.random().toString(36).slice(2,6)));
+        const out = [];
+        for (let i=headerIdx+1; i<rows.length; i++){
+          const row = rows[i] || [];
+          const obj = {};
+          headers.forEach((h,idx)=> obj[h] = row[idx] ?? '');
+          // scarta righe completamente vuote
+          if (Object.values(obj).some(v => v!=='' && v!==null && typeof v!=='undefined')) out.push(obj);
+        }
+        resolve(out);
+      }catch(err){ reject(err); }
+    };
+    fr.onerror=reject;
+    fr.readAsArrayBuffer(file);
+  });
+}
+
+// Normalizzatore flessibile per i tuoi file ASTE / NPL
+function normalizeRowFlexible(r){
+  const map={}; Object.keys(r).forEach(k=> map[String(k).toLowerCase().trim()] = r[k]);
+
+  const pick=(...names)=>{
+    for (const n of names){ const v = map[n.toLowerCase()]; if (v!==undefined && v!==null && v!=='') return v; }
+    return '';
+  };
+
+  const tipoRaw = (pick('tipo')+'').toLowerCase();
+  const tipo = tipoRaw.includes('npl') ? 'npl' : 'asta';
+
+  const regione  = (pick('regione','reg')+'').trim();
+  const comune   = (pick('comune','città','citta','località','localita')+'').trim();
+  const prov     = (pick('provincia','prov')+'').toString().replace(/[^A-Za-z]/g,'').toUpperCase();
+  const citta    = comune ? (prov ? `${comune} (${prov})` : comune) : '';
+
+  const toNum=v=>{
+    if (v===undefined || v===null) return null;
+    const s=(v+'').replace(/\./g,'').replace(/,/g,'.').replace(/[^\d.]/g,'');
+    return s ? Math.round(Number(s)) : null;
+  };
+
+  let prezzoMin=null, prezzoMax=null;
+  if (tipo==='asta') prezzoMin = toNum(pick("prezzo base d'asta","base d'asta","prezzo base","base","prezzo base asta"));
+  else prezzoMin = toNum(pick('debitoria totale','debito','importo totale'));
+
+  let dataAsta='';
+  const dRaw = pick('data asta','data');
+  if (tipo==='asta' && dRaw){
+    const d = new Date(dRaw);
+    if (!isNaN(d)) dataAsta = [String(d.getDate()).padStart(2,'0'), String(d.getMonth()+1).padStart(2,'0'), d.getFullYear()].join('/');
+    else dataAsta = (''+dRaw).trim();
+  }
+
+  if (!regione || !comune) return null;
+  return { tipo, regione, citta, prezzoMin, prezzoMax, dataAsta };
+}
+</script>
+
 </body>
 </html>
