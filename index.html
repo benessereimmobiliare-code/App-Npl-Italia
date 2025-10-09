@@ -23,6 +23,28 @@
         .btn-org { background: #FF9800; color: white; }
         .btn-red { background: #f44336; color: white; }
         
+        /* TOAST INVESTITORI */
+        .toast-inv { position: fixed; bottom: 20px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.25); padding: 18px 22px; min-width: 320px; max-width: 400px; z-index: 888; opacity: 0; transform: translateX(450px); transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .toast-inv.show { opacity: 1; transform: translateX(0); }
+        .toast-inv.hide-anim { opacity: 0; transform: translateX(450px); }
+        .toast-close { position: absolute; top: 8px; right: 8px; background: transparent; border: none; font-size: 20px; cursor: pointer; color: #999; line-height: 1; padding: 0; width: 24px; height: 24px; }
+        .toast-close:hover { color: #f44336; }
+        .toast-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; }
+        .toast-avatar { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; flex-shrink: 0; }
+        .toast-info { flex: 1; }
+        .toast-nome { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 3px; }
+        .toast-prof { font-size: 12px; color: #666; }
+        .toast-det { margin-bottom: 12px; }
+        .toast-det div { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; color: #555; }
+        .toast-det svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .toast-budget { font-size: 20px; font-weight: 700; color: #4CAF50; }
+        .toast-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: transform 0.2s; }
+        .toast-btn:hover { transform: scale(1.03); }
+        
+        @media (max-width: 768px) {
+            .toast-inv { bottom: 10px; right: 10px; left: 10px; min-width: auto; max-width: none; }
+        }
+        
         /* HEADER STATS */
         .hero { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 50px 30px; text-align: center; }
         .hero h1 { font-size: 2.2em; margin-bottom: 8px; }
@@ -178,6 +200,8 @@
 </head>
 <body>
     <div id="load" class="load"><div style="background:white;padding:35px;border-radius:12px;text-align:center;"><div class="spin"></div><p id="loadTxt" style="margin-top:18px;font-weight:600;">Caricamento...</p></div></div>
+    
+    <div id="toastInv" class="toast-inv"></div>
 
     <div id="loginScr" class="login-scr">
         <div class="login-box">
@@ -200,17 +224,81 @@
             </div>
             <div class="top-btns">
                 <span id="badge" style="padding:8px 16px;background:#f0f0f0;border-radius:18px;font-weight:600;font-size:12px;"></span>
-                <button class="top-btn btn-grn hide" id="btnUp" onclick="toggleAdmin()">Carica Excel</button>
+                <button class="top-btn btn-grn hide" id="btnUp" onclick="toggleAdmin()">Carica File</button>
                 <button class="top-btn btn-org hide" id="btnDel" onclick="delDB()">Svuota DB</button>
                 <button class="top-btn btn-red" onclick="doLogout()">Esci</button>
             </div>
         </div>
 
         <div id="adminPan" class="admin hide">
-            <h3 style="color:#667eea;margin-bottom:12px;">📊 Upload Excel</h3>
+            <h3 style="color:#667eea;margin-bottom:12px;">📊 Upload Unico - Aste / NPL / Investitori</h3>
             <div id="upAlert"></div>
-            <input type="file" id="fileInp" accept=".xlsx,.xls" onchange="upFile(event)">
-            <p style="margin-top:8px;color:#666;font-size:12px;">Carica prima ASTE poi NPL</p>
+            <div style="background:#f0f8ff;padding:15px;border-radius:8px;margin-bottom:15px;">
+                <p style="margin-bottom:10px;font-size:14px;font-weight:600;">📁 Carica qualsiasi file Excel:</p>
+                <ul style="margin-left:20px;margin-bottom:12px;font-size:13px;color:#666;">
+                    <li><strong>ASTE</strong> → File con nome che contiene "ASTE" o "aste"</li>
+                    <li><strong>NPL</strong> → File con nome che contiene "NPL" o "npl"</li>
+                    <li><strong>INVESTITORI</strong> → File con colonne: Nome, Cognome, Email, Cellulare, Budget, Professione</li>
+                </ul>
+                <input type="file" id="fileInp" accept=".xlsx,.xls" onchange="upFile(event)">
+                <p style="margin-top:10px;color:#666;font-size:12px;">💡 L'app riconosce automaticamente il tipo di file!</p>
+            </div>
+            
+            <div style="background:#e8f5e9;padding:15px;border-radius:8px;">
+                <h4 style="margin-bottom:10px;color:#2e7d32;">🚀 Caricamento Rapido (Solo Test)</h4>
+                <button onclick="caricaDatiEsempio()" class="top-btn btn-grn" style="margin-right:10px;">📥 Carica 15 Investitori Esempio</button>
+                <p style="font-size:12px;color:#666;margin-top:8px;">Carica automaticamente 15 investitori con €4.26M totale</p>
+            </div>
+        </div>
+
+        <div id="investitoriPan" class="admin hide">
+            <h3 style="color:#667eea;margin-bottom:12px;">💼 Gestione Investitori</h3>
+            <div id="invAlert"></div>
+            <p style="margin-bottom:15px;color:#666;font-size:13px;">Capitale Totale: <strong style="color:#4CAF50;font-size:18px;">€<span id="capitaleTot">0</span></strong></p>
+            
+            <div style="margin-bottom:20px;padding:15px;background:#e8f5e9;border-radius:8px;">
+                <h4 style="margin-bottom:10px;">🚀 Dati Iniziali (Solo Prima Volta)</h4>
+                <button onclick="caricaDatiEsempio()" class="top-btn btn-grn">📥 Carica 15 Investitori Esempio</button>
+                <p style="font-size:12px;color:#666;margin-top:8px;">Carica automaticamente 15 investitori con €4.26M totale</p>
+            </div>
+            
+            <div style="margin-bottom:20px;padding:15px;background:#f0f8ff;border-radius:8px;">
+                <h4 style="margin-bottom:10px;">📁 Carica Excel Investitori</h4>
+                <input type="file" id="fileInvInp" accept=".xlsx,.xls" onchange="upFileInv(event)" style="margin-bottom:10px;">
+                <p style="font-size:12px;color:#666;">Carica file Excel con colonne: Nome, Cognome, Email, Cellulare, Budget, Professione</p>
+            </div>
+            
+            <div style="margin-bottom:20px;">
+                <h4 style="margin-bottom:10px;">➕ Aggiungi Investitore Manualmente</h4>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:10px;">
+                    <input type="text" id="invNome" placeholder="Nome">
+                    <input type="text" id="invCognome" placeholder="Cognome">
+                    <input type="email" id="invEmail" placeholder="Email">
+                    <input type="tel" id="invCell" placeholder="Cellulare">
+                    <input type="number" id="invBudget" placeholder="Budget €">
+                    <input type="text" id="invProf" placeholder="Professione">
+                </div>
+                <button onclick="aggiungiInvestitore()" class="top-btn btn-grn">➕ Aggiungi</button>
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                    <thead style="background:#f5f5f5;">
+                        <tr>
+                            <th style="padding:10px;text-align:left;">Nome</th>
+                            <th style="padding:10px;text-align:left;">Cognome</th>
+                            <th style="padding:10px;text-align:left;">Email</th>
+                            <th style="padding:10px;text-align:left;">Cell</th>
+                            <th style="padding:10px;text-align:left;">Budget</th>
+                            <th style="padding:10px;text-align:left;">Professione</th>
+                            <th style="padding:10px;text-align:left;">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invTableBody">
+                        <tr><td colspan="7" style="text-align:center;padding:20px;">Caricamento...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="hero">
@@ -221,7 +309,11 @@
                 <div class="stat"><div class="stat-num" id="sNPL">0</div><div class="stat-lbl">📋 NPL Disponibili</div></div>
                 <div class="stat"><div class="stat-num">247</div><div class="stat-lbl">⭐ Utenti Premium</div></div>
                 <div class="stat"><div class="stat-num">38</div><div class="stat-lbl">💼 Esperti Attivi</div></div>
-                <div class="stat"><div class="stat-num">€4.2M</div><div class="stat-lbl">💰 Capitale Disponibile</div></div>
+                <div class="stat">
+                    <div class="stat-num" id="statCapitale">€0</div>
+                    <div class="stat-lbl">💰 Capitale Disponibile</div>
+                    <div style="font-size:10px;color:#ccc;margin-top:4px;">per investitori esperti</div>
+                </div>
             </div>
         </div>
 
@@ -304,6 +396,21 @@
                 </table>
             </div>
             <p style="font-size:11px;color:#666;margin-top:8px;text-align:center;">📱 Scorri orizzontalmente per vedere tutte le colonne</p>
+            
+            <div id="blurWrap" class="blur-wrap hide">
+                <table class="blur-tbl">
+                    <tbody id="blurRows">
+                        <tr><td>████</td><td>████████</td><td>████████</td><td>████████████</td><td>████████</td><td>████████</td><td>████</td></tr>
+                        <tr><td>████</td><td>████████</td><td>████████</td><td>████████████</td><td>████████</td><td>████████</td><td>████</td></tr>
+                        <tr><td>████</td><td>████████</td><td>████████</td><td>████████████</td><td>████████</td><td>████████</td><td>████</td></tr>
+                    </tbody>
+                </table>
+                <div class="blur-over">
+                    <h3 id="blurTit">🔥 Altri Risultati Bloccati</h3>
+                    <p>Sblocca tutto con Premium</p>
+                    <button class="btn-prem">Passa a Premium</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -323,7 +430,15 @@
     
     <script>
         let db, allData = [], usr = null, fbOk = false;
+        let investitori = [];
+        let capitaleDisponibile = 0; // parte da 0
         const usrs = {'admin': {pw: 'admin2025', rol: 'Admin', lvl: 3}};
+        
+        // Inizializza counter visivo a €0
+        window.addEventListener('DOMContentLoaded', () => {
+            const statEl = document.getElementById('statCapitale');
+            if (statEl) statEl.textContent = '€0';
+        });
 
         function shLd(t = 'Caricamento...') { document.getElementById('loadTxt').textContent = t; document.getElementById('load').classList.add('show'); }
         function hdLd() { document.getElementById('load').classList.remove('show'); }
@@ -440,6 +555,15 @@
                 }
                 allData = Array.isArray(d) ? d.filter(x => x) : Object.values(d).filter(x => x);
                 console.log(`✅ ${allData.length} record`);
+                
+                // CARICA INVESTITORI
+                await ldInvestitori();
+                
+                // AVVIA TOAST INVESTITORI
+                if (investitori.length > 0) {
+                    startToastInvestitori();
+                }
+                
                 popFilt();
                 rend();
             } catch (e) {
@@ -448,6 +572,204 @@
             } finally {
                 hdLd();
             }
+        }
+
+        async function ldInvestitori() {
+            try {
+                console.log('📥 Caricamento investitori da Firebase...');
+                const snap = await db.ref('investitori').once('value');
+                const d = snap.val();
+                console.log('📦 Dati ricevuti:', d);
+                
+                if (d) {
+                    investitori = Array.isArray(d) ? d : Object.values(d);
+                    console.log(`✅ ${investitori.length} investitori caricati`);
+                    
+                    // CALCOLA CAPITALE TOTALE
+                    capitaleDisponibile = investitori.reduce((sum, inv) => sum + (inv.budget || 0), 0);
+                    console.log(`💰 Capitale totale: €${capitaleDisponibile.toLocaleString('it-IT')}`);
+                    
+                    // AGGIORNA COUNTER VISIVO
+                    aggiornaCounterCapitale();
+                } else {
+                    console.log('⚠️ Nessun investitore trovato - database vuoto');
+                    investitori = [];
+                    capitaleDisponibile = 0;
+                    aggiornaCounterCapitale();
+                }
+            } catch (e) {
+                console.error('❌ Errore caricamento investitori:', e);
+            }
+        }
+
+        function aggiornaCounterCapitale() {
+            // Aggiorna stat in alto usando ID
+            const statEl = document.getElementById('statCapitale');
+            if (statEl) {
+                if (capitaleDisponibile >= 1000000) {
+                    const milioni = capitaleDisponibile / 1000000;
+                    // Se ha decimali significativi, mostra 2 cifre, altrimenti 1
+                    const decimali = (milioni % 1 >= 0.05) ? 2 : 1;
+                    statEl.textContent = '€' + milioni.toFixed(decimali) + 'M';
+                } else if (capitaleDisponibile >= 1000) {
+                    statEl.textContent = '€' + (capitaleDisponibile / 1000).toFixed(0) + 'K';
+                } else {
+                    statEl.textContent = '€' + capitaleDisponibile.toLocaleString('it-IT');
+                }
+            }
+            
+            // Aggiorna anche nel pannello investitori se aperto
+            const capTotEl = document.getElementById('capitaleTot');
+            if (capTotEl) {
+                capTotEl.textContent = capitaleDisponibile.toLocaleString('it-IT');
+            }
+        }
+
+        // POPUP ESPERTO dopo 2 minuti
+        let popupShown = false;
+        function showPopupEsperto() {
+            if (popupShown) return;
+            popupShown = true;
+            
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            
+            const milioni = capitaleDisponibile / 1000000;
+            const decimali = (milioni % 1 >= 0.05) ? 2 : 1;
+            
+            overlay.innerHTML = `
+                <div style="background:white;padding:40px;border-radius:20px;max-width:550px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                    <h2 style="color:#667eea;font-size:1.8em;margin-bottom:15px;">💼 Diventa Esperto Investitore Premium</h2>
+                    <p style="font-size:1.5em;font-weight:700;color:#4CAF50;margin-bottom:10px;">Budget Disponibile: €${capitaleDisponibile.toLocaleString('it-IT')}</p>
+                    <p style="color:#666;margin-bottom:15px;line-height:1.6;">Gli investitori della nostra rete hanno un capitale totale di <strong>€${milioni.toFixed(decimali)}M</strong> disponibile per investimenti immobiliari.</p>
+                    <div style="background:#fff3cd;border-left:4px solid #FFC107;padding:15px;margin-bottom:20px;text-align:left;">
+                        <p style="color:#856404;font-weight:600;margin-bottom:8px;">⚡ ACCESSO PRIORITARIO</p>
+                        <p style="color:#856404;font-size:14px;line-height:1.5;margin:0;">Prima diventi <strong>Esperto Premium</strong>, prima accedi ai <strong>dati completi dei nostri investitori</strong> e alle opportunità esclusive.</p>
+                    </div>
+                    <div style="display:flex;gap:15px;flex-wrap:wrap;">
+                        <button onclick="candidatiEsperto()" style="flex:1;padding:15px 25px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;min-width:180px;">✅ Sono Esperto e Approfitto</button>
+                        <button onclick="chiudiPopup()" style="flex:1;padding:15px 25px;background:#f44336;color:white;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;min-width:180px;">❌ Non Sono Esperto</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            window.popupOverlay = overlay;
+        }
+
+        function candidatiEsperto() {
+            alert('🎉 Ottimo! Ti contatteremo presto per completare la candidatura come Esperto Investitore.');
+            chiudiPopup();
+        }
+
+        function chiudiPopup() {
+            if (window.popupOverlay) {
+                window.popupOverlay.remove();
+            }
+        }
+
+        // Mostra popup dopo 30 secondi (30000 ms)
+        setTimeout(() => {
+            if (usr) showPopupEsperto();
+        }, 30000);
+
+        // TOAST INVESTITORI - Rotazione ogni 60 secondi
+        let toastIndex = 0;
+        let toastInterval = null;
+        let currentToast = null;
+
+        function startToastInvestitori() {
+            if (investitori.length === 0) return;
+            
+            // Primo toast dopo 60 secondi
+            setTimeout(() => {
+                showToastInvestitore();
+                
+                // Poi ogni 2 minuti (120000 ms)
+                toastInterval = setInterval(() => {
+                    showToastInvestitore();
+                }, 120000);
+            }, 60000);
+        }
+
+        function showToastInvestitore() {
+            if (investitori.length === 0) return;
+            
+            // Chiudi toast precedente se esiste
+            if (currentToast) {
+                closeToast();
+                setTimeout(() => showToastContent(), 500);
+            } else {
+                showToastContent();
+            }
+        }
+
+        function showToastContent() {
+            const inv = investitori[toastIndex];
+            toastIndex = (toastIndex + 1) % investitori.length;
+            
+            const nomeParziale = inv.nome + ' ' + (inv.cognome ? inv.cognome.charAt(0) + '.' : '');
+            const cellOscurato = oscuraCellulare(inv.cellulare);
+            const budgetFormatted = '€' + (inv.budget || 0).toLocaleString('it-IT');
+            const iniziali = inv.nome.charAt(0) + (inv.cognome ? inv.cognome.charAt(0) : '');
+            
+            const toastEl = document.getElementById('toastInv');
+            toastEl.innerHTML = `
+                <button class="toast-close" onclick="closeToast()">×</button>
+                <div class="toast-head">
+                    <div class="toast-avatar">${iniziali}</div>
+                    <div class="toast-info">
+                        <div class="toast-nome">${nomeParziale}</div>
+                        <div class="toast-prof">${inv.professione || 'Investitore'}</div>
+                    </div>
+                </div>
+                <div class="toast-det">
+                    <div>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                        <span style="color:#999;">${cellOscurato}</span>
+                    </div>
+                    <div>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="toast-budget">${budgetFormatted}</span>
+                    </div>
+                    <div style="font-size:12px;color:#4CAF50;font-weight:600;">
+                        ✅ Disponibile per investire con esperto
+                    </div>
+                </div>
+                <button class="toast-btn" onclick="chiamaInvestitore('${inv.email}')">📞 Chiamalo - Passa ad Esperto</button>
+            `;
+            
+            setTimeout(() => toastEl.classList.add('show'), 100);
+            currentToast = toastEl;
+            
+            // Auto-chiudi dopo 115 secondi (per far spazio al prossimo ogni 2 min)
+            setTimeout(() => {
+                if (currentToast) closeToast();
+            }, 115000);
+        }
+
+        function closeToast() {
+            const toastEl = document.getElementById('toastInv');
+            toastEl.classList.remove('show');
+            toastEl.classList.add('hide-anim');
+            setTimeout(() => {
+                toastEl.classList.remove('hide-anim');
+                toastEl.innerHTML = '';
+            }, 500);
+            currentToast = null;
+        }
+
+        function oscuraCellulare(cell) {
+            if (!cell) return '●●● ●●● ●●●●';
+            const clean = cell.replace(/[^0-9]/g, '');
+            if (clean.length < 4) return '●●● ●●● ●●●●';
+            const ultimi4 = clean.slice(-4);
+            return '●●● ●●● ●' + ultimi4.slice(-3);
+        }
+
+        function chiamaInvestitore(email) {
+            alert(`🎉 Ottimo! Contatteremo ${email} per mettervi in contatto.\n\nPasserai all'Area Esperti e potrai accedere a questo investitore.`);
+            closeToast();
         }
 
         function popFilt() {
@@ -553,10 +875,15 @@
             }
 
             window.tblData = d;
+            
+            // ASTE: tutte libere (no limit)
+            // NPL: prime 5 libere, resto bloccato
+            const free = isNPL ? d.slice(0, 5) : d;
+            const lock = isNPL ? d.slice(5) : [];
 
             if (isNPL) {
                 // TABELLA NPL
-                tbody.innerHTML = d.map((it, i) => {
+                tbody.innerHTML = free.map((it, i) => {
                     const projID = it['Project ID'] || '-';
                     const numPrat = it['Numero Pratica _ NDG'] || '-';
                     const ind = it['Indirizzo'] || '-';
@@ -580,7 +907,7 @@
                 }).join('');
             } else {
                 // TABELLA ASTE
-                tbody.innerHTML = d.map((it, i) => {
+                tbody.innerHTML = free.map((it, i) => {
                     const bdg = '<span class="badge badge-asta">🔨 ASTA</span>';
                     const reg = it.Regione || '-';
                     const com = it.Comune || '-';
@@ -603,6 +930,14 @@
                         <td><button class="btn-det" onclick="shDet(${i})">Dettagli</button></td>
                     </tr>`;
                 }).join('');
+            }
+
+            // MOSTRA BLUR SOLO PER NPL (mai per aste)
+            if (lock.length > 0 && isNPL) {
+                document.getElementById('blurTit').textContent = `📋 Altri ${lock.length} NPL Bloccati`;
+                document.getElementById('blurWrap').classList.remove('hide');
+            } else {
+                document.getElementById('blurWrap').classList.add('hide');
             }
 
             document.getElementById('recordCount').textContent = d.length;
@@ -689,22 +1024,312 @@
 
         function clsMod() { document.getElementById('modal').classList.remove('show'); }
         function toggleAdmin() { document.getElementById('adminPan').classList.toggle('hide'); }
+        async function toggleInvestitori() { 
+            document.getElementById('investitoriPan').classList.toggle('hide'); 
+            if (!document.getElementById('investitoriPan').classList.contains('hide')) {
+                // RICARICA investitori da Firebase ogni volta che apri il pannello
+                shLd('Caricamento investitori...');
+                await ldInvestitori();
+                renderInvestitori();
+                hdLd();
+            }
+        }
+
+        function renderInvestitori() {
+            const tbody = document.getElementById('invTableBody');
+            document.getElementById('capitaleTot').textContent = capitaleDisponibile.toLocaleString('it-IT');
+            
+            if (investitori.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">Nessun investitore</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = investitori.map((inv, idx) => `
+                <tr>
+                    <td style="padding:10px;">${inv.nome}</td>
+                    <td style="padding:10px;">${inv.cognome}</td>
+                    <td style="padding:10px;">${inv.email}</td>
+                    <td style="padding:10px;">${inv.cellulare}</td>
+                    <td style="padding:10px;"><strong style="color:#4CAF50;">€${(inv.budget || 0).toLocaleString('it-IT')}</strong></td>
+                    <td style="padding:10px;">${inv.professione}</td>
+                    <td style="padding:10px;"><button onclick="rimuoviInvestitore(${idx})" class="top-btn btn-red" style="padding:5px 10px;font-size:11px;">🗑️</button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function caricaDatiEsempio() {
+            if (!confirm('⚠️ Caricare 15 investitori esempio su Firebase?\n\nQuesta operazione AGGIUNGERÀ i dati a quelli esistenti.')) return;
+            
+            shLd('Caricamento dati esempio...');
+            try {
+                console.log('🚀 Inizio caricamento dati esempio...');
+                console.log('📊 Investitori attuali:', investitori.length);
+                
+                const datiEsempio = [
+                    {nome: "Marco", cognome: "Rossi", email: "marco.rossi@email.it", cellulare: "+39 333 1234567", budget: 250000, professione: "Imprenditore"},
+                    {nome: "Giulia", cognome: "Bianchi", email: "giulia.bianchi@email.it", cellulare: "+39 340 7654321", budget: 180000, professione: "Manager"},
+                    {nome: "Luca", cognome: "Verdi", email: "luca.verdi@email.it", cellulare: "+39 347 9876543", budget: 320000, professione: "Investitore"},
+                    {nome: "Francesca", cognome: "Neri", email: "francesca.neri@email.it", cellulare: "+39 338 5551234", budget: 150000, professione: "Consulente"},
+                    {nome: "Alessandro", cognome: "Gialli", email: "alessandro.gialli@email.it", cellulare: "+39 349 8887766", budget: 420000, professione: "Imprenditore"},
+                    {nome: "Sofia", cognome: "Blu", email: "sofia.blu@email.it", cellulare: "+39 345 3334455", budget: 280000, professione: "Libero Professionista"},
+                    {nome: "Matteo", cognome: "Viola", email: "matteo.viola@email.it", cellulare: "+39 335 6667788", budget: 190000, professione: "Commercialista"},
+                    {nome: "Elena", cognome: "Arancio", email: "elena.arancio@email.it", cellulare: "+39 339 9998877", budget: 350000, professione: "Avvocato"},
+                    {nome: "Davide", cognome: "Rosa", email: "davide.rosa@email.it", cellulare: "+39 348 1112233", budget: 210000, professione: "Architetto"},
+                    {nome: "Chiara", cognome: "Marrone", email: "chiara.marrone@email.it", cellulare: "+39 346 4445566", budget: 280000, professione: "Medico"},
+                    {nome: "Roberto", cognome: "Grigio", email: "roberto.grigio@email.it", cellulare: "+39 333 7778899", budget: 380000, professione: "Notaio"},
+                    {nome: "Valeria", cognome: "Celeste", email: "valeria.celeste@email.it", cellulare: "+39 340 1112222", budget: 220000, professione: "Farmacista"},
+                    {nome: "Simone", cognome: "Argento", email: "simone.argento@email.it", cellulare: "+39 347 3334444", budget: 290000, professione: "Ingegnere"},
+                    {nome: "Martina", cognome: "Oro", email: "martina.oro@email.it", cellulare: "+39 338 5556666", budget: 410000, professione: "Dirigente"},
+                    {nome: "Giovanni", cognome: "Bronzo", email: "giovanni.bronzo@email.it", cellulare: "+39 349 7778888", budget: 330000, professione: "Commerciante"}
+                ];
+                
+                console.log('➕ Aggiunta 15 investitori ai', investitori.length, 'esistenti');
+                
+                // AGGIUNGI ai esistenti (non sostituire)
+                investitori = [...investitori, ...datiEsempio];
+                
+                console.log('💾 Salvataggio su Firebase...', investitori.length, 'investitori totali');
+                await db.ref('investitori').set(investitori);
+                console.log('✅ Salvato su Firebase!');
+                
+                // RICALCOLA CAPITALE
+                capitaleDisponibile = investitori.reduce((sum, inv) => sum + (inv.budget || 0), 0);
+                console.log('💰 Nuovo capitale:', capitaleDisponibile);
+                
+                // AGGIORNA TUTTO
+                aggiornaCounterCapitale();
+                renderInvestitori();
+                
+                // AVVIA TOAST se non già avviato
+                if (!toastInterval) {
+                    console.log('🎯 Avvio toast investitori...');
+                    startToastInvestitori();
+                }
+                
+                document.getElementById('invAlert').innerHTML = '<div style="background:#d4edda;color:#155724;padding:11px;border-radius:7px;margin-bottom:13px;">✅ Caricati 15 investitori! Capitale totale: €' + capitaleDisponibile.toLocaleString('it-IT') + '</div>';
+                setTimeout(() => document.getElementById('invAlert').innerHTML = '', 3500);
+            } catch (e) {
+                console.error('❌ ERRORE:', e);
+                alert('❌ Errore: ' + e.message);
+            } finally {
+                hdLd();
+            }
+        }
+
+        async function aggiungiInvestitore() {
+            const nome = document.getElementById('invNome').value.trim();
+            const cognome = document.getElementById('invCognome').value.trim();
+            const email = document.getElementById('invEmail').value.trim();
+            const cellulare = document.getElementById('invCell').value.trim();
+            const budget = parseInt(document.getElementById('invBudget').value) || 0;
+            const professione = document.getElementById('invProf').value.trim();
+            
+            if (!nome || !cognome || !email || !budget) {
+                alert('❌ Compila almeno Nome, Cognome, Email e Budget!');
+                return;
+            }
+            
+            shLd('Aggiunta investitore...');
+            try {
+                const nuovoInv = {nome, cognome, email, cellulare, budget, professione};
+                investitori.push(nuovoInv);
+                
+                // SALVA SU FIREBASE
+                await db.ref('investitori').set(investitori);
+                
+                // RICALCOLA CAPITALE
+                capitaleDisponibile = investitori.reduce((sum, inv) => sum + (inv.budget || 0), 0);
+                
+                // AGGIORNA COUNTER VISIVO
+                aggiornaCounterCapitale();
+                
+                // PULISCI FORM
+                document.getElementById('invNome').value = '';
+                document.getElementById('invCognome').value = '';
+                document.getElementById('invEmail').value = '';
+                document.getElementById('invCell').value = '';
+                document.getElementById('invBudget').value = '';
+                document.getElementById('invProf').value = '';
+                
+                renderInvestitori();
+                document.getElementById('invAlert').innerHTML = '<div style="background:#d4edda;color:#155724;padding:11px;border-radius:7px;margin-bottom:13px;">✅ Investitore aggiunto!</div>';
+                setTimeout(() => document.getElementById('invAlert').innerHTML = '', 2500);
+            } catch (e) {
+                alert('❌ Errore: ' + e.message);
+            } finally {
+                hdLd();
+            }
+        }
+
+        async function rimuoviInvestitore(idx) {
+            if (!confirm('⚠️ Rimuovere questo investitore?')) return;
+            
+            shLd('Rimozione...');
+            try {
+                investitori.splice(idx, 1);
+                await db.ref('investitori').set(investitori);
+                
+                // RICALCOLA CAPITALE
+                capitaleDisponibile = investitori.reduce((sum, inv) => sum + (inv.budget || 0), 0);
+                
+                // AGGIORNA COUNTER VISIVO
+                aggiornaCounterCapitale();
+                
+                renderInvestitori();
+            } catch (e) {
+                alert('❌ Errore: ' + e.message);
+            } finally {
+                hdLd();
+            }
+        }
 
         async function upFile(e) {
             const f = e.target.files[0];
             if (!f) return;
+            
             shLd('Lettura Excel...');
             try {
                 const d = await rdXl(f);
                 const fn = f.name.toUpperCase();
-                const tp = fn.includes('ASTE') ? 'Asta' : 'NPL';
-                d.forEach(r => r.Tipo = tp);
-                shLd('Salvataggio...');
-                await saveFB(d);
-                document.getElementById('upAlert').innerHTML = '<div style="background:#d4edda;color:#155724;padding:11px;border-radius:7px;margin-bottom:13px;">✅ Caricati ' + d.length + ' record!</div>';
-                setTimeout(() => document.getElementById('upAlert').innerHTML = '', 2500);
+                
+                // RICONOSCIMENTO AUTOMATICO TIPO FILE
+                let tipoFile = null;
+                
+                // 1. Controlla se è INVESTITORI (dalle colonne)
+                if (d.length > 0) {
+                    const colonne = Object.keys(d[0]).map(k => k.toLowerCase());
+                    const hasNome = colonne.some(c => c.includes('nome'));
+                    const hasBudget = colonne.some(c => c.includes('budget'));
+                    const hasEmail = colonne.some(c => c.includes('email'));
+                    
+                    if (hasNome && hasBudget && hasEmail) {
+                        tipoFile = 'INVESTITORI';
+                    }
+                }
+                
+                // 2. Se non è investitori, controlla ASTE o NPL dal nome file
+                if (!tipoFile) {
+                    if (fn.includes('ASTE') || fn.includes('ASTA')) {
+                        tipoFile = 'ASTE';
+                    } else if (fn.includes('NPL')) {
+                        tipoFile = 'NPL';
+                    } else {
+                        // Default: prova a capire dalle colonne
+                        const colonne = Object.keys(d[0]).map(k => k.toLowerCase());
+                        if (colonne.some(c => c.includes('project') || c.includes('pratica') || c.includes('debitoria'))) {
+                            tipoFile = 'NPL';
+                        } else {
+                            tipoFile = 'ASTE';
+                        }
+                    }
+                }
+                
+                console.log('🔍 Tipo file riconosciuto:', tipoFile);
+                
+                // GESTIONE IN BASE AL TIPO
+                if (tipoFile === 'INVESTITORI') {
+                    // CARICA INVESTITORI
+                    shLd('Caricamento investitori...');
+                    
+                    const nuoviInv = d.map(row => ({
+                        nome: row.Nome || row.nome || '',
+                        cognome: row.Cognome || row.cognome || '',
+                        email: row.Email || row.email || '',
+                        cellulare: row.Cellulare || row.cellulare || row.Telefono || '',
+                        budget: parseInt(row.Budget || row.budget || 0),
+                        professione: row.Professione || row.professione || ''
+                    })).filter(inv => inv.nome && inv.cognome && inv.budget > 0);
+                    
+                    if (nuoviInv.length === 0) {
+                        throw new Error('Nessun investitore valido trovato');
+                    }
+                    
+                    // AGGIUNGI ai esistenti
+                    investitori = [...investitori, ...nuoviInv];
+                    await db.ref('investitori').set(investitori);
+                    
+                    // RICALCOLA CAPITALE
+                    capitaleDisponibile = investitori.reduce((sum, inv) => sum + (inv.budget || 0), 0);
+                    aggiornaCounterCapitale();
+                    
+                    // AVVIA TOAST se non già avviato
+                    if (!toastInterval) {
+                        startToastInvestitori();
+                    }
+                    
+                    document.getElementById('upAlert').innerHTML = `<div style="background:#d4edda;color:#155724;padding:11px;border-radius:7px;margin-bottom:13px;">✅ Caricati ${nuoviInv.length} INVESTITORI! Capitale: €${capitaleDisponibile.toLocaleString('it-IT')}</div>`;
+                    
+                } else {
+                    // CARICA ASTE o NPL
+                    const tp = tipoFile === 'ASTE' ? 'Asta' : 'NPL';
+                    d.forEach(r => r.Tipo = tp);
+                    
+                    shLd('Salvataggio ' + tipoFile + '...');
+                    await saveFB(d);
+                    
+                    document.getElementById('upAlert').innerHTML = `<div style="background:#d4edda;color:#155724;padding:11px;border-radius:7px;margin-bottom:13px;">✅ Caricati ${d.length} ${tipoFile}!</div>`;
+                }
+                
+                setTimeout(() => document.getElementById('upAlert').innerHTML = '', 3500);
+                
+                // CHIUDI PANNELLO ADMIN dopo caricamento
+                setTimeout(() => {
+                    document.getElementById('adminPan').classList.add('hide');
+                }, 3500);
+                
             } catch (err) {
+                console.error('❌ Errore upload:', err);
                 document.getElementById('upAlert').innerHTML = '<div style="background:#f8d7da;color:#721c24;padding:11px;border-radius:7px;margin-bottom:13px;">❌ ' + err.message + '</div>';
+            } finally {
+                hdLd();
+                e.target.value = '';
+            }
+        }
+
+        async function upFileInv(e) {
+            const f = e.target.files[0];
+            if (!f) return;
+            shLd('Lettura Excel Investitori...');
+            try {
+                const d = await rdXl(f);
+                
+                // Mappa colonne Excel -> struttura investitore
+                const nuoviInv = d.map(row => ({
+                    nome: row.Nome || row.nome || '',
+                    cognome: row.Cognome || row.cognome || '',
+                    email: row.Email || row.email || '',
+                    cellulare: row.Cellulare || row.cellulare || row.Telefono || '',
+                    budget: parseInt(row.Budget || row.budget || 0),
+                    professione: row.Professione || row.professione || ''
+                })).filter(inv => inv.nome && inv.cognome && inv.budget > 0);
+                
+                if (nuoviInv.length === 0) {
+                    throw new Error('Nessun investitore valido trovato. Verifica colonne: Nome, Cognome, Budget');
+                }
+                
+                shLd('Salvataggio investitori...');
+                
+                // AGGIUNGI ai esistenti
+                investitori = [...investitori, ...nuoviInv];
+                await db.ref('investitori').set(investitori);
+                
+                // RICALCOLA CAPITALE
+                capitaleDisponibile = investitori.reduce((sum, inv) => sum + (inv.budget || 0), 0);
+                
+                // AGGIORNA COUNTER VISIVO
+                aggiornaCounterCapitale();
+                
+                // RIAVVIA TOAST se necessario
+                if (toastInterval) {
+                    clearInterval(toastInterval);
+                    startToastInvestitori();
+                }
+                
+                renderInvestitori();
+                document.getElementById('invAlert').innerHTML = '<div style="background:#d4edda;color:#155724;padding:11px;border-radius:7px;margin-bottom:13px;">✅ Caricati ' + nuoviInv.length + ' investitori!</div>';
+                setTimeout(() => document.getElementById('invAlert').innerHTML = '', 2500);
+            } catch (err) {
+                document.getElementById('invAlert').innerHTML = '<div style="background:#f8d7da;color:#721c24;padding:11px;border-radius:7px;margin-bottom:13px;">❌ ' + err.message + '</div>';
             } finally {
                 hdLd();
                 e.target.value = '';
@@ -744,19 +1369,30 @@
         }
 
         async function delDB() {
-            if (!confirm('⚠️ Cancellare TUTTI i dati?')) return;
+            if (!confirm('⚠️ Cancellare TUTTI i dati (Aste, NPL e Investitori)?')) return;
             shLd('Cancellazione...');
             try {
+                // CANCELLA ASTE E NPL
                 await db.ref('data').remove();
                 allData = [];
+                
+                // CANCELLA INVESTITORI
+                await db.ref('investitori').remove();
+                investitori = [];
+                capitaleDisponibile = 0;
+                
+                // AGGIORNA UI
                 document.getElementById('sAste').textContent = '0';
                 document.getElementById('sNPL').textContent = '0';
+                aggiornaCounterCapitale();
+                
                 document.getElementById('tblBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:35px;">Database vuoto - Carica dati</td></tr>';
                 document.getElementById('blurWrap').classList.add('hide');
                 document.getElementById('fReg').innerHTML = '<option value="">Tutte le regioni</option>';
                 document.getElementById('fCit').innerHTML = '<option value="">Tutte le città</option>';
+                
                 hdLd();
-                alert('✅ Database svuotato!');
+                alert('✅ Database completamente svuotato!\n\nAste: 0\nNPL: 0\nInvestitori: 0\nCapitale: €0');
             } catch (e) {
                 hdLd();
                 alert('❌ Errore: ' + e.message);
