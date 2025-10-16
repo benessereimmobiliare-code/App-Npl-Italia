@@ -1,6 +1,6 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
+
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceleratore Immobiliare</title>
@@ -76,6 +76,26 @@
         @keyframes pulse {
             0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
             50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(102,126,234,0.6); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
         
         .badge-premium .badge-icon { font-size: 1.6em; margin-bottom: 4px; position: relative; z-index: 1; }
@@ -196,8 +216,79 @@
         .filtri { background: white; padding: 28px 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .filtri h3 { color: #667eea; margin-bottom: 18px; font-size: 1.4em; }
         .filtri-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .filtri-grid.hide { display: none !important; }
         .filtri-grid select, .filtri-grid input { padding: 11px; border: 2px solid #ddd; border-radius: 7px; width: 100%; }
         .btn-filtri { display: flex; gap: 8px; }
+        
+        /* TABS RICERCA */
+        .search-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0;
+        }
+        
+        .search-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            bottom: -2px;
+        }
+        
+        .search-tab:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .search-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: rgba(102, 126, 234, 0.08);
+        }
+        
+        /* BLUR per dati oscurati - POTENZIATO */
+        .blur-data {
+            filter: blur(5px) brightness(1.1);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            cursor: not-allowed;
+            color: #888 !important;
+            background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.03), rgba(0,0,0,0.06));
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+        
+        .blur-data::before {
+            content: '🔒';
+            position: absolute;
+            right: -18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            opacity: 0.5;
+        }
+        
+        .blur-data::selection {
+            background: transparent;
+        }
+        
+        .blur-data:hover {
+            filter: blur(5px) brightness(1.2);
+            background: linear-gradient(90deg, rgba(220,20,60,0.1), rgba(220,20,60,0.05), rgba(220,20,60,0.1));
+        }
         
         /* CORSI */
         .corsi { padding: 45px 30px; background: #fafafa; }
@@ -226,9 +317,27 @@
         /* BLUR */
         .blur-wrap { position: relative; margin-top: 18px; }
         .blur-tbl { filter: blur(4px); opacity: 0.25; }
-        .blur-over { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.97); padding: 35px; border-radius: 12px; text-align: center; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
-        .blur-over h3 { color: #667eea; font-size: 1.6em; margin-bottom: 12px; }
-        .btn-prem { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 13px 30px; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; }
+        .blur-over { 
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            transform: none;
+            background: linear-gradient(135deg, rgba(102,126,234,0.95), rgba(118,75,162,0.95));
+            padding: 15px 25px;
+            border-radius: 0;
+            text-align: center;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+            z-index: 9998;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .blur-over h3 { color: white; font-size: 1.2em; margin: 0; }
+        .blur-over p { color: rgba(255,255,255,0.9); margin: 0; font-size: 0.95em; }
+        .btn-prem { background: #FFD700; color: #333; padding: 10px 25px; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
         
         /* LOGIN */
         .login-scr { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #667eea, #764ba2); }
@@ -364,8 +473,8 @@
             th, td { padding: 6px 4px; }
         }
     </style>
-</head>
-<body>
+
+
     <div id="load" class="load"><div style="background:white;padding:35px;border-radius:12px;text-align:center;"><div class="spin"></div><p id="loadTxt" style="margin-top:18px;font-weight:600;">Caricamento...</p></div></div>
     
     <div id="toastInv" class="toast-inv"></div>
@@ -414,8 +523,19 @@
             </div>
             <div class="top-btns">
                 <span id="badge" style="padding:8px 16px;background:#f0f0f0;border-radius:18px;font-weight:600;font-size:12px;"></span>
+                
+                <!-- BOTTONI ADMIN (solo per admin) -->
                 <button class="top-btn btn-grn hide" id="btnUp" onclick="toggleAdmin()">Carica File</button>
                 <button class="top-btn btn-org hide" id="btnDel" onclick="delDB()">Svuota DB</button>
+                
+                <!-- BOTTONI NAVIGAZIONE (per tutti gli utenti) -->
+                <button class="top-btn" id="btnAffariPronti" onclick="scrollToSection('affari')" style="background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;font-weight:700;display:none;">
+                    🏆 Affari Pronti
+                </button>
+                <button class="top-btn" id="btnMotoreRicerca" onclick="scrollToSection('ricerca')" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-weight:700;display:none;">
+                    🔍 Motore Ricerca Affari
+                </button>
+                
                 <button class="top-btn btn-red" onclick="doLogout()">Esci</button>
             </div>
         </div>
@@ -493,7 +613,7 @@
 
         <div class="hero">
             <h1>🏠 Acceleratore Immobiliare</h1>
-            <p>Accelera i tuoi risultati in Aste e NPL – Da zero a PRO</p>
+            <p>Accelera i tuoi risultati con gli investimenti immobiliari – Da zero a PRO</p>
             <div class="stats">
                 <div class="stat"><div class="stat-num" id="sAste">0</div><div class="stat-lbl">📊 Aste Attive</div></div>
                 <div class="stat"><div class="stat-num" id="sNPL">0</div><div class="stat-lbl">📋 NPL Disponibili</div></div>
@@ -533,41 +653,380 @@
         <div class="corsi">
             <h3>📚 Corsi Gratuiti per Iniziare</h3>
             <div class="corsi-grid">
+                <!-- 1. Come funziona App Acceleratore -->
                 <div class="card">
-                    <div class="card-ico">🎓</div>
+                    <div class="card-ico">📱</div>
                     <div class="card-txt">
-                        <h4>Come Funzionano le Aste Immobiliari</h4>
-                        <p>Impara le basi delle aste giudiziarie.</p>
-                        <button class="btn-gratis">GRATIS</button>
+                        <h4>Come Funziona l'App Acceleratore</h4>
+                        <p>Scopri come usare l'app per trovare opportunità immobiliari velocemente.</p>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:12px;">
+                            <button class="btn-gratis" onclick="mostraVideoCorso('https://vimeo.com/1125890927/9621bb9e9a', 'Come Funziona l\'App Acceleratore')">GRATIS</button>
+                            <span style="background:#4CAF50;color:white;padding:4px 12px;border-radius:15px;font-size:0.75em;font-weight:700;display:inline-flex;align-items:center;gap:5px;">
+                                ⭐ EASY
+                            </span>
+                        </div>
+                        <p class="mobile-warning" style="margin-top:8px;font-size:0.75em;color:#FF9800;font-style:italic;display:none;">⚠️ Per una migliore esperienza si sconsiglia l'utilizzo di uno smartphone. Meglio tablet o PC.</p>
                     </div>
                 </div>
+                
+                <!-- 2. Pre-asta immobiliari -->
                 <div class="card">
-                    <div class="card-ico">💰</div>
+                    <div class="card-ico">🏛️</div>
                     <div class="card-txt">
-                        <h4>Valutare un NPL in 10 Minuti</h4>
-                        <p>Metodo rapido per capire se un credito è opportunità o trappola.</p>
-                        <button class="btn-gratis">GRATIS</button>
+                        <h4>Come Funziona il Settore delle Pre-Asta Immobiliari</h4>
+                        <p>Scopri le opportunità prima che vadano all'asta.</p>
+                        <div style="margin-top:15px;">
+                            <p style="font-weight:600;margin-bottom:8px;">📹 Percorso Video Progressivo:</p>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+                                <!-- Video 1: GRATIS SUBITO (senza link ancora) -->
+                                <button class="btn-gratis" onclick="alert('🎬 VIDEO 1\n\nLink in arrivo...')">
+                                    ✅ VIDEO 1
+                                </button>
+                                <!-- Video 2: GRATIS SUBITO con link Vimeo -->
+                                <button class="btn-gratis" onclick="mostraVideoCorso('https://vimeo.com/1127563873/464e9d0871', 'Pre-Aste Video 2')">
+                                    ✅ VIDEO 2
+                                </button>
+                                <!-- Video 3: 20 giorni -->
+                                <button class="btn-gratis" style="background:#FF9800;" onclick="mostraPopupTimer(20, 3)">
+                                    🔒 VIDEO 3
+                                </button>
+                                <!-- Video 4: 25 giorni -->
+                                <button class="btn-gratis" style="background:#FF9800;" onclick="mostraPopupTimer(25, 4)">
+                                    🔒 VIDEO 4
+                                </button>
+                                <!-- Video 5: 30 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(30, 5)">
+                                    🔒 VIDEO 5
+                                </button>
+                                <!-- Video 6: 35 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(35, 6)">
+                                    🔒 VIDEO 6
+                                </button>
+                                <!-- Video 7: 40 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(40, 7)">
+                                    🔒 VIDEO 7
+                                </button>
+                            </div>
+                            <p style="font-size:0.85em;color:#666;margin-bottom:12px;">
+                                ⏰ I video si sbloccano progressivamente
+                            </p>
+                            <div style="background:rgba(255,215,0,0.1);border-left:4px solid #FFD700;padding:10px;border-radius:6px;">
+                                <p style="margin:0;font-size:0.9em;font-weight:600;color:#FF8C00;">
+                                    ⚡ NON VUOI ASPETTARE? <span style="color:#667eea;cursor:pointer;" onclick="window.open('https://francesco-gentile.it/abbonamento-premium','_blank')">Passa a Premium</span> e sblocca tutti i video SUBITO!
+                                </p>
+                            </div>
+                        </div>
+                        <span style="background:#4CAF50;color:white;padding:4px 12px;border-radius:15px;font-size:0.75em;font-weight:700;margin-top:12px;display:inline-block;">⭐ EASY</span>
+                        <p class="mobile-warning" style="margin-top:8px;font-size:0.75em;color:#FF9800;font-style:italic;display:none;">⚠️ Per una migliore esperienza si sconsiglia l'utilizzo di uno smartphone. Meglio tablet o PC.</p>
                     </div>
                 </div>
+                
+                <!-- 3. Saldo e Stralcio -->
                 <div class="card">
-                    <div class="card-ico">📝</div>
+                    <div class="card-ico">💼</div>
                     <div class="card-txt">
-                        <h4>5 Errori da Evitare</h4>
-                        <p>Gli sbagli più comuni dei principianti.</p>
-                        <button class="btn-gratis">GRATIS</button>
+                        <h4>Strategie Iniziali per Acquistare con Sconto con il Saldo e Stralcio Immobiliare</h4>
+                        <p>Tecniche pratiche per ottenere sconti importanti.</p>
+                        <div style="margin-top:15px;">
+                            <p style="font-weight:600;margin-bottom:8px;">📹 Percorso Video Progressivo:</p>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+                                <!-- Video 1: GRATIS SUBITO (senza link ancora) -->
+                                <button class="btn-gratis" onclick="alert('🎬 VIDEO 1\n\nLink in arrivo...')">
+                                    ✅ VIDEO 1
+                                </button>
+                                <!-- Video 2: GRATIS SUBITO con link Vimeo -->
+                                <button class="btn-gratis" onclick="alert('🎬 VIDEO 2\n\nLink da configurare...')">
+                                    ✅ VIDEO 2
+                                </button>
+                                <!-- Video 3: 20 giorni -->
+                                <button class="btn-gratis" style="background:#FF9800;" onclick="mostraPopupTimer(20, 3)">
+                                    🔒 VIDEO 3
+                                </button>
+                                <!-- Video 4: 25 giorni -->
+                                <button class="btn-gratis" style="background:#FF9800;" onclick="mostraPopupTimer(25, 4)">
+                                    🔒 VIDEO 4
+                                </button>
+                                <!-- Video 5: 30 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(30, 5)">
+                                    🔒 VIDEO 5
+                                </button>
+                                <!-- Video 6: 35 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(35, 6)">
+                                    🔒 VIDEO 6
+                                </button>
+                                <!-- Video 7: 40 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(40, 7)">
+                                    🔒 VIDEO 7
+                                </button>
+                            </div>
+                            <p style="font-size:0.85em;color:#666;margin-bottom:12px;">
+                                ⏰ I video si sbloccano progressivamente
+                            </p>
+                            <div style="background:rgba(255,215,0,0.1);border-left:4px solid #FFD700;padding:10px;border-radius:6px;">
+                                <p style="margin:0;font-size:0.9em;font-weight:600;color:#FF8C00;">
+                                    ⚡ NON VUOI ASPETTARE? <span style="color:#667eea;cursor:pointer;" onclick="window.open('https://francesco-gentile.it/abbonamento-premium','_blank')">Passa a Premium</span> e sblocca tutti i video SUBITO!
+                                </p>
+                            </div>
+                        </div>
+                        <span style="background:#4CAF50;color:white;padding:4px 12px;border-radius:15px;font-size:0.75em;font-weight:700;margin-top:12px;display:inline-block;">⭐ EASY</span>
+                        <p class="mobile-warning" style="margin-top:8px;font-size:0.75em;color:#FF9800;font-style:italic;display:none;">⚠️ Per una migliore esperienza si sconsiglia l'utilizzo di uno smartphone. Meglio tablet o PC.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <!-- 🔥 BANNER PREMIUM IRRESISTIBILE (dopo primi 3 corsi GRATIS)    -->
+            <!-- ═══════════════════════════════════════════════════════════════ -->
+            <div style="margin:40px 0;padding:0 15px;">
+                <div style="background:linear-gradient(135deg, #FFD700 0%, #FFA500 25%, #667eea 75%, #764ba2 100%);border-radius:20px;padding:3px;box-shadow:0 15px 40px rgba(255,215,0,0.4);animation:pulse 2s infinite;position:relative;overflow:hidden;">
+                    <!-- Effetto shine animato -->
+                    <div style="position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.3),transparent);animation:shine 3s infinite;pointer-events:none;"></div>
+                    
+                    <div style="background:#fff;border-radius:18px;padding:35px 25px;text-align:center;position:relative;z-index:1;">
+                        <!-- Badge Premium con animazione -->
+                        <div style="display:inline-flex;margin-bottom:20px;animation:bounce 2s infinite;">
+                            <div style="background:linear-gradient(135deg,#FFD700,#FFA500);padding:12px 30px;border-radius:25px;box-shadow:0 8px 20px rgba(255,215,0,0.4);border:2px solid #FFD700;">
+                                <span style="font-size:1.5em;margin-right:8px;">👑</span>
+                                <span style="color:#000;font-weight:900;font-size:1.2em;text-transform:uppercase;letter-spacing:1px;">PREMIUM</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Titolo potente -->
+                        <h2 style="font-size:clamp(1.6em, 5vw, 2.2em);font-weight:900;background:linear-gradient(135deg,#FFD700,#FF8C00,#667eea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 15px 0;line-height:1.2;">
+                            🚀 PASSA A PREMIUM ADESSO
+                        </h2>
+                        
+                        <!-- Sottotitolo accattivante -->
+                        <p style="font-size:clamp(1.1em, 3.5vw, 1.4em);font-weight:700;color:#667eea;margin:0 0 25px 0;line-height:1.3;">
+                            Sblocca TUTTI i Corsi Advanced Mensili
+                        </p>
+                        
+                        <!-- Lista benefici (2 colonne su desktop, 1 su mobile) -->
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px;text-align:left;margin:25px auto;max-width:800px;">
+                            <div style="background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(102,126,234,0.1));padding:15px;border-radius:12px;border-left:4px solid #FFD700;">
+                                <p style="margin:0;font-weight:700;color:#333;font-size:1em;line-height:1.5;">
+                                    ✅ Accedi a <strong style="color:#FFD700;">TUTTE le Posizioni NPL</strong>
+                                </p>
+                            </div>
+                            <div style="background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(102,126,234,0.1));padding:15px;border-radius:12px;border-left:4px solid #FF8C00;">
+                                <p style="margin:0;font-weight:700;color:#333;font-size:1em;line-height:1.5;">
+                                    ✅ <strong style="color:#FF8C00;">Corsi Advanced</strong> Pre-Asta, NPL, Stralci
+                                </p>
+                            </div>
+                            <div style="background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(102,126,234,0.1));padding:15px;border-radius:12px;border-left:4px solid #667eea;">
+                                <p style="margin:0;font-weight:700;color:#333;font-size:1em;line-height:1.5;">
+                                    ✅ Diventi <strong style="color:#667eea;">ESPERTO in 12 mesi</strong>
+                                </p>
+                            </div>
+                            <div style="background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(102,126,234,0.1));padding:15px;border-radius:12px;border-left:4px solid #764ba2;">
+                                <p style="margin:0;font-weight:700;color:#333;font-size:1em;line-height:1.5;">
+                                    ✅ <strong style="color:#764ba2;">Supporto Prioritario</strong> 24/7
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Urgenza/scarsità -->
+                        <div style="background:linear-gradient(135deg,#ff4444,#cc0000);padding:12px 20px;border-radius:10px;margin:20px auto;max-width:500px;">
+                            <p style="margin:0;color:#fff;font-weight:700;font-size:clamp(0.95em, 3vw, 1.1em);">
+                                ⚡ <strong>OFFERTA LIMITATA:</strong> Solo 50 Posti Disponibili
+                            </p>
+                        </div>
+                        
+                        <!-- CTA irresistibile -->
+                        <button onclick="window.open('https://francesco-gentile.it/abbonamento-premium', '_blank')" style="background:linear-gradient(135deg,#FFD700,#FF8C00);color:#000;border:none;padding:20px 50px;border-radius:50px;font-size:clamp(1.2em, 4vw, 1.5em);font-weight:900;cursor:pointer;box-shadow:0 10px 30px rgba(255,215,0,0.5);transition:all 0.3s ease;text-transform:uppercase;letter-spacing:1px;margin-top:10px;width:100%;max-width:500px;" onmouseover="this.style.transform='scale(1.05) translateY(-3px)';this.style.boxShadow='0 15px 40px rgba(255,215,0,0.6)'" onmouseout="this.style.transform='scale(1) translateY(0)';this.style.boxShadow='0 10px 30px rgba(255,215,0,0.5)'">
+                            👑 DIVENTA PREMIUM ORA 🚀
+                        </button>
+                        
+                        <!-- Garanzia/rassicurazione -->
+                        <p style="margin:15px 0 0 0;color:#999;font-size:clamp(0.85em, 2.5vw, 0.95em);line-height:1.4;">
+                            💯 <strong>Garanzia 30 giorni</strong> soddisfatto o rimborsato • Disdici quando vuoi
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Riprendi griglia corsi per ultimi 3 -->
+            <div class="corsi-grid">
+                
+                <!-- 4. NPL persona fisica -->
+                <div class="card">
+                    <div class="card-ico">👤</div>
+                    <div class="card-txt">
+                        <h4>Come Acquistare NPL come Persona Fisica</h4>
+                        <p>Guida completa per privati che vogliono investire in crediti.</p>
+                        <div style="margin-top:15px;">
+                            <p style="font-weight:600;margin-bottom:8px;">📹 Percorso Video Progressivo:</p>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+                                <!-- Video 1: GRATIS SUBITO (senza link ancora) -->
+                                <button class="btn-gratis" onclick="alert('🎬 VIDEO 1\n\nLink in arrivo...')">
+                                    ✅ VIDEO 1
+                                </button>
+                                <!-- Video 2: GRATIS SUBITO con link Vimeo -->
+                                <button class="btn-gratis" onclick="alert('🎬 VIDEO 2\n\nLink da configurare...')">
+                                    ✅ VIDEO 2
+                                </button>
+                                <!-- Video 3: 20 giorni -->
+                                <button class="btn-gratis" style="background:#FF9800;" onclick="mostraPopupTimer(20, 3)">
+                                    🔒 VIDEO 3
+                                </button>
+                                <!-- Video 4: 25 giorni -->
+                                <button class="btn-gratis" style="background:#FF9800;" onclick="mostraPopupTimer(25, 4)">
+                                    🔒 VIDEO 4
+                                </button>
+                                <!-- Video 5: 30 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(30, 5)">
+                                    🔒 VIDEO 5
+                                </button>
+                                <!-- Video 6: 35 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(35, 6)">
+                                    🔒 VIDEO 6
+                                </button>
+                                <!-- Video 7: 40 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(40, 7)">
+                                    🔒 VIDEO 7
+                                </button>
+                            </div>
+                            <p style="font-size:0.85em;color:#666;margin-bottom:12px;">
+                                ⏰ I video si sbloccano progressivamente
+                            </p>
+                            <div style="background:rgba(255,215,0,0.1);border-left:4px solid #FFD700;padding:10px;border-radius:6px;">
+                                <p style="margin:0;font-size:0.9em;font-weight:600;color:#FF8C00;">
+                                    ⚡ NON VUOI ASPETTARE? <span style="color:#667eea;cursor:pointer;" onclick="window.open('https://francesco-gentile.it/abbonamento-premium','_blank')">Passa a Premium</span> e sblocca tutti i video SUBITO!
+                                </p>
+                            </div>
+                        </div>
+                        <span style="background:#FF9800;color:white;padding:4px 12px;border-radius:15px;font-size:0.75em;font-weight:700;margin-top:12px;display:inline-block;">⭐⭐ MEDIO</span>
+                        <p class="mobile-warning" style="margin-top:8px;font-size:0.75em;color:#FF9800;font-style:italic;display:none;">⚠️ Per una migliore esperienza si sconsiglia l'utilizzo di uno smartphone. Meglio tablet o PC.</p>
+                    </div>
+                </div>
+                
+                <!-- 5. Selezionare affari crediti -->
+                <div class="card">
+                    <div class="card-ico">🎯</div>
+                    <div class="card-txt">
+                        <h4>Come Selezionare Affari di Crediti dalla App Posizioni</h4>
+                        <p>Criteri e filtri per trovare le migliori opportunità.</p>
+                        <div style="margin-top:15px;">
+                            <p style="font-weight:600;margin-bottom:8px;">📹 Percorso Video Progressivo:</p>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+                                <!-- Video 1: GRATIS SUBITO (senza link ancora) -->
+                                <button class="btn-gratis" onclick="alert('🎬 VIDEO 1\n\nLink in arrivo...')">
+                                    ✅ VIDEO 1
+                                </button>
+                                <!-- Video 2: GRATIS SUBITO con link Vimeo -->
+                                <button class="btn-gratis" onclick="alert('🎬 VIDEO 2\n\nLink da configurare...')">
+                                    ✅ VIDEO 2
+                                </button>
+                                <!-- Video 3: 20 giorni -->
+                                <button class="btn-gratis" style="background:#FF9800;" onclick="mostraPopupTimer(20, 3)">
+                                    🔒 VIDEO 3
+                                </button>
+                                <!-- Video 4: 25 giorni -->
+                                <button class="btn-gratis" style="background:#FF9800;" onclick="mostraPopupTimer(25, 4)">
+                                    🔒 VIDEO 4
+                                </button>
+                                <!-- Video 5: 30 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(30, 5)">
+                                    🔒 VIDEO 5
+                                </button>
+                                <!-- Video 6: 35 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(35, 6)">
+                                    🔒 VIDEO 6
+                                </button>
+                                <!-- Video 7: 40 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(40, 7)">
+                                    🔒 VIDEO 7
+                                </button>
+                            </div>
+                            <p style="font-size:0.85em;color:#666;margin-bottom:12px;">
+                                ⏰ I video si sbloccano progressivamente
+                            </p>
+                            <div style="background:rgba(255,215,0,0.1);border-left:4px solid #FFD700;padding:10px;border-radius:6px;">
+                                <p style="margin:0;font-size:0.9em;font-weight:600;color:#FF8C00;">
+                                    ⚡ NON VUOI ASPETTARE? <span style="color:#667eea;cursor:pointer;" onclick="window.open('https://francesco-gentile.it/abbonamento-premium','_blank')">Passa a Premium</span> e sblocca tutti i video SUBITO!
+                                </p>
+                            </div>
+                        </div>
+                        <span style="background:#FF9800;color:white;padding:4px 12px;border-radius:15px;font-size:0.75em;font-weight:700;margin-top:12px;display:inline-block;">⭐⭐ MEDIO</span>
+                        <p class="mobile-warning" style="margin-top:8px;font-size:0.75em;color:#FF9800;font-style:italic;display:none;">⚠️ Per una migliore esperienza si sconsiglia l'utilizzo di uno smartphone. Meglio tablet o PC.</p>
+                    </div>
+                </div>
+                
+                <!-- 6. Metodo sleale -->
+                <div class="card">
+                    <div class="card-ico">🔥</div>
+                    <div class="card-txt">
+                        <h4>Il Metodo Più Sleale per Chi Investe con gli Immobili</h4>
+                        <p>Strategie avanzate che pochi conoscono.</p>
+                        <div style="margin-top:15px;">
+                            <p style="font-weight:600;margin-bottom:8px;">📹 Percorso Video Progressivo:</p>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+                                <!-- Video 1: GRATIS SUBITO (senza link ancora) -->
+                                <button class="btn-gratis" onclick="alert('🎬 VIDEO 1\n\nLink in arrivo...')">
+                                    ✅ VIDEO 1
+                                </button>
+                                <!-- Video 2: GRATIS SUBITO con link Vimeo -->
+                                <button class="btn-gratis" onclick="alert('🎬 VIDEO 2\n\nLink da configurare...')">
+                                    ✅ VIDEO 2
+                                </button>
+                                <!-- Video 3: 20 giorni -->
+                                <button class="btn-gratis" style="background:#FF9800;" onclick="mostraPopupTimer(20, 3)">
+                                    🔒 VIDEO 3
+                                </button>
+                                <!-- Video 4: 25 giorni -->
+                                <button class="btn-gratis" style="background:#FF9800;" onclick="mostraPopupTimer(25, 4)">
+                                    🔒 VIDEO 4
+                                </button>
+                                <!-- Video 5: 30 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(30, 5)">
+                                    🔒 VIDEO 5
+                                </button>
+                                <!-- Video 6: 35 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(35, 6)">
+                                    🔒 VIDEO 6
+                                </button>
+                                <!-- Video 7: 40 giorni -->
+                                <button class="btn-gratis" style="background:#999;" onclick="mostraPopupTimer(40, 7)">
+                                    🔒 VIDEO 7
+                                </button>
+                            </div>
+                            <p style="font-size:0.85em;color:#666;margin-bottom:12px;">
+                                ⏰ I video si sbloccano progressivamente
+                            </p>
+                            <div style="background:rgba(255,215,0,0.1);border-left:4px solid #FFD700;padding:10px;border-radius:6px;">
+                                <p style="margin:0;font-size:0.9em;font-weight:600;color:#FF8C00;">
+                                    ⚡ NON VUOI ASPETTARE? <span style="color:#667eea;cursor:pointer;" onclick="window.open('https://francesco-gentile.it/abbonamento-premium','_blank')">Passa a Premium</span> e sblocca tutti i video SUBITO!
+                                </p>
+                            </div>
+                        </div>
+                        <span style="background:#F44336;color:white;padding:4px 12px;border-radius:15px;font-size:0.75em;font-weight:700;margin-top:12px;display:inline-block;">⭐⭐⭐ AVANZATO</span>
+                        <p class="mobile-warning" style="margin-top:8px;font-size:0.75em;color:#FF9800;font-style:italic;display:none;">⚠️ Per una migliore esperienza si sconsiglia l'utilizzo di uno smartphone. Meglio tablet o PC.</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="filtri">
-            <h3>🔍 Filtri di Ricerca</h3>
-            <div class="filtri-grid">
-                <select id="fTipo"><option value="">Tutti</option><option value="Asta">Aste</option><option value="NPL">NPL</option></select>
+            <h3>🔍 Ricerca</h3>
+            
+            <!-- SELECT TIPO (scalabile) -->
+            <div style="margin-bottom:18px;">
+                <label style="display:block;margin-bottom:6px;font-weight:600;color:#555;">Tipo di ricerca:</label>
+                <select id="fTipoRicerca" onchange="cambiaFiltri()" style="width:100%;max-width:300px;padding:11px;border:2px solid #667eea;border-radius:7px;font-size:15px;font-weight:600;color:#667eea;cursor:pointer;">
+                    <option value="">Tutte le categorie</option>
+                    <option value="Asta">🔨 Aste</option>
+                    <option value="NPL">📋 NPL</option>
+                    <option value="Investitori">💰 Investitori di Capitale</option>
+                </select>
+            </div>
+            
+            <!-- FILTRI ASTE/NPL -->
+            <div id="filtriAsteNPL" class="filtri-grid">
                 <select id="fReg" onchange="updCitta()"><option value="">Tutte le regioni</option></select>
                 <select id="fCit"><option value="">Tutte le città</option></select>
                 <input type="text" id="fSearch" placeholder="Cerca...">
             </div>
+            
             <div class="btn-filtri">
                 <button class="top-btn btn-grn" onclick="appFilt()">✅ Applica Filtri</button>
                 <button class="top-btn btn-red" onclick="clrFilt()">🗑️ Azzera Filtri</button>
@@ -576,7 +1035,11 @@
 
         <div class="tbl-sec">
             <h3 id="tblTitle">🔨 Aste Disponibili</h3>
-            <p style="margin-bottom:15px;color:#666;font-size:14px;">Totale: <strong id="recordCount">0</strong> risultati</p>
+            <p style="margin-bottom:15px;color:#666;font-size:14px;">
+                Totale: <strong id="recordCount">0</strong> risultati
+                <span id="mobileScrollHint" style="display:none;margin-left:10px;color:#667eea;font-style:italic;"></span>
+            </p>
+            <p id="mobileTableWarning" class="mobile-warning" style="margin-bottom:12px;font-size:0.8em;color:#FF9800;font-style:italic;display:none;">⚠️ Per una migliore esperienza si sconsiglia l'utilizzo di uno smartphone. Meglio tablet o PC.</p>
             <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);">
                 <table id="mainTable">
                     <thead id="tblHead">
@@ -585,48 +1048,22 @@
                     <tbody id="tblBody"><tr><td colspan="7" style="text-align:center;padding:35px;">Carica dati...</td></tr></tbody>
                 </table>
             </div>
-            <p style="font-size:11px;color:#666;margin-top:8px;text-align:center;">📱 Scorri orizzontalmente per vedere tutte le colonne</p>
+        </div>
             
             <div id="blurWrap" class="blur-wrap hide">
-                <table class="blur-tbl">
-                    <tbody id="blurRows">
-                        <tr><td>████</td><td>████████</td><td>████████</td><td>████████████</td><td>████████</td><td>████████</td><td>████</td></tr>
-                        <tr><td>████</td><td>████████</td><td>████████</td><td>████████████</td><td>████████</td><td>████████</td><td>████</td></tr>
-                        <tr><td>████</td><td>████████</td><td>████████</td><td>████████████</td><td>████████</td><td>████████</td><td>████</td></tr>
-                    </tbody>
-                </table>
                 <div class="blur-over">
-                    <div style="text-align:center;">
-                        <h3 id="blurTit" style="font-size:1.8em;margin-bottom:15px;">🔒 Altri NPL Bloccati</h3>
-                        <p style="font-size:1.1em;margin-bottom:25px;color:#666;">Sblocca l'accesso completo a TUTTI gli NPL disponibili!</p>
-                        
-                        <!-- Badge Premium nel banner -->
-                        <div style="display:inline-flex;margin-bottom:20px;">
-                            <div class="badge-area badge-premium" style="min-width:180px;padding:15px 25px;box-shadow:0 10px 35px rgba(255,215,0,0.6);">
-                                <div class="badge-icon" style="font-size:2.5em;margin-bottom:8px;">👑</div>
-                                <div class="badge-title" style="font-size:1.2em;margin-bottom:5px;">Area Premium</div>
-                                <div class="badge-subtitle" style="font-size:0.85em;">UPGRADE</div>
-                            </div>
+                    <div style="display:flex;align-items:center;gap:15px;flex:1;">
+                        <span style="font-size:2em;">🔒</span>
+                        <div>
+                            <h3 id="blurTit" style="display:inline;margin-right:10px;">Altri NPL Bloccati</h3>
+                            <p style="display:inline;font-size:0.95em;">Sblocca l'accesso completo con Area Premium</p>
                         </div>
-                        
-                        <div style="background:rgba(255,215,0,0.1);border-left:4px solid #FFD700;padding:15px;margin:20px auto;max-width:400px;text-align:left;">
-                            <p style="margin:0 0 10px 0;font-weight:700;color:#B8860B;">✨ Con Premium ottieni:</p>
-                            <ul style="margin:0;padding-left:20px;color:#666;line-height:1.8;">
-                                <li>Accesso a <strong>tutti gli NPL</strong> senza limiti</li>
-                                <li>Filtri avanzati e ricerca completa</li>
-                                <li>Dettagli estesi per ogni pratica</li>
-                                <li>Alert personalizzati nuove opportunità</li>
-                            </ul>
-                        </div>
-                        
-                        <button class="btn-prem" style="font-size:1.2em;padding:15px 35px;animation:pulse 2s infinite;">🚀 PASSA A PREMIUM ORA</button>
-                        
-                        <p style="margin-top:15px;font-size:0.9em;color:#999;">Accesso immediato • Pagamento sicuro</p>
                     </div>
+                    <button class="btn-prem" onclick="window.location.href='#premium'">👑 PASSA A PREMIUM</button>
                 </div>
             </div>
         </div>
-    </div>
+    
 
     <div id="modal" class="modal">
         <div class="modal-box">
@@ -644,17 +1081,28 @@
     
     <script>
         let db, allData = [], usr = null, fbOk = false;
+        let currentPage = 1;
+        const itemsPerPage = 50;
         let investitori = [];
         let capitaleDisponibile = 0; // parte da 0
+        let currentType = 'Tutti'; // Tipo attivo: Tutti, Asta, NPL, Investitori
+        
         const usrs = {
+            // ADMIN (lvl 3) - Accesso completo + pannello admin
             'admin': {pw: 'admin2025', rol: 'Admin', lvl: 3},
-            'visitatore': {pw: 'guest2025', rol: 'Visitatore', lvl: 1}
+            
+            // FREE (lvl 1) - Aste + Prime 5 NPL
+            'free': {pw: 'free', rol: 'FREE', lvl: 1}
         };
         
         // Inizializza counter visivo a €0
         window.addEventListener('DOMContentLoaded', () => {
             const statEl = document.getElementById('statCapitale');
             if (statEl) statEl.textContent = '€0';
+            
+            // ASSICURA che filtri Aste/NPL siano visibili all'inizio
+            const filtriAste = document.getElementById('filtriAsteNPL');
+            if (filtriAste) filtriAste.classList.remove('hide');
         });
 
         function shLd(t = 'Caricamento...') { document.getElementById('loadTxt').textContent = t; document.getElementById('load').classList.add('show'); }
@@ -708,11 +1156,57 @@
                     document.getElementById('loginScr').classList.add('hide');
                     document.getElementById('app').classList.remove('hide');
                     document.getElementById('badge').textContent = `${usr.rol}: ${u}`;
+                    
+                    // Mostra bottoni admin solo per admin (lvl 3)
                     if (usr.lvl === 3) {
                         document.getElementById('btnUp').classList.remove('hide');
                         document.getElementById('btnDel').classList.remove('hide');
                     }
+                    
+                    // Mostra bottoni navigazione per TUTTI gli utenti
+                    document.getElementById('btnAffariPronti').style.display = 'inline-block';
+                    document.getElementById('btnMotoreRicerca').style.display = 'inline-block';
+                    
                     await ldData();
+                    
+                    // ═══════════════════════════════════════════════════════
+                    // 🎯 AVVIA TIMER POPUP (dopo login)
+                    // ═══════════════════════════════════════════════════════
+                    console.log('⏰ Timer popup avviati!');
+                    
+                    // ═══════════════════════════════════════════════════════
+                    // 🔇 POPUP AUTOMATICI TEMPORANEAMENTE DISABILITATI
+                    // ═══════════════════════════════════════════════════════
+                    
+                    /* DISABILITATO TEMPORANEAMENTE
+                    // POPUP ESPERTO - Dopo 10 SECONDI (10000 ms) ← TEST RAPIDO
+                    // Cambia a 300000 (5 minuti) per produzione
+                    setTimeout(() => {
+                        if (popupManager.canShowPopup()) {
+                            console.log('✅ Mostrando Popup Esperto');
+                            showPopupEsperto();
+                            if (window.popupOverlay) {
+                                popupManager.registerPopup(window.popupOverlay);
+                            }
+                        } else {
+                            console.log('⏸️ Popup Esperto bloccato dal popupManager');
+                        }
+                    }, 10000); // 10 secondi per TEST ← Cambia a 300000 per produzione
+                    
+                    // POPUP CORSO GRATUITO - Dopo 20 SECONDI (20000 ms) ← TEST RAPIDO
+                    // Cambia a 480000 (8 minuti) per produzione
+                    setTimeout(() => {
+                        if (popupManager.canShowPopup()) {
+                            console.log('✅ Mostrando Popup Corso');
+                            showPopupCorsoGratuito();
+                        } else {
+                            console.log('⏸️ Popup Corso bloccato dal popupManager');
+                        }
+                    }, 20000); // 20 secondi per TEST ← Cambia a 480000 per produzione
+                    */
+                    
+                    console.log('🔇 Popup automatici disabilitati per testing');
+                    
                 } catch (e) {
                     alert('Errore: ' + e.message);
                 } finally {
@@ -731,6 +1225,32 @@
             document.getElementById('app').classList.add('hide');
             document.getElementById('user').value = '';
             document.getElementById('pass').value = '';
+            
+            // Nasconde bottoni navigazione
+            document.getElementById('btnAffariPronti').style.display = 'none';
+            document.getElementById('btnMotoreRicerca').style.display = 'none';
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // 🔍 FUNZIONE SCROLL TO SECTION (bottoni navigazione)
+        // ═══════════════════════════════════════════════════════
+        function scrollToSection(section) {
+            let targetElement;
+            
+            if (section === 'ricerca') {
+                // Scroll alla sezione filtri/tabella
+                targetElement = document.querySelector('.filtri') || document.querySelector('.tbl-sec');
+            } else if (section === 'affari' || section === 'investitori') {
+                // Scroll alla sezione investitori/affari pronti nella dashboard
+                targetElement = document.querySelector('.box-gold');
+            }
+            
+            if (targetElement) {
+                targetElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
         }
 
         // DISABILITO AUTO-LOGIN
@@ -801,9 +1321,13 @@
                 if (d) {
                     investitori = Array.isArray(d) ? d : Object.values(d);
                     console.log(`✅ ${investitori.length} investitori caricati`);
+                    console.log('🔍 Primo investitore:', investitori[0]); // DEBUG
                     
-                    // CALCOLA CAPITALE TOTALE
-                    capitaleDisponibile = investitori.reduce((sum, inv) => sum + (inv.budget || 0), 0);
+                    // CALCOLA CAPITALE TOTALE (Budget con B maiuscola)
+                    capitaleDisponibile = investitori.reduce((sum, inv) => {
+                        const budget = inv.Budget || inv.budget || 0;
+                        return sum + budget;
+                    }, 0);
                     console.log(`💰 Capitale totale: €${capitaleDisponibile.toLocaleString('it-IT')}`);
                     
                     // AGGIORNA COUNTER VISIVO
@@ -883,18 +1407,139 @@
             if (window.popupOverlay) {
                 window.popupOverlay.remove();
             }
+            popupManager.lastPopupTime = Date.now(); // Aggiorna ultimo popup chiuso
+        }
+        
+        // ═══════════════════════════════════════════════════════════
+        // 🔒 POPUP PREMIUM - NPL RIGHETTI (Pre-analizzati)
+        // ═══════════════════════════════════════════════════════════
+        function shPremiumPopup() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.3s;';
+            
+            overlay.innerHTML = `
+                <div style="background:white;padding:45px;border-radius:25px;max-width:600px;width:100%;text-align:center;box-shadow:0 25px 80px rgba(255,215,0,0.5);position:relative;overflow:hidden;">
+                    <!-- Sfondo decorativo -->
+                    <div style="position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:linear-gradient(135deg,#FFD700,#FFA500);opacity:0.1;border-radius:50%;"></div>
+                    <div style="position:absolute;bottom:-30px;left:-30px;width:150px;height:150px;background:linear-gradient(135deg,#667eea,#764ba2);opacity:0.1;border-radius:50%;"></div>
+                    
+                    <!-- Badge Premium -->
+                    <div style="display:inline-flex;margin-bottom:20px;animation:pulse 2s infinite;">
+                        <div style="background:linear-gradient(135deg,#FFD700,#FFA500);padding:12px 30px;border-radius:25px;box-shadow:0 8px 20px rgba(255,215,0,0.4);">
+                            <span style="font-size:1.5em;margin-right:8px;">👑</span>
+                            <span style="color:#000;font-weight:900;font-size:1.2em;text-transform:uppercase;letter-spacing:1px;">PREMIUM</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Titolo -->
+                    <h2 style="color:#333;font-size:clamp(1.6em, 5vw, 2em);font-weight:900;margin-bottom:15px;line-height:1.2;">
+                        🔒 Posizione Pre-Analizzata dal Nostro Staff
+                    </h2>
+                    
+                    <!-- Descrizione -->
+                    <p style="color:#666;font-size:clamp(1em, 3vw, 1.15em);margin-bottom:25px;line-height:1.6;">
+                        Questa posizione NPL è stata <strong style="color:#FFD700;">accuratamente analizzata</strong> dal nostro team di esperti. 
+                        Avrai accesso a:
+                    </p>
+                    
+                    <!-- Lista benefici -->
+                    <div style="background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(102,126,234,0.1));padding:20px;border-radius:15px;margin-bottom:25px;text-align:left;">
+                        <div style="margin-bottom:12px;">
+                            <span style="color:#4CAF50;font-size:1.3em;margin-right:8px;">✅</span>
+                            <strong>Analisi completa della posizione</strong>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <span style="color:#4CAF50;font-size:1.3em;margin-right:8px;">✅</span>
+                            <strong>Valutazione rischi e opportunità</strong>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <span style="color:#4CAF50;font-size:1.3em;margin-right:8px;">✅</span>
+                            <strong>Dati completi e verificati</strong>
+                        </div>
+                        <div>
+                            <span style="color:#4CAF50;font-size:1.3em;margin-right:8px;">✅</span>
+                            <strong>Supporto prioritario del team</strong>
+                        </div>
+                    </div>
+                    
+                    <!-- Urgenza -->
+                    <div style="background:linear-gradient(135deg,#ff4444,#cc0000);padding:12px 20px;border-radius:10px;margin-bottom:25px;">
+                        <p style="margin:0;color:#fff;font-weight:700;font-size:clamp(0.95em, 3vw, 1.1em);">
+                            ⚡ <strong>Solo per abbonati PREMIUM</strong>
+                        </p>
+                    </div>
+                    
+                    <!-- Bottoni -->
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+                        <button onclick="window.open('https://francesco-gentile.it/abbonamento-premium', '_blank')" style="flex:1;min-width:180px;padding:18px 30px;background:linear-gradient(135deg,#FFD700,#FF8C00);color:#000;border:none;border-radius:50px;font-size:clamp(1.1em, 3.5vw, 1.3em);font-weight:900;cursor:pointer;box-shadow:0 10px 30px rgba(255,215,0,0.5);transition:all 0.3s;text-transform:uppercase;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            👑 Diventa Premium
+                        </button>
+                        <button onclick="chiudiPopupPremium()" style="flex:1;min-width:140px;padding:18px 25px;background:#999;color:#fff;border:none;border-radius:50px;font-size:clamp(1em, 3vw, 1.1em);font-weight:700;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.background='#777'" onmouseout="this.style.background='#999'">
+                            Chiudi
+                        </button>
+                    </div>
+                    
+                    <!-- Garanzia -->
+                    <p style="margin:20px 0 0 0;color:#999;font-size:clamp(0.85em, 2.5vw, 0.95em);line-height:1.4;">
+                        💯 <strong>Garanzia 30 giorni</strong> soddisfatto o rimborsato
+                    </p>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            window.popupPremiumOverlay = overlay;
+        }
+        
+        function chiudiPopupPremium() {
+            if (window.popupPremiumOverlay) {
+                window.popupPremiumOverlay.remove();
+                window.popupPremiumOverlay = null;
+            }
         }
 
-        // Mostra popup dopo 30 secondi (30000 ms)
-        setTimeout(() => {
-            if (usr) showPopupEsperto();
-        }, 30000);
+        // ═══════════════════════════════════════════════════════
+        // 🎯 SISTEMA GESTIONE POPUP (Anti-sovrapposizione)
+        // ═══════════════════════════════════════════════════════
+        const popupManager = {
+            lastPopupTime: 0, // Inizia a 0 per permettere primo popup dopo 5min
+            minDelay: 180000, // 3 minuti tra popup (180000ms)
+            activePopup: null,
+            
+            canShowPopup() {
+                const now = Date.now();
+                const elapsed = now - this.lastPopupTime;
+                const hasActivePopup = this.activePopup && document.body.contains(this.activePopup);
+                
+                console.log('🔍 Popup check:', {
+                    elapsed: Math.floor(elapsed / 1000) + 's',
+                    minDelay: Math.floor(this.minDelay / 1000) + 's',
+                    hasActivePopup: hasActivePopup,
+                    lastPopupTime: this.lastPopupTime
+                });
+                
+                // Se lastPopupTime è 0 (nessun popup ancora mostrato), permetti sempre
+                if (this.lastPopupTime === 0) {
+                    console.log('✅ Primo popup - sempre permesso');
+                    return !hasActivePopup;
+                }
+                
+                // Non mostrare se c'è già un popup attivo o se non sono passati 3 minuti
+                if (hasActivePopup || elapsed < this.minDelay) {
+                    console.log('❌ Bloccato:', hasActivePopup ? 'popup attivo' : 'troppo presto');
+                    return false;
+                }
+                
+                return true;
+            },
+            
+            registerPopup(element) {
+                this.activePopup = element;
+                this.lastPopupTime = Date.now();
+                console.log('✅ Popup registrato:', element.id, 'at', new Date().toLocaleTimeString());
+            }
+        };
 
-        // POPUP CORSO GRATUITO - Dopo 90 secondi (in basso)
-        let popupCorsoShown = false;
-        setTimeout(() => {
-            if (usr && !popupCorsoShown) showPopupCorsoGratuito();
-        }, 90000);
+        // I timer popup vengono avviati DOPO il login (vedi funzione doLogin)
 
         function showPopupCorsoGratuito() {
             if (popupCorsoShown) return;
@@ -915,6 +1560,7 @@
             `;
             
             document.body.appendChild(popupCorso);
+            popupManager.registerPopup(popupCorso); // Registra nel manager
             
             // Auto-chiudi dopo 30 secondi
             setTimeout(() => {
@@ -929,7 +1575,227 @@
             if (popup) {
                 popup.style.animation = 'slideOutDown 0.5s ease-in';
                 setTimeout(() => popup.remove(), 500);
+                popupManager.lastPopupTime = Date.now(); // Aggiorna tempo
             }
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // 🎬 POPUP VIDEO CORSO (Vimeo embedded)
+        // ═══════════════════════════════════════════════════════
+        function mostraVideoCorso(videoUrl, titoloCorso) {
+            // Estrai video ID da URL Vimeo
+            let videoId = '';
+            let hashParam = '';
+            
+            // Formato: https://vimeo.com/1125890927/9621bb9e9a
+            const match = videoUrl.match(/vimeo\.com\/(\d+)\/([a-zA-Z0-9]+)/);
+            if (match) {
+                videoId = match[1];
+                hashParam = match[2];
+            }
+            
+            if (!videoId) {
+                alert('URL video non valido');
+                return;
+            }
+            
+            // Crea overlay popup
+            const overlay = document.createElement('div');
+            overlay.id = 'videoPopup';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.9);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: fadeIn 0.3s ease-in;
+            `;
+            
+            // Costruisci URL embed Vimeo con hash
+            const embedUrl = `https://player.vimeo.com/video/${videoId}?h=${hashParam}&autoplay=1&title=1&byline=1&portrait=1`;
+            
+            overlay.innerHTML = `
+                <div style="background:white;border-radius:15px;max-width:900px;width:100%;padding:25px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                    <button onclick="chiudiVideoCorso()" style="position:absolute;top:10px;right:10px;background:#667eea;color:white;border:none;width:35px;height:35px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:bold;transition:all 0.2s;" onmouseover="this.style.background='#764ba2'" onmouseout="this.style.background='#667eea'">×</button>
+                    
+                    <h3 style="color:#667eea;margin:0 0 20px 0;font-size:1.5em;padding-right:40px;">🎬 ${titoloCorso}</h3>
+                    
+                    <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;background:#000;">
+                        <iframe src="${embedUrl}" 
+                                style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" 
+                                frameborder="0" 
+                                allow="autoplay; fullscreen; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    
+                    <p style="margin:15px 0 0 0;color:#666;font-size:0.9em;text-align:center;">
+                        💡 Premi ESC o clicca X per chiudere
+                    </p>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            // Chiudi con ESC
+            document.addEventListener('keydown', function escHandler(e) {
+                if (e.key === 'Escape') {
+                    chiudiVideoCorso();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            });
+            
+            // Registra nel popup manager
+            popupManager.registerPopup(overlay);
+        }
+
+        function chiudiVideoCorso() {
+            const popup = document.getElementById('videoPopup');
+            if (popup) {
+                popup.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => popup.remove(), 300);
+                popupManager.lastPopupTime = Date.now();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🎯 SISTEMA TIMER PROGRESSIVO VIDEO
+        // ═══════════════════════════════════════════════════════════════
+        
+        // ⚙️ MODALITÀ TEST: true = minuti, false = giorni
+        const MODALITA_TEST = false; // ← PRODUZIONE: Usa GIORNI
+        
+        function getPrimoAccesso() {
+            let dataAccesso = localStorage.getItem('dataAccesso_' + usr.u);
+            if (!dataAccesso) {
+                // Prima volta: salva data corrente
+                dataAccesso = new Date().toISOString();
+                localStorage.setItem('dataAccesso_' + usr.u, dataAccesso);
+                console.log('✅ Primo accesso registrato:', dataAccesso);
+            }
+            return new Date(dataAccesso);
+        }
+        
+        function getGiorniTrascorsi() {
+            const dataAccesso = getPrimoAccesso();
+            const oggi = new Date();
+            const diffMs = oggi - dataAccesso;
+            
+            if (MODALITA_TEST) {
+                // 🧪 MODALITÀ TEST: Calcola MINUTI invece di giorni
+                const diffMinuti = Math.floor(diffMs / (1000 * 60));
+                console.log('🧪 TEST MODE: Minuti trascorsi:', diffMinuti);
+                return diffMinuti;
+            } else {
+                // 🚀 PRODUZIONE: Calcola GIORNI
+                const diffGiorni = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                console.log('📅 Giorni trascorsi:', diffGiorni);
+                return diffGiorni;
+            }
+        }
+        
+        function mostraPopupTimer(giorniRichiesti, numeroVideo) {
+            const giorniTrascorsi = getGiorniTrascorsi();
+            const giorniMancanti = giorniRichiesti - giorniTrascorsi;
+            
+            // Testo dinamico: "giorni" o "minuti" in base a modalità
+            const unitaTempo = MODALITA_TEST ? 'minuti' : 'giorni';
+            const unitaTempoSingolare = MODALITA_TEST ? 'minuto' : 'giorno';
+            const unitaTempoMaiuscolo = MODALITA_TEST ? 'MINUTI' : 'GIORNI';
+            const unitaTempoMaiuscoloSing = MODALITA_TEST ? 'MINUTO' : 'GIORNO';
+            
+            console.log(`🎬 Video ${numeroVideo} - Richiesti: ${giorniRichiesti}, Trascorsi: ${giorniTrascorsi}, Mancanti: ${giorniMancanti}`);
+            
+            // Se utente è Admin, sblocca tutto
+            if (usr && usr.lvl === 3) {
+                console.log('🔓 ADMIN - Video sbloccato');
+                // TODO: Inserire qui il link Vimeo quando disponibile
+                alert(`🎬 VIDEO ${numeroVideo}\n\n✅ Come ADMIN puoi vedere questo video.\n\n⚠️ Link video da configurare quando disponibile.`);
+                return;
+            }
+            
+            // Se sono passati abbastanza giorni, sblocca il video
+            if (giorniTrascorsi >= giorniRichiesti) {
+                console.log('🔓 Video sbloccato!');
+                // TODO: Inserire qui i veri link Vimeo quando disponibili
+                alert(`🎉 CONGRATULAZIONI!\n\nHai sbloccato il Video ${numeroVideo}!\n\n⚠️ Link video da configurare.\n\nQuando avrai i link Vimeo, sostituisci questo alert con:\nmostraVideoCorso('URL_VIMEO', 'Pre-Aste Video ${numeroVideo}')`);
+                return;
+            }
+            
+            // Badge TEST se in modalità test
+            const badgeTest = MODALITA_TEST ? '<div style="position:fixed;top:10px;left:10px;background:#f44336;color:white;padding:8px 15px;border-radius:20px;font-weight:700;font-size:0.9em;z-index:10002;box-shadow:0 4px 12px rgba(244,67,54,0.4);">🧪 MODALITÀ TEST</div>' : '';
+            
+            // Altrimenti mostra popup con countdown + invito Premium
+            const popup = document.createElement('div');
+            popup.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;display:flex;align-items:center;justify-content:center;padding:10px;animation:fadeIn 0.3s;overflow-y:auto;';
+            
+            popup.innerHTML = badgeTest + `
+                <div style="background:white;padding:20px 15px;border-radius:12px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;text-align:center;position:relative;box-shadow:0 15px 40px rgba(0,0,0,0.4);margin:auto;">
+                    <button onclick="this.parentElement.parentElement.remove()" style="position:sticky;top:-5px;right:-5px;float:right;background:#f44336;color:white;border:none;width:36px;height:36px;border-radius:50%;font-size:22px;cursor:pointer;z-index:1;box-shadow:0 3px 10px rgba(0,0,0,0.3);font-weight:700;line-height:32px;">×</button>
+                    
+                    <!-- Icona Timer -->
+                    <div style="font-size:2.5em;margin-bottom:10px;animation:pulse 2s infinite;clear:both;">⏰</div>
+                    
+                    <!-- Titolo -->
+                    <h2 style="color:#FF9800;margin-bottom:10px;font-size:1.3em;line-height:1.3;">Video Bloccato Temporaneamente</h2>
+                    
+                    <!-- Countdown Box -->
+                    <div style="background:linear-gradient(135deg,#FF9800,#F57C00);padding:18px 15px;border-radius:12px;margin-bottom:15px;box-shadow:0 6px 20px rgba(255,152,0,0.3);">
+                        <p style="color:white;font-size:0.95em;margin-bottom:8px;font-weight:600;">🎬 Video ${numeroVideo} si sblocca tra:</p>
+                        <div style="font-size:2.2em;font-weight:900;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,0.3);line-height:1;">
+                            ${giorniMancanti}
+                        </div>
+                        <p style="color:rgba(255,255,255,0.95);font-size:1em;margin:5px 0 0 0;font-weight:700;">
+                            ${giorniMancanti === 1 ? unitaTempoMaiuscoloSing : unitaTempoMaiuscolo}
+                        </p>
+                    </div>
+                    
+                    <!-- Progress bar -->
+                    <div style="background:#e0e0e0;height:10px;border-radius:8px;margin-bottom:12px;overflow:hidden;">
+                        <div style="background:linear-gradient(90deg,#4CAF50,#8BC34A);height:100%;width:${Math.min(100, (giorniTrascorsi/giorniRichiesti)*100)}%;border-radius:8px;transition:width 0.3s;"></div>
+                    </div>
+                    <p style="color:#666;font-size:0.8em;margin-bottom:15px;line-height:1.4;">
+                        Hai completato <strong>${giorniTrascorsi} di ${giorniRichiesti} ${unitaTempo}</strong>
+                    </p>
+                    
+                    <!-- Divider -->
+                    <div style="border-top:2px solid #f0f0f0;margin:15px 0;position:relative;">
+                        <span style="background:white;padding:0 10px;position:absolute;top:-9px;left:50%;transform:translateX(-50%);color:#999;font-weight:600;font-size:0.85em;">OPPURE</span>
+                    </div>
+                    
+                    <!-- CTA Premium -->
+                    <div style="background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,152,0,0.15));border:2px solid #FFD700;padding:12px;border-radius:10px;margin-bottom:12px;">
+                        <h3 style="color:#FF8C00;margin:0 0 8px 0;font-size:1.05em;">⚡ NON ASPETTARE!</h3>
+                        <p style="color:#666;margin:0 0 10px 0;line-height:1.4;font-size:0.85em;">
+                            Passa a <strong style="color:#FFD700;">PREMIUM</strong> e sblocca <strong>TUTTI i video SUBITO</strong>
+                        </p>
+                        <ul style="text-align:left;margin:0;padding-left:20px;color:#555;line-height:1.5;font-size:0.8em;">
+                            <li>✅ Tutti i 7 video Pre-Aste</li>
+                            <li>✅ Corsi Advanced</li>
+                            <li>✅ NPL senza blur</li>
+                            <li>✅ Supporto 24/7</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Bottone Premium -->
+                    <button onclick="window.open('https://francesco-gentile.it/abbonamento-premium','_blank')" style="width:100%;padding:13px;background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;border:none;border-radius:25px;font-size:1.05em;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(255,215,0,0.4);transition:all 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        🚀 DIVENTA PREMIUM ORA
+                    </button>
+                    
+                    <!-- Footer -->
+                    <p style="margin:10px 0 0 0;color:#999;font-size:0.75em;line-height:1.3;">
+                        💯 Garanzia 30 giorni soddisfatto o rimborsato
+                    </p>
+                </div>
+            `;
+            
+            document.body.appendChild(popup);
         }
 
         // TOAST INVESTITORI - Rotazione ogni 60 secondi
@@ -1050,19 +1916,82 @@
                 [...cits].sort().map(c => `<option value="${c}">${c}</option>`).join('');
         }
 
-        function appFilt() { rend(); }
+        // CAMBIA FILTRI in base al tipo selezionato (SCALABILE)
+        function cambiaFiltri() {
+            const tipo = document.getElementById('fTipoRicerca').value;
+            currentType = tipo || 'Tutti';
+            currentPage = 1; // RESET pagina
+            console.log('📊 Tipo selezionato:', tipo);
+            
+            // Per investitori, nascondi i filtri standard
+            if (tipo === 'Investitori') {
+                document.getElementById('filtriAsteNPL').classList.add('hide');
+            } else {
+                document.getElementById('filtriAsteNPL').classList.remove('hide');
+            }
+            
+            rend();
+        }
+        
+        function appFilt() { currentPage = 1; rend(); }
         function clrFilt() {
-            document.getElementById('fTipo').value = '';
+            // Reset filtri Aste/NPL
             document.getElementById('fReg').value = '';
             document.getElementById('fCit').value = '';
             document.getElementById('fSearch').value = '';
+            
+            currentPage = 1;
             rend();
         }
 
+        // ═══════════════════════════════════════════════════════
+        // 📱 HINT SCROLL MOBILE/TABLET (solo su schermi piccoli)
+        // ═══════════════════════════════════════════════════════
+        function updateMobileScrollHint() {
+            const hint = document.getElementById('mobileScrollHint');
+            const tableWarning = document.getElementById('mobileTableWarning');
+            
+            // Rileva se è mobile (max 768px - solo smartphone)
+            const isMobile = window.innerWidth <= 768;
+            
+            if (hint) {
+                // Hint scroll appare su mobile E tablet (≤1024px)
+                const isSmallScreen = window.innerWidth <= 1024;
+                if (isSmallScreen) {
+                    hint.style.display = 'inline';
+                    hint.textContent = '(Scorri con il dito verso destra per vedere tutto →)';
+                } else {
+                    hint.style.display = 'none';
+                }
+            }
+            
+            // Avvertenza tabella SOLO su smartphone (≤768px)
+            if (tableWarning) {
+                tableWarning.style.display = isMobile ? 'block' : 'none';
+            }
+            
+            // Avvertenze corsi SOLO su smartphone (≤768px)
+            document.querySelectorAll('.mobile-warning').forEach(warning => {
+                warning.style.display = isMobile ? 'block' : 'none';
+            });
+        }
+
+        // Aggiorna hint anche al resize
+        window.addEventListener('resize', updateMobileScrollHint);
+        
+        // Aggiorna al caricamento pagina
+        window.addEventListener('DOMContentLoaded', updateMobileScrollHint);
+
         function getFilt() {
             let f = [...allData];
-            const t = document.getElementById('fTipo').value;
-            if (t) f = f.filter(d => d.Tipo === t);
+            
+            // Filtra per tipo (Asta/NPL) usando currentType
+            if (currentType === 'Asta' || currentType === 'NPL') {
+                f = f.filter(d => {
+                    const tipo = (d.TipoRecord || d.Tipo || '').toString().trim().toLowerCase();
+                    return tipo === currentType.toLowerCase();
+                });
+            }
             
             const r = document.getElementById('fReg').value;
             if (r) f = f.filter(d => d.Regione === r);
@@ -1097,6 +2026,13 @@
         }
 
         function rend() {
+            // GESTIONE INVESTITORI
+            if (currentType === 'Investitori') {
+                rendInvestitori();
+                return;
+            }
+            
+            // GESTIONE ASTE/NPL (codice originale)
             let d = getFilt();
             
             // Ordina DECRESCENTE per data (PIÙ LONTANE PRIMA)
@@ -1106,62 +2042,142 @@
                 return dB - dA; // DECRESCENTE
             });
 
-            const asteN = allData.filter(x => x.Tipo === 'Asta').length;
-            const nplN = allData.filter(x => x.Tipo === 'NPL').length;
+            // ═══════════════════════════════════════════════════════
+            // 📄 PAGINAZIONE
+            // ═══════════════════════════════════════════════════════
+            const totalItems = d.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            // Assicura che currentPage sia valida
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+            
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = d.slice(start, end);
+
+            const asteN = allData.filter(x => {
+                const tipo = (x.TipoRecord || x.Tipo || '').toString().trim().toLowerCase();
+                return tipo === 'asta';
+            }).length;
+            const nplN = allData.filter(x => {
+                const tipo = (x.TipoRecord || x.Tipo || '').toString().trim().toLowerCase();
+                return tipo === 'npl';
+            }).length;
+            
+            // DEBUG LOG
+            console.log(`📊 CONTEGGIO DASHBOARD:`);
+            console.log(`  allData.length: ${allData.length}`);
+            console.log(`  Aste (tipo==='asta'): ${asteN}`);
+            console.log(`  NPL (tipo==='npl'): ${nplN}`);
+            console.log(`  Sample primi 5 record:`);
+            for(let i = 0; i < Math.min(5, allData.length); i++) {
+                const x = allData[i];
+                console.log(`    [${i}] ID=${x['Project ID']}, TipoRecord='${x.TipoRecord}', Tipo='${x.Tipo}'`);
+            }
+            
             document.getElementById('sAste').textContent = asteN;
             document.getElementById('sNPL').textContent = nplN;
 
             const tbody = document.getElementById('tblBody');
             const thead = document.getElementById('tblHead');
             
-            if (d.length === 0) {
+            if (totalItems === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:35px;">Nessun risultato</td></tr>';
                 document.getElementById('blurWrap').classList.add('hide');
+                mostraPaginazione(0, 0);
                 return;
             }
 
-            // Determina se mostrare ASTE o NPL
-            const tipoFiltro = document.getElementById('fTipo').value;
-            const isNPL = tipoFiltro === 'NPL' || (!tipoFiltro && d.length > 0 && d[0].Tipo === 'NPL');
+            // Determina tipo di visualizzazione
+            const isNPL = currentType === 'NPL';
+            const isAsta = currentType === 'Asta';
+            const isTutti = currentType === 'Tutti' || !currentType;
             
             // Aggiorna titolo e header
-            if (isNPL) {
+            if (isTutti) {
+                // Mostra Aste e NPL insieme
+                document.getElementById('tblTitle').innerHTML = '📊 Tutte le Opportunità';
+                thead.innerHTML = '<tr><th>Tipo</th><th>Regione</th><th>Comune</th><th>Indirizzo</th><th>Prezzo/Debitoria</th><th>Data Asta</th><th>Azioni</th></tr>';
+            } else if (isNPL) {
                 document.getElementById('tblTitle').innerHTML = '📋 NPL Disponibili';
                 thead.innerHTML = '<tr><th>Project ID</th><th>Numero Pratica</th><th>Indirizzo</th><th>Regione</th><th>Comune</th><th>Debitoria Totale</th><th>Azioni</th></tr>';
             } else {
                 document.getElementById('tblTitle').innerHTML = '🔨 Aste Disponibili';
                 thead.innerHTML = '<tr><th>Tipo</th><th>Regione</th><th>Comune</th><th>Indirizzo</th><th>Prezzo Base Asta</th><th>Data Asta</th><th>Azioni</th></tr>';
             }
+            
+            // Mostra hint scroll SOLO su mobile/tablet (max 1024px)
+            updateMobileScrollHint();
 
             window.tblData = d;
             
-            // ASTE: tutte libere (no limit)
-            // NPL: prime 5 libere, resto bloccato
-            const free = isNPL ? d.slice(0, 5) : d;
-            const lock = isNPL ? d.slice(5) : [];
+            // ═══════════════════════════════════════════════════════
+            // 🎯 LOGICA NPL: Primi 3 FREE, resto PREMIUM
+            // ═══════════════════════════════════════════════════════
+            let free, lock;
+            
+            if (isNPL) {
+                if (usr && usr.role === 'admin') {
+                    // 👑 ADMIN: mostra TUTTI gli NPL senza blur
+                    free = pageData;
+                    console.log(`👑 ADMIN: Mostra tutti ${pageData.length} NPL`);
+                } else {
+                    // 👤 FREE: primi 3 visibili, resto blurrato
+                    // Tutti gli NPL sono mostrati, ma solo i primi 3 sono "free"
+                    free = pageData;
+                    console.log(`👤 FREE: Mostra tutti ${pageData.length} NPL (primi 3 visibili, resto blurrato)`);
+                }
+            } else {
+                // ASTE: tutte libere
+                free = pageData;
+            }
 
             if (isNPL) {
-                // TABELLA NPL
+                // TABELLA NPL: Primi 3 visibili, resto blurrato (solo per FREE)
+                const isAdmin = usr && usr.role === 'admin';
+                
                 tbody.innerHTML = free.map((it, i) => {
+                    // Determina se questo NPL deve essere blurrato
+                    // ADMIN vede tutto chiaro
+                    // FREE vede solo i primi 3 chiari, resto blurrato
+                    const shouldBlur = !isAdmin && i >= 3;
+                    
                     const projID = it['Project ID'] || '-';
-                    const numPrat = it['Numero Pratica _ NDG'] || '-';
-                    const ind = it['Indirizzo'] || '-';
+                    const numPrat = shouldBlur ? '***' : (it['Numero Pratica'] || it['Numero Pratica _ NDG'] || '-');
+                    const ind = shouldBlur ? '██████████████████' : (it['Indirizzo'] || '-');
                     const reg = it.Regione || '-';
-                    const com = it.Comune || '-';
+                    const com = shouldBlur ? '███' : (it.Comune || '-');
                     
                     let deb = '-';
-                    const debVal = it['Debitoria totale'];
-                    const debP = prsPrz(debVal);
-                    if (debP) deb = '€' + Math.round(debP).toLocaleString('it-IT');
+                    if (!shouldBlur) {
+                        const debVal = it['Debitoria Totale'] || it['Debitoria totale'];
+                        const debP = prsPrz(debVal);
+                        if (debP) deb = '€' + Math.round(debP).toLocaleString('it-IT');
+                    } else {
+                        deb = '€███.███';
+                    }
+                    
+                    // Badge Premium per NPL blurrati
+                    const badgePremium = shouldBlur ? 
+                        '<span style="background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;padding:3px 8px;border-radius:12px;font-size:0.7em;font-weight:700;margin-left:5px;display:inline-flex;align-items:center;gap:3px;">💎 PREMIUM</span>' : 
+                        '';
+                    
+                    // Bottone
+                    const btnText = shouldBlur ? '🔒 Passa a Premium' : 'Dettagli';
+                    const btnClick = shouldBlur ? 'shPremiumPopup()' : 'shDet(' + i + ')';
+                    
+                    // Stile blur per riga se blurrato
+                    const rowStyle = shouldBlur ? 'style="filter:blur(2px);opacity:0.7;background:#f5f5f5;"' : '';
 
-                    return `<tr>
-                        <td>${projID}</td>
+                    return `<tr ${rowStyle}>
+                        <td>${projID}${badgePremium}</td>
                         <td>${numPrat}</td>
                         <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${ind}">${ind}</td>
                         <td>${reg}</td>
                         <td>${com}</td>
                         <td><strong style="color:#2196F3;">${deb}</strong></td>
-                        <td><button class="btn-det" onclick="shDet(${i})">Dettagli</button></td>
+                        <td><button class="btn-det" onclick="${btnClick}">${btnText}</button></td>
                     </tr>`;
                 }).join('');
             } else {
@@ -1191,15 +2207,175 @@
                 }).join('');
             }
 
-            // MOSTRA BLUR SOLO PER NPL (mai per aste)
-            if (lock.length > 0 && isNPL) {
-                document.getElementById('blurTit').textContent = `📋 Altri ${lock.length} NPL Bloccati`;
-                document.getElementById('blurWrap').classList.remove('hide');
-            } else {
-                document.getElementById('blurWrap').classList.add('hide');
-            }
+            // NON mostrare più blur box (ora blur è inline per ogni NPL premium)
 
-            document.getElementById('recordCount').textContent = d.length;
+            document.getElementById('recordCount').textContent = totalItems;
+            
+            // MOSTRA PAGINAZIONE
+            mostraPaginazione(totalPages, totalItems);
+        }
+        
+        // RENDER INVESTITORI con dati oscurati (blur)
+        function rendInvestitori() {
+            console.log('🔍 rendInvestitori() chiamata');
+            console.log('📊 Investitori array:', investitori);
+            console.log('📊 Lunghezza:', investitori.length);
+            
+            const tbody = document.getElementById('tblBody');
+            const thead = document.getElementById('tblHead');
+            
+            // Mostra TUTTI gli investitori (no filtri)
+            let invFiltrati = [...investitori];
+            
+            console.log('✅ Investitori da mostrare:', invFiltrati.length);
+            if (invFiltrati.length > 0) {
+                console.log('🔍 Primo investitore:', invFiltrati[0]);
+            }
+            
+            // Aggiorna UI
+            document.getElementById('tblTitle').innerHTML = '💰 Investitori con Capitale';
+            document.getElementById('blurWrap').classList.add('hide'); // nasconde blur NPL
+            
+            // Header tabella investitori
+            thead.innerHTML = '<tr><th>Nome</th><th>Cognome</th><th>Budget</th><th>Professione</th><th>Email</th><th>Telefono</th><th>Azioni</th></tr>';
+            
+            // Mostra hint scroll SOLO su mobile/tablet
+            updateMobileScrollHint();
+            
+            if (invFiltrati.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:35px;">Nessun investitore trovato</td></tr>';
+                document.getElementById('recordCount').textContent = '0';
+                return;
+            }
+            
+            window.tblData = invFiltrati; // salva per dettagli
+            
+            // TUTTI GLI INVESTITORI VISIBILI (ma dati oscurati per FREE)
+            tbody.innerHTML = invFiltrati.map((inv, i) => {
+                console.log(`📝 Elaboro investitore ${i}:`, inv);
+                
+                // Nome: LIBERO
+                const nome = inv.Nome || inv.nome || '-';
+                
+                // Cognome: OSCURATO con blur forte
+                const cognomeCompleto = inv.Cognome || inv.cognome || 'XXXXX';
+                
+                // Budget: LIBERO e formattato (prova sia maiuscolo che minuscolo)
+                const budgetNum = inv.Budget || inv.budget || 0;
+                const budget = budgetNum > 0 ? '€' + budgetNum.toLocaleString('it-IT') : '€0';
+                
+                // Professione: LIBERA
+                const prof = inv.Professione || inv.professione || 'Non specificata';
+                
+                // Email: OSCURATA con blur - mostro pattern realistico
+                const emailCompleta = inv.Email || inv.email || 'email@esempio.it';
+                const emailFake = emailCompleta.substring(0, 1) + '****@****.***';
+                
+                // Telefono: OSCURATO con blur - mostro pattern realistico  
+                const telCompleto = inv.Cellulare || inv.cellulare || inv.Telefono || '+39 000 0000000';
+                const telFake = '+39 ***';
+                
+                return `<tr>
+                    <td><strong>${nome}</strong></td>
+                    <td><span class="blur-data" title="🔒 Sblocca con Area Esperti" style="min-width:80px;display:inline-block;">${cognomeCompleto}</span></td>
+                    <td><strong style="color:#4CAF50;font-size:1.05em;">${budget}</strong></td>
+                    <td>${prof}</td>
+                    <td><span class="blur-data" title="🔒 Sblocca con Area Esperti" style="min-width:120px;display:inline-block;">${emailFake}</span></td>
+                    <td><span class="blur-data" title="🔒 Sblocca con Area Esperti" style="min-width:90px;display:inline-block;">${telFake}</span></td>
+                    <td><button class="btn-det" onclick="shDetInvestitore(${i})">Dettagli</button></td>
+                </tr>`;
+            }).join('');
+            
+            document.getElementById('recordCount').textContent = invFiltrati.length;
+            
+            console.log('✅ Tabella investitori renderizzata');
+        }
+        
+        // MOSTRA DETTAGLI INVESTITORE (popup upgrade Esperti POTENTE)
+        function shDetInvestitore(idx) {
+            console.log('🔥 shDetInvestitore chiamato per idx:', idx);
+            const inv = window.tblData[idx];
+            console.log('👤 Investitore:', inv);
+            
+            if (!inv) {
+                console.error('❌ Investitore non trovato');
+                return;
+            }
+            
+            // Mostra popup upgrade Esperti
+            const modal = document.getElementById('modal');
+            const modalHead = modal.querySelector('.modal-head h2');
+            const modalBody = document.getElementById('detCont');
+            
+            // Dati investitore
+            const nomeInv = inv.Nome || inv.nome || 'Investitore';
+            const cognomeInv = inv.Cognome || inv.cognome || 'X';
+            const budgetInv = inv.Budget || inv.budget || 0;
+            const profInv = inv.Professione || inv.professione || 'Professionista';
+            
+            // Calcola capitale totale
+            const capitaleTotale = investitori.reduce((sum, i) => sum + (i.Budget || i.budget || 0), 0);
+            const numInv = investitori.length;
+            
+            modalHead.innerHTML = '💎 Sblocca Contatto';
+            
+            // POPUP RESPONSIVE (mobile-friendly)
+            modalBody.innerHTML = '<div style="text-align:center;padding:15px 10px;max-width:500px;margin:0 auto;">' +
+                // Badge Area Esperti BLU (responsive)
+                '<div style="display:inline-flex;margin-bottom:15px;">' +
+                    '<div class="badge-area badge-esperti" style="min-width:140px;padding:10px 20px;box-shadow:0 6px 20px rgba(102,126,234,0.4);">' +
+                        '<div class="badge-icon" style="font-size:2em;margin-bottom:6px;">💎</div>' +
+                        '<div class="badge-title" style="font-size:1.1em;margin-bottom:3px;">Area Esperti</div>' +
+                        '<div class="badge-subtitle" style="font-size:0.8em;">PRO</div>' +
+                    '</div>' +
+                '</div>' +
+                
+                // Titolo (responsive)
+                '<h3 style="color:#667eea;margin-bottom:10px;font-size:clamp(1.1em, 4vw, 1.4em);">Contatto Bloccato</h3>' +
+                
+                // Box Investitore (responsive)
+                '<div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:12px 15px;border-radius:8px;margin:15px auto;max-width:95%;box-shadow:0 4px 15px rgba(102,126,234,0.3);">' +
+                    '<div style="color:#fff;font-size:clamp(1.1em, 4vw, 1.3em);font-weight:700;margin-bottom:4px;">' + nomeInv + ' ' + cognomeInv.charAt(0) + '.</div>' +
+                    '<div style="color:#FFD700;font-size:clamp(1.4em, 5vw, 1.8em);font-weight:900;margin-bottom:4px;">€' + budgetInv.toLocaleString('it-IT') + '</div>' +
+                    '<div style="color:rgba(255,255,255,0.9);font-size:clamp(0.9em, 3.5vw, 1em);">' + profInv + '</div>' +
+                '</div>' +
+                
+                // BANNER GARANZIA (responsive)
+                '<div style="background:linear-gradient(135deg,#4CAF50,#45a049);padding:10px 12px;margin:15px auto;max-width:95%;border-radius:6px;box-shadow:0 3px 12px rgba(76,175,80,0.3);border:2px solid #4CAF50;">' +
+                    '<div style="display:flex;align-items:center;gap:8px;text-align:left;">' +
+                        '<div style="font-size:clamp(1.8em, 6vw, 2.2em);line-height:1;flex-shrink:0;">✅</div>' +
+                        '<div style="flex:1;">' +
+                            '<p style="margin:0;color:#fff;font-weight:700;font-size:clamp(0.85em, 3.5vw, 0.95em);line-height:1.3;">100% GARANZIA REALE</p>' +
+                            '<p style="margin:3px 0 0 0;color:rgba(255,255,255,0.95);font-size:clamp(0.75em, 3vw, 0.85em);line-height:1.3;">Tutti gli investitori sono <strong>reali</strong> e hanno <strong>richiesto</strong> di essere contattati</p>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                
+                // Benefici (responsive)
+                '<div style="background:rgba(102,126,234,0.08);border:2px solid #667eea;padding:12px 15px;margin:15px auto;max-width:95%;text-align:left;border-radius:6px;">' +
+                    '<p style="margin:0 0 10px 0;font-weight:700;color:#667eea;font-size:clamp(0.95em, 3.5vw, 1.05em);text-align:center;">💎 Con Area Esperti PRO</p>' +
+                    '<ul style="margin:0;padding-left:18px;color:#555;line-height:1.6;font-size:clamp(0.8em, 3vw, 0.9em);">' +
+                        '<li><strong>Nome e Cognome</strong> completi</li>' +
+                        '<li><strong>Email e Telefono</strong> diretti</li>' +
+                        '<li><strong>€' + capitaleTotale.toLocaleString('it-IT') + '</strong> capitale disponibile</li>' +
+                        '<li><strong>' + numInv + ' investitori</strong> verificati</li>' +
+                        '<li>Accesso <strong>illimitato</strong></li>' +
+                    '</ul>' +
+                '</div>' +
+                
+                // CTA (responsive)
+                '<button class="btn-prem" style="font-size:clamp(1em, 3.5vw, 1.15em);padding:12px 25px;margin-top:12px;background:linear-gradient(135deg,#667eea,#764ba2);border:2px solid #667eea;box-shadow:0 6px 18px rgba(102,126,234,0.4);font-weight:700;width:100%;max-width:320px;" onclick="window.open(\'https://francesco-gentile.it/candidatura-esperti\', \'_blank\')">🚀 PASSA AD AREA ESPERTI</button>' +
+                
+                // Footer piccolo
+                '<p style="margin-top:10px;font-size:clamp(0.75em, 2.8vw, 0.85em);color:#999;">Accesso immediato dopo approvazione</p>' +
+            '</div>';
+            
+            modal.classList.add('show');
+                '<p style="margin-top:12px;font-size:0.85em;color:#999;">Accesso immediato dopo approvazione</p>' +
+            '</div>';
+            
+            modal.classList.add('show');
+            console.log('✅ Popup mostrato');
         }
 
         function shDet(idx) {
@@ -1519,14 +2695,72 @@
                     document.getElementById('upAlert').innerHTML = `<div style="background:#d4edda;color:#155724;padding:11px;border-radius:7px;margin-bottom:13px;">✅ Caricati ${nuoviInv.length} INVESTITORI! Capitale: €${capitaleDisponibile.toLocaleString('it-IT')}</div>`;
                     
                 } else {
-                    // CARICA ASTE o NPL
+                    // CARICA ASTE o NPL CON ANTI-DUPLICATI
                     const tp = tipoFile === 'ASTE' ? 'Asta' : 'NPL';
-                    d.forEach(r => r.Tipo = tp);
                     
-                    shLd('Salvataggio ' + tipoFile + '...');
-                    await saveFB(d);
+                    // ═══════════════════════════════════════════════════════
+                    // 🔍 SISTEMA ANTI-DUPLICATI
+                    // ═══════════════════════════════════════════════════════
+                    shLd('Controllo duplicati...');
                     
-                    document.getElementById('upAlert').innerHTML = `<div style="background:#d4edda;color:#155724;padding:11px;border-radius:7px;margin-bottom:13px;">✅ Caricati ${d.length} ${tipoFile}!</div>`;
+                    // Carica dati esistenti
+                    const existingData = allData.filter(item => item.Tipo === tp);
+                    console.log(`📊 ${tipoFile} esistenti:`, existingData.length);
+                    
+                    // Crea set di chiavi univoche esistenti
+                    const existingKeys = new Set();
+                    existingData.forEach(item => {
+                        const key = `${item['Project ID']||''}_${item['Numero Pratica']||''}`.trim('_');
+                        if (key && key !== '_') {
+                            existingKeys.add(key);
+                        }
+                    });
+                    
+                    console.log(`🔑 Chiavi univoche esistenti:`, existingKeys.size);
+                    
+                    // Filtra nuovi dati eliminando duplicati
+                    let nuoviDati = [];
+                    let duplicatiTrovati = 0;
+                    
+                    d.forEach(row => {
+                        const key = `${row['Project ID']||''}_${row['Numero Pratica']||''}`.trim('_');
+                        
+                        if (!key || key === '_') {
+                            // Nessuna chiave valida - aggiungi comunque
+                            row.Tipo = tp;
+                            nuoviDati.push(row);
+                        } else if (existingKeys.has(key)) {
+                            // Duplicato trovato!
+                            duplicatiTrovati++;
+                            console.log(`⚠️ Duplicato:`, key);
+                        } else {
+                            // Nuovo record!
+                            row.Tipo = tp;
+                            nuoviDati.push(row);
+                            existingKeys.add(key); // Aggiungi al set per evitare duplicati interni
+                        }
+                    });
+                    
+                    console.log(`✅ Nuovi ${tipoFile}:`, nuoviDati.length);
+                    console.log(`⚠️ Duplicati saltati:`, duplicatiTrovati);
+                    
+                    if (nuoviDati.length === 0) {
+                        document.getElementById('upAlert').innerHTML = `<div style="background:#fff3cd;color:#856404;padding:11px;border-radius:7px;margin-bottom:13px;">⚠️ Nessun nuovo ${tipoFile} da caricare. Tutti i ${d.length} record sono duplicati già presenti!</div>`;
+                        setTimeout(() => document.getElementById('upAlert').innerHTML = '', 5000);
+                        return;
+                    }
+                    
+                    shLd(`Salvataggio ${nuoviDati.length} nuovi ${tipoFile}...`);
+                    
+                    // Salva solo i nuovi
+                    await saveFB(nuoviDati);
+                    
+                    let messaggio = `✅ Caricati ${nuoviDati.length} nuovi ${tipoFile}!`;
+                    if (duplicatiTrovati > 0) {
+                        messaggio += ` (${duplicatiTrovati} duplicati saltati)`;
+                    }
+                    
+                    document.getElementById('upAlert').innerHTML = `<div style="background:#d4edda;color:#155724;padding:11px;border-radius:7px;margin-bottom:13px;">${messaggio}</div>`;
                 }
                 
                 setTimeout(() => document.getElementById('upAlert').innerHTML = '', 3500);
@@ -1615,16 +2849,64 @@
         }
 
         async function saveFB(newD) {
-            const snap = await db.ref('data').once('value');
-            const ex = snap.val();
-            let all = ex ? Object.values(ex).filter(x => x) : [];
-            all = [...all, ...newD];
-            const upd = {};
-            all.forEach((it, i) => { upd[i] = it; });
-            await db.ref('data').set(upd);
-            allData = all;
-            popFilt();
-            rend();
+            try {
+                shLd('Salvataggio...');
+                
+                // Leggi dati esistenti
+                const snap = await db.ref('data').once('value');
+                const ex = snap.val();
+                
+                // Converti in array
+                let all = [];
+                if (ex) {
+                    all = Array.isArray(ex) ? ex.filter(x => x) : Object.values(ex).filter(x => x);
+                }
+                
+                console.log(`📊 Dati esistenti: ${all.length}`);
+                console.log(`📊 Nuovi dati: ${newD.length}`);
+                
+                // AGGIUNGI nuovi dati (NON sostituire!)
+                all = all.concat(newD);
+                
+                console.log(`📊 Totale prima dedup: ${all.length}`);
+                
+                // Rimuovi duplicati per Project ID
+                const seen = new Set();
+                all = all.filter(item => {
+                    const id = item['Project ID'] || item['project_id'] || item.id;
+                    if (id && seen.has(id)) {
+                        console.log(`⚠️ Duplicato rimosso: ${id}`);
+                        return false;
+                    }
+                    if (id) seen.add(id);
+                    return true;
+                });
+                
+                console.log(`📊 Totale dopo dedup: ${all.length}`);
+                
+                // Salva su Firebase
+                const upd = {};
+                all.forEach((it, i) => { upd[i] = it; });
+                await db.ref('data').set(upd);
+                
+                // Aggiorna variabile locale
+                allData = all;
+                
+                // Reset pagina
+                currentPage = 1;
+                
+                console.log(`✅ UPLOAD COMPLETATO: ${all.length} record totali`);
+                alert(`✅ File caricato!\n\nTotale record: ${all.length}\nNuovi aggiunti: ${newD.length}`);
+                
+                popFilt();
+                rend();
+                hdLd();
+            } catch(err) {
+                console.error('❌ Errore saveFB:', err);
+                alert('❌ Errore durante il salvataggio: ' + err.message);
+                hdLd();
+                throw err;
+            }
         }
 
         async function delDB() {
@@ -1660,6 +2942,70 @@
 
         document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') clsMod(); });
         document.getElementById('pass').addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+        
+        // ═══════════════════════════════════════════════════════
+        // 📄 FUNZIONI PAGINAZIONE
+        // ═══════════════════════════════════════════════════════
+        
+        function mostraPaginazione(totalPages, totalItems) {
+            let pagDiv = document.getElementById('pagination');
+            if (!pagDiv) {
+                // Crea div paginazione se non esiste
+                const container = document.querySelector('.tab-content.active .table-wrap');
+                if (!container) return;
+                
+                pagDiv = document.createElement('div');
+                pagDiv.id = 'pagination';
+                pagDiv.style.cssText = 'margin-top:25px;text-align:center;padding:20px;background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);';
+                container.appendChild(pagDiv);
+            }
+            
+            if (totalPages <= 1) {
+                pagDiv.innerHTML = '';
+                pagDiv.style.display = 'none';
+                return;
+            }
+            
+            pagDiv.style.display = 'block';
+            
+            let html = '<div style="display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;">';
+            html += `<span style="margin-right:15px;color:#666;font-weight:500;">Pagina ${currentPage} di ${totalPages} <span style="color:#999;">(${totalItems} risultati)</span></span>`;
+            
+            // Bottone Prima Pagina
+            if (currentPage > 1) {
+                html += '<button onclick="cambiaPage(1)" style="padding:10px 14px;border:2px solid #ddd;border-radius:8px;cursor:pointer;background:white;font-weight:600;transition:all 0.3s;" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'white\'">« Prima</button>';
+                html += '<button onclick="cambiaPage(' + (currentPage-1) + ')" style="padding:10px 14px;border:2px solid #ddd;border-radius:8px;cursor:pointer;background:white;font-weight:600;transition:all 0.3s;" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'white\'">‹ Prec</button>';
+            }
+            
+            // Numeri pagina (mostra max 5 pagine)
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const active = i === currentPage;
+                const bgColor = active ? '#667eea' : 'white';
+                const textColor = active ? 'white' : '#333';
+                const borderColor = active ? '#667eea' : '#ddd';
+                const hoverBg = active ? '#667eea' : '#f0f0f0';
+                
+                html += `<button onclick="cambiaPage(${i})" style="padding:10px 14px;border:2px solid ${borderColor};border-radius:8px;cursor:pointer;background:${bgColor};color:${textColor};font-weight:${active ? '700' : '600'};min-width:45px;transition:all 0.3s;" onmouseover="this.style.background='${hoverBg}'" onmouseout="this.style.background='${bgColor}'">${i}</button>`;
+            }
+            
+            // Bottone Ultima Pagina
+            if (currentPage < totalPages) {
+                html += '<button onclick="cambiaPage(' + (currentPage+1) + ')" style="padding:10px 14px;border:2px solid #ddd;border-radius:8px;cursor:pointer;background:white;font-weight:600;transition:all 0.3s;" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'white\'">Succ ›</button>';
+                html += '<button onclick="cambiaPage(' + totalPages + ')" style="padding:10px 14px;border:2px solid #ddd;border-radius:8px;cursor:pointer;background:white;font-weight:600;transition:all 0.3s;" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'white\'">Ultima »</button>';
+            }
+            
+            html += '</div>';
+            pagDiv.innerHTML = html;
+        }
+        
+        function cambiaPage(page) {
+            currentPage = page;
+            rend();
+            // Scroll su
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     </script>
-</body>
-</html>
+
